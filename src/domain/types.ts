@@ -187,6 +187,15 @@ export interface MedicationRuleSet {
   >
 }
 
+export type Weekday = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat'
+
+/** 요일별 진료 시간. open이 null이면 휴진이다. */
+export interface ClinicHours {
+  weekday: Weekday
+  open: string | null
+  close: string | null
+}
+
 export interface Clinic {
   id: string
   name: string
@@ -198,6 +207,18 @@ export interface Clinic {
   bookingUrl: string
   telemedicineEnabled: boolean
   monthlyTelemedicineRatio: number
+  /** 길찾기용 한 줄 안내. 실제 지도 API를 부르지 않는다. */
+  landmark: string
+  hours: ClinicHours[]
+  lunchBreak: string | null
+}
+
+export interface ClinicSchedule {
+  weekday: Weekday
+  today: ClinicHours
+  isOpenToday: boolean
+  /** 오늘 휴진일 때 다음 진료일. 오늘 진료하면 null. */
+  nextOpen: ClinicHours | null
 }
 
 export interface Doctor {

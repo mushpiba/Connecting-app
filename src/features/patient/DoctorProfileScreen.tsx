@@ -1,4 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom'
+import { ClinicMap } from '../../components/ClinicMap'
+import { ClinicSchedule } from '../../components/ClinicSchedule'
+import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { demoToday } from '../../data/demoCalendar'
 import { findClinic } from '../../data/demoClinics'
 import { findDoctor } from '../../data/demoDoctors'
@@ -43,15 +46,20 @@ export function DoctorProfileScreen() {
   return (
     <div className="screen">
       <article className="doctor-profile">
-        <h1>{doctor.name}</h1>
-        <p className="doctor-clinic">
-          {clinic.name} · {clinic.region}
-        </p>
-        {clinic.telemedicineEnabled && (
-          <span className="telemedicine-badge">
-            <span aria-hidden="true">◍</span> 비대면 가능
-          </span>
-        )}
+        <header className="profile-head">
+          <DoctorPortrait doctor={doctor} size={96} />
+          <div className="profile-identity">
+            <h1>{doctor.name}</h1>
+            <p className="doctor-clinic">
+              {clinic.name} · {clinic.region}
+            </p>
+            {clinic.telemedicineEnabled && (
+              <span className="telemedicine-badge">
+                <span aria-hidden="true">◍</span> 비대면 가능
+              </span>
+            )}
+          </div>
+        </header>
 
         <section aria-labelledby="doctor-bio-heading">
           <h2 id="doctor-bio-heading">자기소개</h2>
@@ -72,6 +80,12 @@ export function DoctorProfileScreen() {
           </ul>
         </section>
       </article>
+
+      <section className="clinic-panel" aria-labelledby="clinic-heading">
+        <h2 id="clinic-heading">{clinic.name}</h2>
+        <ClinicSchedule clinic={clinic} today={demoToday} />
+        <ClinicMap clinic={clinic} />
+      </section>
 
       <section className="consult-actions" aria-labelledby="consult-heading">
         <h2 id="consult-heading">진료로 이어가기</h2>

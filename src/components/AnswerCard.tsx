@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { DoctorPortrait } from './DoctorPortrait'
 import type { Answer, Clinic, Doctor } from '../domain/types'
 
 interface AnswerCardProps {
@@ -11,23 +12,26 @@ function formatDate(iso: string): string {
   return iso.slice(0, 10).replace(/-/g, '.')
 }
 
-/** 이름 끝 두 글자. 가상 이름이라 성만 떼면 구분이 안 된다. */
-function initials(name: string): string {
-  return name.replace(/^가상\s*/, '').slice(0, 2)
-}
-
 export function AnswerCard({ answer, doctor, clinic }: AnswerCardProps) {
   const navigate = useNavigate()
+  const openProfile = () => navigate(`/doctors/${doctor.id}`)
 
   return (
     <article className="answer-card" data-testid={`answer-card-${doctor.id}`}>
-      <span className="answer-avatar" aria-hidden="true">
-        {initials(doctor.name)}
-      </span>
+      <button
+        type="button"
+        className="portrait-button"
+        aria-label={`${doctor.name} 프로필 보기`}
+        onClick={openProfile}
+      >
+        <DoctorPortrait doctor={doctor} size={52} />
+      </button>
 
       <div className="answer-main">
         <div className="answer-byline">
-          <strong>{doctor.name}</strong>
+          <button type="button" className="answer-name" onClick={openProfile}>
+            {doctor.name}
+          </button>
           <span className="answer-clinic">{clinic?.name ?? '소속 미확인'}</span>
           {clinic?.telemedicineEnabled && (
             <span className="telemedicine-badge">
@@ -40,15 +44,6 @@ export function AnswerCard({ answer, doctor, clinic }: AnswerCardProps) {
         </div>
 
         <p className="answer-body">{answer.body}</p>
-
-        <button
-          type="button"
-          className="answer-profile-link"
-          aria-label={`${doctor.name} 프로필 보기`}
-          onClick={() => navigate(`/doctors/${doctor.id}`)}
-        >
-          프로필 보고 진료 문의 <span aria-hidden="true">›</span>
-        </button>
       </div>
     </article>
   )

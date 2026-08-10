@@ -16,6 +16,17 @@ const clinic: Clinic = {
   bookingUrl: 'https://example.invalid/han',
   telemedicineEnabled: true,
   monthlyTelemedicineRatio: 0.18,
+  landmark: '가상역 3번 출구에서 도보 4분',
+  hours: [
+    { weekday: 'mon', open: '09:00', close: '18:30' },
+    { weekday: 'tue', open: '09:00', close: '18:30' },
+    { weekday: 'wed', open: '09:00', close: '18:30' },
+    { weekday: 'thu', open: '09:00', close: '18:30' },
+    { weekday: 'fri', open: '09:00', close: '18:30' },
+    { weekday: 'sat', open: '09:00', close: '13:00' },
+    { weekday: 'sun', open: null, close: null },
+  ],
+  lunchBreak: '13:00–14:00',
 }
 
 function precheck(overrides: Partial<TelemedicinePrecheck> = {}): TelemedicinePrecheck {

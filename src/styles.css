@@ -534,9 +534,40 @@ select {
   border-bottom: 0;
 }
 
-.answer-avatar {
-  color: #0d6a68;
-  background: var(--cyan-100);
+.portrait-button {
+  flex: 0 0 auto;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+}
+
+.portrait-button:hover .doctor-portrait,
+.portrait-button:focus-visible .doctor-portrait {
+  box-shadow: 0 0 0 3px var(--blue-100);
+}
+
+.doctor-portrait {
+  display: block;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+
+.answer-name {
+  padding: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-900);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.answer-name:hover {
+  color: var(--blue-700);
+  text-decoration: underline;
 }
 
 .answer-main {
@@ -625,6 +656,136 @@ select {
   font-size: 13.5px;
   line-height: 1.7;
   color: var(--ink-700);
+}
+
+.profile-head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-identity h1 {
+  margin: 0 0 4px;
+}
+
+/* 병원 정보 — 약도와 진료시간 */
+
+.clinic-panel {
+  padding: 14px 16px;
+  margin-top: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.clinic-panel h2 {
+  margin: 0 0 10px;
+}
+
+.schedule-status {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 12px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.schedule-status.is-open {
+  color: #0d6a68;
+  background: var(--cyan-100);
+}
+
+.schedule-status.is-closed {
+  color: #7b551e;
+  background: #fff6e8;
+}
+
+.schedule-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  list-style: none;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.schedule-week li {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  padding: 8px 2px;
+  background: var(--surface);
+}
+
+.schedule-week li.is-today {
+  background: var(--blue-100);
+}
+
+.schedule-day {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-700);
+}
+
+.schedule-time {
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--ink-500);
+  text-align: center;
+}
+
+.clinic-map {
+  margin-top: 16px;
+}
+
+.clinic-map-canvas {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.clinic-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  margin: 12px 0 0;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.clinic-facts > div {
+  padding: 9px 12px;
+  background: var(--surface-muted);
+}
+
+.clinic-facts dt {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.clinic-facts dd {
+  margin: 3px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-900);
+  word-break: keep-all;
 }
 
 /* 분류 결과 */
