@@ -1,6 +1,11 @@
-import type { Doctor, Question } from './types'
+import type { Doctor, Question, Specialty } from './types'
 
 export type MatchReason = 'specialty' | 'keyword'
+
+/** 질문이 분류된 진료과 집합. 매칭과 공개 범위 판정이 같은 정의를 쓴다. */
+export function suggestedSpecialties(question: Question): Set<Specialty> {
+  return new Set(question.triage.suggestions.map((item) => item.specialty))
+}
 
 export interface QuestionMatch {
   doctorId: string
@@ -17,7 +22,7 @@ export interface QuestionMatch {
  * 정렬도 하지 않는다. 호출부가 안정된 순서로 그대로 쓴다.
  */
 export function matchDoctors(question: Question, doctors: Doctor[]): QuestionMatch[] {
-  const specialties = new Set(question.triage.suggestions.map((item) => item.specialty))
+  const specialties = suggestedSpecialties(question)
   const haystack = `${question.title} ${question.body}`
 
   return doctors

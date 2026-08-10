@@ -18,6 +18,30 @@ export type MedicationRestriction = 'allowed' | 'conditional' | 'prohibited'
 
 export type AppRole = 'patient' | 'doctor'
 
+/** 질문 공개 범위. 환자가 작성할 때 고른다. */
+export type PostVisibility = 'public' | 'specialty-only' | 'prior-clinic-only'
+
+/** 문진 양식의 부위 선택지. 진단 부위가 아니라 어느 과로 갈지 좁히는 용도다. */
+export type BodyArea =
+  | 'ent'
+  | 'eye'
+  | 'skin'
+  | 'digestive'
+  | 'musculoskeletal'
+  | 'mind'
+  | 'urinary'
+  | 'womens'
+  | 'child'
+  | 'general'
+  | 'unsure'
+
+export type SymptomCourse = 'worsening' | 'unchanged' | 'fluctuating' | 'improving'
+
+/** 중증도 지수 대신 일상생활 지장 정도로만 받는다. 임상 척도를 만들지 않는다. */
+export type DailyImpact = 'none' | 'mild' | 'disruptive' | 'severe'
+
+export type TriedRemedy = 'otc' | 'clinic' | 'rest' | 'none'
+
 /** 증상 분류 결과. 진단명이 아니라 진료과만 다룬다. */
 export interface TriageSuggestion {
   specialty: Specialty
@@ -187,6 +211,9 @@ export interface Doctor {
   keywords: string[]
   notificationsEnabled: boolean
   bio: string
+  /** 진료 방법. 어떻게 진료하는지 의사가 직접 쓴 한 문단. */
+  consultStyle: string
+  career: string[]
 }
 
 export interface Patient {
@@ -206,6 +233,12 @@ export interface Question {
   /** 환자가 스스로 밝힌 진료 이력. 해당 의원 소속 의사에게만 노출한다. */
   priorVisit: PriorVisit | null
   sameSymptoms: boolean
+  visibility: PostVisibility
+  onsetDate: string
+  course: SymptomCourse
+  dailyImpact: DailyImpact
+  triedRemedies: TriedRemedy[]
+  bodyAreas: BodyArea[]
 }
 
 export interface Answer {
@@ -214,6 +247,74 @@ export interface Answer {
   doctorId: string
   body: string
   createdAt: string
+}
+
+/**
+ * 공감 기록. 누적 카운터가 아니라 개별 기록으로 둔다.
+ * 카운터로는 "이번 주에 몇 개인가"에 답할 수 없다.
+ */
+export interface Empathy {
+  questionId: string
+  patientId: string
+  at: string
+}
+
+export interface WeeklyRank {
+  questionId: string
+  weeklyCount: number
+  totalCount: number
+  isHot: boolean
+}
+
+export interface BoardRuleSet {
+  name: string
+  asOf: string
+  /** 주간 집계 창 길이(일). */
+  windowDays: number
+  /** 상단 고정 최대 개수. */
+  hotLimit: number
+  /** 고정되려면 필요한 최소 주간 공감 수. */
+  minWeeklyCount: number
+}
+
+/** 문진 양식 입력값. 진단에 필요한 정보가 아니라 분류에 필요한 정보만 받는다. */
+export interface IntakeForm {
+  title: string
+  body: string
+  onsetDate: string
+  course: SymptomCourse
+  bodyAreas: BodyArea[]
+  dailyImpact: DailyImpact
+  triedRemedies: TriedRemedy[]
+  region: string
+  priorVisit: PriorVisit | null
+  sameSymptoms: boolean
+  visibility: PostVisibility
+}
+
+export interface IntakeRuleSet {
+  name: string
+  asOf: string
+  /** 부위 선택을 진료과 분류용 키워드로 펼치는 표. */
+  areaKeywords: Record<BodyArea, string[]>
+}
+
+/** 환자에게 귀속되는 비대면 사전 확인 결과. 의료기관 의존 입력은 담지 않는다. */
+export interface TelemedicinePrecheck {
+  completedAt: string | null
+  identityVerified: boolean
+  region: string
+  monthlyTelemedicineCount: number
+  exception: EligibilityException
+  agreedToTerms: boolean
+}
+
+export interface TelemedicineGate {
+  enabled: boolean
+  /** enabled면 빈 문자열. 막혔으면 첫 번째 실패 체크의 detail을 그대로 쓴다. */
+  reason: string
+  /** 사전 확인 전에는 판정 자체를 하지 않으므로 null. */
+  result: EligibilityResult | null
 }
 
 export type EncounterStatus = 'booked' | 'in-progress' | 'completed'

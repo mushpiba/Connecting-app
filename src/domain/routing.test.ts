@@ -14,6 +14,8 @@ function doctor(overrides: Partial<Doctor> = {}): Doctor {
     keywords: [],
     notificationsEnabled: true,
     bio: '',
+    consultStyle: '',
+    career: [],
     ...overrides,
   }
 }
@@ -27,6 +29,12 @@ const question: Question = {
   triage: triage('콧물이랑 코막힘이 2주째 이어집니다. 잠도 잘 못 잡니다.', triageRuleSet),
   priorVisit: { clinicId: 'clinic-han', visitedOn: '2026-06-02', selfReported: true },
   sameSymptoms: true,
+  visibility: 'public',
+  onsetDate: '2026-07-27',
+  course: 'unchanged',
+  dailyImpact: 'disruptive',
+  triedRemedies: ['otc'],
+  bodyAreas: ['ent'],
 }
 
 describe('matchDoctors', () => {
