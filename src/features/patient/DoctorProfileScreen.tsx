@@ -105,12 +105,15 @@ export function DoctorProfileScreen() {
           </p>
         )}
 
-        <a className="secondary-button" href={clinic.bookingUrl}>
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => navigate(`/booking/${doctor.id}`)}
+        >
           초진 대면 진료 예약 <span aria-hidden="true">›</span>
-        </a>
+        </button>
         <p className="field-hint">
-          대면 예약은 {clinic.name}이(가) 직접 운영하는 예약 페이지로 넘어갑니다. MediVU가 예약을
-          성사시키지 않습니다.
+          희망 시간을 골라 {clinic.name}에 전달합니다. 확정은 병원이 합니다.
         </p>
 
         {notice && (

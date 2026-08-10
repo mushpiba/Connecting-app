@@ -4,6 +4,7 @@ import { toggleEmpathy } from '../domain/board'
 import type {
   Answer,
   AppRole,
+  BookingRequest,
   Empathy,
   Question,
   TelemedicinePrecheck,
@@ -26,6 +27,7 @@ export interface CommunityState {
   empathies: Empathy[]
   precheck: TelemedicinePrecheck
   requestedEncounterIds: string[]
+  bookings: BookingRequest[]
 }
 
 export type CommunityAction =
@@ -36,6 +38,7 @@ export type CommunityAction =
   | { type: 'toggle-empathy'; questionId: string }
   | { type: 'complete-precheck'; precheck: TelemedicinePrecheck }
   | { type: 'request-encounter'; questionId: string; doctorId: string }
+  | { type: 'request-booking'; booking: BookingRequest }
   | { type: 'reset' }
 
 export const initialPrecheck: TelemedicinePrecheck = {
@@ -56,6 +59,7 @@ export const initialCommunityState: CommunityState = {
   empathies: demoEmpathies,
   precheck: initialPrecheck,
   requestedEncounterIds: [],
+  bookings: [],
 }
 
 export function communityReducer(
@@ -88,6 +92,10 @@ export function communityReducer(
       if (state.requestedEncounterIds.includes(id)) return state
       return { ...state, requestedEncounterIds: [...state.requestedEncounterIds, id] }
     }
+    case 'request-booking': {
+      const kept = state.bookings.filter((item) => item.id !== action.booking.id)
+      return { ...state, bookings: [...kept, action.booking] }
+    }
     case 'reset':
       return initialCommunityState
     default:
@@ -105,6 +113,7 @@ interface CommunityContextValue {
   toggleQuestionEmpathy: (questionId: string) => void
   completePrecheck: (precheck: TelemedicinePrecheck) => void
   requestEncounter: (questionId: string, doctorId: string) => void
+  requestBooking: (booking: BookingRequest) => void
   resetDemo: () => void
 }
 
@@ -139,6 +148,10 @@ export function CommunityProvider({ children }: PropsWithChildren) {
       requestEncounter: (questionId, doctorId) => {
         dispatch({ type: 'request-encounter', questionId, doctorId })
         setStatusNotice('진료 신청 의사를 전달했습니다. 실제 예약은 이루어지지 않습니다.')
+      },
+      requestBooking: (booking) => {
+        dispatch({ type: 'request-booking', booking })
+        setStatusNotice('희망 시간을 전달했습니다. 실제 예약은 병원이 확인해야 확정됩니다.')
       },
       resetDemo: () => {
         dispatch({ type: 'reset' })

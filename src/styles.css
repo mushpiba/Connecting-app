@@ -1029,6 +1029,138 @@ select {
   color: var(--ink-500);
 }
 
+/* 예약 — 날짜 가로 스크롤, 시간 격자 */
+
+.booking-doctor {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 16px;
+  margin-top: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.booking-doctor h2 {
+  margin: 0 0 2px;
+  font-size: 16px;
+}
+
+.date-strip {
+  display: flex;
+  gap: 8px;
+  padding: 2px 0 8px;
+  margin: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  width: 56px;
+  padding: 9px 4px;
+  color: var(--ink-900);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.date-chip:disabled {
+  color: var(--ink-500);
+  cursor: not-allowed;
+  background: var(--surface-muted);
+}
+
+.date-chip.is-active {
+  color: #ffffff;
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+}
+
+.date-weekday {
+  font-size: 11px;
+}
+
+.date-day {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.date-closed {
+  font-size: 10px;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.slot-chip {
+  width: 100%;
+  padding: 10px 4px;
+  font-size: 13.5px;
+  color: var(--ink-900);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.slot-chip.is-active {
+  color: #ffffff;
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+}
+
+.booking-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-top: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.booking-confirm h2 {
+  margin: 0;
+}
+
+.booking-preview {
+  padding: 10px 12px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-900);
+  background: var(--surface-muted);
+  border-radius: 10px;
+}
+
+.booking-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--cyan-100);
+  border-radius: 12px;
+}
+
+.booking-receipt p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #0d6a68;
+}
+
 @media (min-width: 768px) {
   .app-body {
     flex-direction: row;

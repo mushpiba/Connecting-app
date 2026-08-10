@@ -338,6 +338,19 @@ export interface TelemedicineGate {
   result: EligibilityResult | null
 }
 
+/**
+ * 대면 진료 희망 시간 전달 기록. 우리가 예약을 확정하지 않는다.
+ * 병원이 확인해야 성사되며 이 데모는 브라우저 메모리에만 남긴다.
+ */
+export interface BookingRequest {
+  id: string
+  doctorId: string
+  clinicId: string
+  date: string
+  time: string
+  requestedAt: string
+}
+
 export type EncounterStatus = 'booked' | 'in-progress' | 'completed'
 
 export interface TranscriptLine {

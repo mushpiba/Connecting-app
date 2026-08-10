@@ -3,6 +3,7 @@ import { AppHeader } from './components/AppHeader'
 import { BottomNav } from './components/BottomNav'
 import { AskScreen } from './features/patient/AskScreen'
 import { BoardScreen } from './features/patient/BoardScreen'
+import { BookingScreen } from './features/patient/BookingScreen'
 import { DoctorProfileScreen } from './features/patient/DoctorProfileScreen'
 import { HomeScreen } from './features/patient/HomeScreen'
 import { MyPageScreen } from './features/patient/MyPageScreen'
@@ -26,6 +27,7 @@ export function App() {
                 <Route path="/board" element={<BoardScreen />} />
                 <Route path="/questions/:questionId" element={<QuestionDetailScreen />} />
                 <Route path="/doctors/:doctorId" element={<DoctorProfileScreen />} />
+                <Route path="/booking/:doctorId" element={<BookingScreen />} />
                 <Route path="/me" element={<MyPageScreen />} />
                 <Route path="/doctor/inbox" element={<DoctorInboxScreen />} />
                 <Route path="/doctor/questions/:questionId" element={<DoctorAnswerScreen />} />

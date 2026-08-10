@@ -30,7 +30,7 @@ describe('telemedicine request flow', () => {
   it('대면 예약은 언제나 열려 있다', () => {
     render(<App />)
 
-    expect(screen.getByRole('link', { name: /초진 대면 진료 예약/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /초진 대면 진료 예약/ })).toBeEnabled()
   })
 
   it('사전 확인을 마치면 재진 환자는 신청할 수 있다', async () => {
