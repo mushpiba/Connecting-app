@@ -1,0 +1,83 @@
+import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { TriageSummary } from '../../components/TriageSummary'
+import { demoNowIso, demoToday } from '../../data/demoCalendar'
+import { findClinic } from '../../data/demoClinics'
+import { demoDoctors, findDoctor } from '../../data/demoDoctors'
+import { findQuestion } from '../../data/demoQuestions'
+import { symptomDurationDays } from '../../domain/intake'
+import { canSeePriorVisit } from '../../domain/routing'
+import { canDoctorSeeQuestion } from '../../domain/visibility'
+import { useCommunity } from '../../state/CommunityContext'
+
+export function DoctorAnswerScreen() {
+  const { questionId } = useParams()
+  const { state, publishAnswer } = useCommunity()
+  const navigate = useNavigate()
+  const [body, setBody] = useState('')
+
+  const doctor = findDoctor(state.doctorId) ?? demoDoctors[0]
+  const question = findQuestion(state.questions, questionId ?? '')
+
+  if (!question || !canDoctorSeeQuestion(doctor, question)) {
+    return (
+      <div className="screen">
+        <p className="empty-note">이 계정에는 보이지 않는 질문입니다.</p>
+        <button type="button" className="secondary-button" onClick={() => navigate('/doctor/inbox')}>
+          받은 질문으로
+        </button>
+      </div>
+    )
+  }
+
+  const submit = (event: React.FormEvent) => {
+    event.preventDefault()
+    publishAnswer({
+      id: `a-local-${state.answers.length + 1}`,
+      questionId: question.id,
+      doctorId: doctor.id,
+      body,
+      createdAt: demoNowIso,
+    })
+    setBody('')
+    navigate('/doctor/inbox')
+  }
+
+  return (
+    <div className="screen">
+      <article className="question-detail">
+        <h1>{question.title}</h1>
+        <p className="question-meta">
+          증상 {symptomDurationDays(question.onsetDate, demoToday)}일째 · 시작 {question.onsetDate}
+        </p>
+        <p className="question-body">{question.body}</p>
+        {question.priorVisit && canSeePriorVisit(doctor, question) && (
+          <p className="prior-visit-note">
+            <span aria-hidden="true">▤</span> 환자가 밝힌 진료 이력 · {question.priorVisit.visitedOn}{' '}
+            {findClinic(question.priorVisit.clinicId)?.name} · 차트로 확인이 필요합니다.
+          </p>
+        )}
+      </article>
+
+      <TriageSummary triage={question.triage} />
+
+      <form className="intake-form" onSubmit={submit}>
+        <label htmlFor="answer-body">답변</label>
+        <textarea
+          id="answer-body"
+          rows={6}
+          required
+          minLength={5}
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+        />
+        <button type="submit" className="primary-cta">
+          답변 등록
+        </button>
+        <p className="clinical-caveat">
+          시연용 입력입니다. 서버로 전송되지 않으며 브라우저 메모리에만 저장됩니다.
+        </p>
+      </form>
+    </div>
+  )
+}
