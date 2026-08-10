@@ -1,11 +1,11 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { DoctorCard } from '../../components/DoctorCard'
+import { AnswerCard } from '../../components/AnswerCard'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoToday } from '../../data/demoCalendar'
 import { findClinic } from '../../data/demoClinics'
 import { findDoctor } from '../../data/demoDoctors'
-import { findQuestion } from '../../data/demoQuestions'
+import { findPatient, findQuestion } from '../../data/demoQuestions'
 import { symptomDurationDays } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
 
@@ -28,10 +28,27 @@ export function QuestionDetailScreen() {
 
   const answers = state.answers.filter((answer) => answer.questionId === question.id)
   const days = symptomDurationDays(question.onsetDate, demoToday)
+  const author = findPatient(question.patientId)
+  const isAuthor = question.patientId === state.patientId
 
   return (
     <div className="screen">
       <article className="question-detail">
+        <div className="post-byline">
+          <span className="post-avatar" aria-hidden="true">
+            {(author?.displayName ?? '익명').replace(/^가상\s*/, '').slice(0, 2)}
+          </span>
+          <span className="post-author">{author?.displayName ?? '익명 환자'}</span>
+          <time dateTime={question.createdAt}>
+            {question.createdAt.slice(0, 10).replace(/-/g, '.')}
+          </time>
+          {question.triage.suggestions.map((suggestion) => (
+            <span key={suggestion.specialty} className="specialty-chip">
+              {suggestion.label}
+            </span>
+          ))}
+        </div>
+
         <h1>{question.title}</h1>
         <p className="question-body">{question.body}</p>
         <IntakeSummary question={question} durationDays={days} />
@@ -44,22 +61,28 @@ export function QuestionDetailScreen() {
         )}
       </article>
 
-      <TriageSummary triage={question.triage} />
+      {/* 진료과 안내는 글쓴이에게 필요한 정보다. 다른 사람이 읽는 글에서는
+          작성자 줄의 진료과 칩으로 충분하고, 응급 안내도 글쓴이를 향한 문구다. */}
+      {isAuthor && <TriageSummary triage={question.triage} />}
 
-      <section aria-labelledby="answers-heading">
-        <h2 id="answers-heading">의사 답변 {answers.length}</h2>
+      <section className="answer-thread" aria-labelledby="answers-heading">
+        <h2 id="answers-heading" className="thread-heading">
+          의사 답변 {answers.length}
+        </h2>
         {answers.length === 0 ? (
-          <p className="empty-note">아직 답변이 없습니다.</p>
+          <p className="empty-note">아직 답변이 없습니다. 의사가 답변하면 여기에 쌓입니다.</p>
         ) : (
-          <div className="card-list">
+          <div className="thread-list">
             {answers.map((answer) => {
               const doctor = findDoctor(answer.doctorId)
               if (!doctor) return null
               return (
-                <section key={answer.id} className="answer-block">
-                  <DoctorCard doctor={doctor} clinic={findClinic(doctor.clinicId)} />
-                  <p className="answer-body">{answer.body}</p>
-                </section>
+                <AnswerCard
+                  key={answer.id}
+                  answer={answer}
+                  doctor={doctor}
+                  clinic={findClinic(doctor.clinicId)}
+                />
               )
             })}
           </div>

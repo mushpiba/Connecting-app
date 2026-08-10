@@ -49,6 +49,29 @@ describe('board empathy flow', () => {
     )
 
     expect(screen.getByRole('heading', { name: '의사 답변 2' })).toBeInTheDocument()
-    expect(screen.getByTestId('doctor-card-doc-han-ent')).toBeInTheDocument()
+    expect(screen.getByTestId('answer-card-doc-han-ent')).toBeInTheDocument()
+  })
+
+  it('내 글에서는 진료과 안내를 보여준다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(
+      screen.getByRole('button', { name: '2주째 콧물과 코막힘이 안 나아요 자세히 보기' }),
+    )
+
+    expect(screen.getByRole('heading', { name: '어느 과로 가면 좋을까요' })).toBeInTheDocument()
+  })
+
+  it('다른 사람 글에서는 진료과 안내 카드를 띄우지 않는다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(
+      screen.getByRole('button', { name: '세 과를 돌았는데 두드러기 원인을 못 찾았어요 자세히 보기' }),
+    )
+
+    expect(screen.queryByRole('heading', { name: '어느 과로 가면 좋을까요' })).not.toBeInTheDocument()
+    expect(screen.getByText('피부과')).toBeInTheDocument()
   })
 })

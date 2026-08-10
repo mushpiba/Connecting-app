@@ -301,7 +301,7 @@ select {
 .doctor-profile,
 .triage-summary,
 .consult-actions,
-.answer-block {
+.answer-thread {
   padding: 14px 16px;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -472,17 +472,111 @@ select {
 
 /* 의사 카드 */
 
-.answer-block {
-  border-left: 3px solid var(--cyan-500);
+/* 답변 스레드 — 글과 답변이 다른 층에 있다는 게 한눈에 보여야 한다. */
+
+.post-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 12.5px;
+  color: var(--ink-500);
 }
 
-.answer-block .doctor-card {
-  padding: 0 0 10px;
-  margin-top: 0;
+.post-avatar,
+.answer-avatar {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.post-avatar {
+  color: var(--ink-700);
+  background: #e7edf2;
+}
+
+.post-author {
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.answer-thread {
+  margin-top: 22px;
+}
+
+.thread-heading {
+  padding-bottom: 8px;
+  margin: 0 0 12px;
+  font-size: 15px;
+  border-bottom: 2px solid var(--navy-900);
+}
+
+.thread-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.answer-card {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.answer-card:last-child {
+  border-bottom: 0;
+}
+
+.answer-avatar {
+  color: #0d6a68;
+  background: var(--cyan-100);
+}
+
+.answer-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.answer-byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--ink-500);
+}
+
+.answer-byline strong {
+  font-size: 14px;
+  color: var(--ink-900);
+}
+
+.answer-clinic {
+  color: var(--ink-500);
+}
+
+.answer-date {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.answer-profile-link {
+  padding: 0;
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--blue-700);
+  cursor: pointer;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
 }
 
 .doctor-card {
