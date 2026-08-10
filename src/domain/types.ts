@@ -56,6 +56,10 @@ export interface RedFlagRule {
 export interface TriageRuleSet {
   name: string
   asOf: string
+  /** 후보 최대 개수. */
+  maxSuggestions: number
+  /** 선두 점수 대비 이 비율을 넘는 후보만 남긴다. 0.5면 절반 초과. */
+  relativeScoreFloor: number
   specialties: SpecialtyRule[]
   redFlags: RedFlagRule[]
 }

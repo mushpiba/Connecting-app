@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { eligibilityRuleSet } from '../data/rules/eligibilityRules'
 import { checkEligibility } from './eligibility'
 import type { ClinicSnapshot, EligibilityContext } from './types'
@@ -28,6 +27,10 @@ function context(overrides: Partial<EligibilityContext> = {}): EligibilityContex
 
 function outcomeOf(result: ReturnType<typeof checkEligibility>, id: string) {
   return result.checks.find((item) => item.id === id)?.outcome
+}
+
+function detailOf(result: ReturnType<typeof checkEligibility>, id: string) {
+  return result.checks.find((item) => item.id === id)?.detail ?? ''
 }
 
 describe('checkEligibility', () => {
@@ -74,7 +77,8 @@ describe('checkEligibility', () => {
     )
 
     expect(result.isFirstVisit).toBe(true)
-    expect(outcomeOf(result, 'revisit-record')).toBe('failed')
+    expect(outcomeOf(result, 'revisit-record')).toBe('not-applicable')
+    expect(detailOf(result, 'revisit-record')).toContain('인정기간')
   })
 
   it('다른 의료기관 진료 기록은 재진으로 인정하지 않는다', () => {
@@ -84,6 +88,15 @@ describe('checkEligibility', () => {
     )
 
     expect(result.isFirstVisit).toBe(true)
+    expect(outcomeOf(result, 'revisit-record')).toBe('not-applicable')
+    expect(detailOf(result, 'revisit-record')).toContain('다른 의료기관')
+  })
+
+  it('진료 기록이 없다는 사실만으로는 막지 않는다', () => {
+    const result = checkEligibility(context({ priorVisit: null }), eligibilityRuleSet)
+
+    expect(outcomeOf(result, 'revisit-record')).toBe('not-applicable')
+    expect(result.failedCheckIds).not.toContain('revisit-record')
   })
 
   it('재진인데 증상이 다르면 막는다', () => {
@@ -152,6 +165,25 @@ describe('checkEligibility', () => {
     )
 
     expect(outcomeOf(result, 'clinic-level')).toBe('passed')
+  })
+
+  /**
+   * 화면은 막힌 사유로 failedCheckIds[0]의 detail을 그대로 보여준다.
+   * 따라서 checks 순서가 곧 사유 우선순위다. 순서를 바꾸면 안내 문구가 바뀐다.
+   */
+  it('체크 순서를 고정한다', () => {
+    const result = checkEligibility(context(), eligibilityRuleSet)
+
+    expect(result.checks.map((item) => item.id)).toEqual([
+      'identity',
+      'clinic-telemedicine',
+      'clinic-level',
+      'revisit-record',
+      'same-symptoms',
+      'first-visit-region',
+      'clinic-monthly-ratio',
+      'patient-monthly-cap',
+    ])
   })
 
   it('판정 근거로 규칙셋 이름과 기준일을 남긴다', () => {

@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { triageRuleSet } from '../data/rules/triageRules'
 import { canSeePriorVisit, matchDoctors } from './routing'
 import { triage } from './triage'

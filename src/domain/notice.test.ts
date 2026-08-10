@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { eligibilityRuleSet } from '../data/rules/eligibilityRules'
 import { checkEligibility } from './eligibility'
 import { buildReferralNotice } from './notice'

@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { triageRuleSet } from '../data/rules/triageRules'
 import { triage } from './triage'
 
@@ -17,6 +16,27 @@ describe('triage', () => {
     )
 
     expect(result.suggestions.length).toBeLessThanOrEqual(3)
+  })
+
+  it('선두 점수의 절반 이하인 후보는 버린다', () => {
+    const result = triage(
+      '콧물이랑 코막힘이 2주째 이어집니다. 잠도 잘 못 잡니다.',
+      triageRuleSet,
+    )
+
+    expect(result.suggestions.map((item) => item.specialty)).toEqual(['otolaryngology'])
+  })
+
+  it('선두 점수의 절반을 넘으면 남긴다', () => {
+    const result = triage('콧물 코막힘 기침이 있고 허리 무릎도 아픕니다', triageRuleSet)
+
+    expect(result.suggestions.map((item) => item.specialty)).toContain('orthopedics')
+  })
+
+  it('후보가 하나뿐이면 점수가 1이어도 남긴다', () => {
+    const result = triage('콧물이 납니다', triageRuleSet)
+
+    expect(result.suggestions.map((item) => item.specialty)).toEqual(['otolaryngology'])
   })
 
   it('일치하는 키워드가 없으면 후보를 비운다', () => {

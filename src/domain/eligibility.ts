@@ -1,10 +1,12 @@
 import type {
   CheckOutcome,
+  ClinicSnapshot,
   EligibilityCheck,
   EligibilityContext,
   EligibilityResult,
   EligibilityRuleSet,
   EligibilityStatus,
+  PriorVisit,
 } from './types'
 
 const HOSPITAL_ONLY_EXCEPTIONS = [
@@ -32,10 +34,32 @@ function check(
 }
 
 /**
+ * 사용 가능한 재진 기록이 아닌 이유를 문장으로 만든다.
+ * 기록 없음·기간 초과·다른 기관을 구분해 왜 초진으로 봤는지 남긴다.
+ */
+function firstVisitReason(
+  priorVisit: PriorVisit | null,
+  clinic: ClinicSnapshot,
+  revisitValidMonths: number,
+): string {
+  if (priorVisit === null) {
+    return `밝히신 진료 기록이 없어 초진 경로로 봅니다.`
+  }
+  if (priorVisit.clinicId !== clinic.id) {
+    return `다른 의료기관에서 받은 진료라 ${clinic.name} 재진으로는 인정되지 않습니다. 초진 경로로 봅니다.`
+  }
+  return `${priorVisit.visitedOn} 진료는 재진 인정기간 ${revisitValidMonths}개월을 지났습니다. 초진 경로로 봅니다.`
+}
+
+/**
  * 비대면 진료 대상 여부를 예비 확인한다. 최종 판단은 의사가 한다.
  *
  * 두 경로가 있다. 같은 의료기관의 동일 증상 재진 기록이 있으면 재진 경로,
  * 없으면 지역 또는 질환 예외로만 열리는 초진 경로다.
+ *
+ * revisit-record는 경로를 고르는 체크지 막는 체크가 아니다. 기록이 없다는 것은
+ * "초진이다"라는 사실이지 결격 사유가 아니므로 절대 failed를 내지 않는다.
+ * 초진 경로의 차단은 first-visit-region이 맡는다.
  */
 export function checkEligibility(
   context: EligibilityContext,
@@ -99,10 +123,10 @@ export function checkEligibility(
     check(
       'revisit-record',
       '동일 의료기관 진료 기록',
-      hasUsableRevisit ? 'passed' : 'failed',
+      hasUsableRevisit ? 'passed' : 'not-applicable',
       hasUsableRevisit
         ? `${priorVisit!.visitedOn}에 ${clinic.name}에서 진료받은 기록을 환자가 밝혔습니다. 의료진 확인이 필요합니다.`
-        : `최근 ${params.revisitValidMonths}개월 내 ${clinic.name} 진료 기록이 확인되지 않아 초진으로 봅니다.`,
+        : firstVisitReason(priorVisit, clinic, params.revisitValidMonths),
     ),
   )
 

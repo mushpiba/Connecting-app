@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest'
 import { medicationRuleSet } from '../data/rules/medicationRules'
 import { checkMedication, listMedications, searchMedications } from './medication'
 

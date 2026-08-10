@@ -7,6 +7,8 @@ import type { TriageRuleSet } from '../../domain/types'
 export const triageRuleSet: TriageRuleSet = {
   name: '진료과 분류 시연 규칙',
   asOf: '2026-08-09',
+  maxSuggestions: 3,
+  relativeScoreFloor: 0.5,
   specialties: [
     {
       specialty: 'internal-medicine',
