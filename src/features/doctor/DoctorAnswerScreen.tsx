@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoNowIso, demoToday } from '../../data/demoCalendar'
 import { findClinic } from '../../data/demoClinics'
@@ -47,10 +48,11 @@ export function DoctorAnswerScreen() {
     <div className="screen">
       <article className="question-detail">
         <h1>{question.title}</h1>
-        <p className="question-meta">
-          증상 {symptomDurationDays(question.onsetDate, demoToday)}일째 · 시작 {question.onsetDate}
-        </p>
         <p className="question-body">{question.body}</p>
+        <IntakeSummary
+          question={question}
+          durationDays={symptomDurationDays(question.onsetDate, demoToday)}
+        />
         {question.priorVisit && canSeePriorVisit(doctor, question) && (
           <p className="prior-visit-note">
             <span aria-hidden="true">▤</span> 환자가 밝힌 진료 이력 · {question.priorVisit.visitedOn}{' '}

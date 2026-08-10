@@ -44,9 +44,7 @@ export function QuestionCard({
         onClick={() => navigate(`/questions/${question.id}`)}
       >
         <strong>{question.title}</strong>
-        <span className="question-meta">
-          증상 {days}일째 · {courseLabels[question.course]} · 답변 {answerCount}
-        </span>
+        <span className="question-excerpt">{question.body}</span>
       </button>
       <div className="question-actions">
         {question.triage.suggestions.map((suggestion) => (
@@ -54,6 +52,14 @@ export function QuestionCard({
             {suggestion.label}
           </span>
         ))}
+        <span className="question-meta">
+          증상 {days}일째 · {courseLabels[question.course]}
+        </span>
+      </div>
+      <div className="question-footer">
+        <span className="answer-count">
+          <span aria-hidden="true">💬</span> 답변 {answerCount}
+        </span>
         {onToggleEmpathy && (
           <button
             type="button"

@@ -37,5 +37,8 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/test/setup.ts',
     css: true,
+    // 문진 흐름 테스트는 userEvent.type이 글자마다 전체 화면을 다시 그려서
+    // 기본 5초를 넘긴다. 느린 것이지 매달린 것이 아니다.
+    testTimeout: 20000,
   },
 })

@@ -47,7 +47,26 @@ export function createRuleClassifier(
         intakeRules,
       )
 
-      return Promise.resolve(triage(text, triageRules))
+      return Promise.resolve(withPatientWordsOnly(triage(text, triageRules), input.text))
     },
+  }
+}
+
+/**
+ * 근거 키워드를 환자가 실제로 쓴 말로 좁힌다.
+ *
+ * 부위 체크박스는 점수에는 반영돼야 하지만 근거로 표시되면 안 된다. 환자가
+ * 적지도 않은 "인후통"이 근거 칩으로 뜨면 화면이 환자 말을 지어낸 것이 된다.
+ * 점수는 확장 텍스트로 계산한 값을 그대로 두고 표시용 목록만 거른다.
+ */
+export function withPatientWordsOnly(result: TriageResult, patientText: string): TriageResult {
+  return {
+    ...result,
+    suggestions: result.suggestions.map((suggestion) => ({
+      ...suggestion,
+      matchedKeywords: suggestion.matchedKeywords.filter((keyword) =>
+        patientText.includes(keyword),
+      ),
+    })),
   }
 }

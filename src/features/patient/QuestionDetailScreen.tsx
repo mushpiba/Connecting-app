@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { DoctorCard } from '../../components/DoctorCard'
+import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoToday } from '../../data/demoCalendar'
 import { findClinic } from '../../data/demoClinics'
@@ -32,10 +33,8 @@ export function QuestionDetailScreen() {
     <div className="screen">
       <article className="question-detail">
         <h1>{question.title}</h1>
-        <p className="question-meta">
-          증상 {days}일째 · 시작 {question.onsetDate}
-        </p>
         <p className="question-body">{question.body}</p>
+        <IntakeSummary question={question} durationDays={days} />
         {question.priorVisit && (
           <p className="prior-visit-note">
             <span aria-hidden="true">▤</span> {question.priorVisit.visitedOn} ·{' '}
@@ -58,8 +57,8 @@ export function QuestionDetailScreen() {
               if (!doctor) return null
               return (
                 <section key={answer.id} className="answer-block">
-                  <p className="answer-body">{answer.body}</p>
                   <DoctorCard doctor={doctor} clinic={findClinic(doctor.clinicId)} />
+                  <p className="answer-body">{answer.body}</p>
                 </section>
               )
             })}

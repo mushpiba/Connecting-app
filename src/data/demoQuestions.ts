@@ -1,3 +1,4 @@
+import { withPatientWordsOnly } from '../domain/classifier'
 import { buildTriageText } from '../domain/intake'
 import { triage } from '../domain/triage'
 import type { Answer, Empathy, IntakeForm, Patient, Question } from '../domain/types'
@@ -50,7 +51,10 @@ function toQuestion(seed: QuestionSeed): Question {
     intakeRuleSet,
   )
 
-  return { ...seed, triage: triage(triageText, triageRuleSet) }
+  return {
+    ...seed,
+    triage: withPatientWordsOnly(triage(triageText, triageRuleSet), `${seed.title} ${seed.body}`),
+  }
 }
 
 const seeds: QuestionSeed[] = [
@@ -131,6 +135,66 @@ const seeds: QuestionSeed[] = [
     visibility: 'prior-clinic-only',
   },
   {
+    id: 'q-knee',
+    patientId: 'pat-soo',
+    title: '계단 내려갈 때만 무릎이 시큰합니다',
+    body: '3주 전부터 계단을 내려갈 때 오른쪽 무릎이 시큰합니다. 평지에서는 괜찮습니다.',
+    createdAt: '2026-08-06T18:00:00.000Z',
+    onsetDate: '2026-07-19',
+    course: 'unchanged',
+    bodyAreas: ['musculoskeletal'],
+    dailyImpact: 'mild',
+    triedRemedies: ['rest'],
+    priorVisit: null,
+    sameSymptoms: false,
+    visibility: 'public',
+  },
+  {
+    id: 'q-eye',
+    patientId: 'pat-min',
+    title: '눈이 자꾸 충혈되는데 안약을 계속 써도 될까요',
+    body: '한 달 전부터 아침마다 눈이 충혈됩니다. 약국 안약을 쓰면 잠깐 나아졌다가 다시 돌아옵니다.',
+    createdAt: '2026-08-04T08:15:00.000Z',
+    onsetDate: '2026-07-05',
+    course: 'fluctuating',
+    bodyAreas: ['eye'],
+    dailyImpact: 'mild',
+    triedRemedies: ['otc'],
+    priorVisit: null,
+    sameSymptoms: false,
+    visibility: 'public',
+  },
+  {
+    id: 'q-child',
+    patientId: 'pat-jae',
+    title: '아이가 밤에만 기침을 심하게 합니다',
+    body: '다섯 살 아이인데 낮에는 멀쩡하다가 눕기만 하면 기침을 합니다. 열은 없습니다.',
+    createdAt: '2026-08-02T21:40:00.000Z',
+    onsetDate: '2026-07-30',
+    course: 'worsening',
+    bodyAreas: ['child', 'ent'],
+    dailyImpact: 'disruptive',
+    triedRemedies: ['none'],
+    priorVisit: null,
+    sameSymptoms: false,
+    visibility: 'public',
+  },
+  {
+    id: 'q-fatigue',
+    patientId: 'pat-soo',
+    title: '자도 자도 피로가 안 풀립니다',
+    body: '두 달째 여덟 시간을 자도 아침에 몸이 무겁습니다. 체중도 조금 줄었습니다.',
+    createdAt: '2026-07-30T10:00:00.000Z',
+    onsetDate: '2026-06-01',
+    course: 'unchanged',
+    bodyAreas: ['general'],
+    dailyImpact: 'disruptive',
+    triedRemedies: ['rest'],
+    priorVisit: null,
+    sameSymptoms: false,
+    visibility: 'public',
+  },
+  {
     id: 'q-chest',
     patientId: 'pat-jae',
     title: '가슴통증이 있었는데 그냥 둬도 될까요',
@@ -187,6 +251,21 @@ export const demoAnswers: Answer[] = [
     body: '잠들기까지 걸린 시간과 깬 횟수를 2주만 적어 오시면 이야기가 훨씬 빨라집니다.',
     createdAt: '2026-08-06T09:20:00.000Z',
   },
+  {
+    id: 'a-child-1',
+    questionId: 'q-child',
+    doctorId: 'doc-han-ent',
+    body:
+      '누웠을 때만 심해지는 기침은 코 뒤로 넘어가는 콧물이 원인인 경우가 많습니다. 베개를 조금 높여 재워 보시고, 2주 넘게 이어지면 진료로 확인하세요.',
+    createdAt: '2026-08-03T09:00:00.000Z',
+  },
+  {
+    id: 'a-fatigue-1',
+    questionId: 'q-fatigue',
+    doctorId: 'doc-forest-im',
+    body: '체중이 함께 줄었다면 수면만의 문제가 아닐 수 있습니다. 기본 혈액검사부터 확인해 보시길 권합니다.',
+    createdAt: '2026-07-31T11:30:00.000Z',
+  },
 ]
 
 /** at 값이 주간 창(2026-08-03~09) 안팎에 걸치도록 일부러 배치했다. */
@@ -205,6 +284,10 @@ export const demoEmpathies: Empathy[] = [
   ...seedEmpathy('q-nose', 3, '2026-08-08T18:00:00.000Z'),
   ...seedEmpathy('q-chest', 2, '2026-08-09T08:00:00.000Z'),
   ...seedEmpathy('q-stomach', 6, '2026-08-08T09:00:00.000Z'),
+  ...seedEmpathy('q-knee', 1, '2026-08-07T12:00:00.000Z'),
+  ...seedEmpathy('q-eye', 2, '2026-08-05T09:00:00.000Z'),
+  ...seedEmpathy('q-child', 2, '2026-08-04T20:00:00.000Z'),
+  ...seedEmpathy('q-fatigue', 1, '2026-07-31T09:00:00.000Z'),
 ]
 
 export function findQuestion(questions: Question[], questionId: string): Question | undefined {
