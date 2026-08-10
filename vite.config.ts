@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
-  base: '/MediVU-community/',
+  base: '/medi-commu/',
   plugins: [
     react(),
     VitePWA({

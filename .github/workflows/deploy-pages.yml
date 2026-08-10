@@ -1,4 +1,4 @@
-name: Deploy MediVU Community to Pages
+name: Deploy medi-commu to Pages
 
 on:
   push:

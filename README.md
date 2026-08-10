@@ -6,7 +6,7 @@ MediVU Community는 환자가 증상을 적으면 진료과를 정리해 주고,
 
 ## 데모 보기
 
-<https://mushpiba.github.io/MediVU-community/>
+<https://skycastle0616.github.io/medi-commu/>
 
 ## 핵심 흐름
 
