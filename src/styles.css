@@ -1461,6 +1461,124 @@ button {
   color: var(--navy-900);
 }
 
+.home-activity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+  padding: 18px 48px 18px 18px;
+  text-align: left;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  box-shadow: 0 7px 22px rgba(24, 48, 72, 0.045);
+}
+
+.home-activity-card > span:first-child {
+  align-self: flex-start;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #0d6a68;
+  background: var(--cyan-100);
+  border-radius: 999px;
+}
+
+.home-activity-card strong {
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--navy-900);
+}
+
+.home-activity-card small {
+  color: var(--ink-500);
+}
+
+.home-activity-card > span:last-child {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  font-size: 22px;
+  color: var(--ink-500);
+  transform: translateY(-50%);
+}
+
+.home-quick-menu {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.home-quick-menu button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 96px;
+  padding: 15px 10px;
+  text-align: left;
+  cursor: pointer;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+}
+
+.home-quick-menu strong {
+  font-size: 14px;
+  color: var(--navy-900);
+}
+
+.home-quick-menu span {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ink-500);
+}
+
+.care-prep-card,
+.stories-entry-card {
+  padding: 21px 19px;
+  margin-top: 26px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.care-prep-card h2,
+.stories-entry-card h2 {
+  margin: 0 0 8px;
+}
+
+.care-prep-card > p:not(.eyebrow),
+.stories-entry-card p:not(.eyebrow) {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-700);
+}
+
+.care-prep-card ul {
+  display: grid;
+  gap: 7px;
+  padding-left: 20px;
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-700);
+}
+
+.stories-entry-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #ffffff, var(--blue-100));
+}
+
+.stories-entry-card .secondary-cta {
+  flex: none;
+}
+
 .question-card {
   padding: 17px 18px;
   border-color: #e1e8ed;

@@ -1,24 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import { InstallCard } from '../../components/InstallCard'
-import { QuestionCard } from '../../components/QuestionCard'
-import { boardRuleSet } from '../../data/rules/boardRules'
-import { demoWeekEndingOn } from '../../data/demoCalendar'
-import { empathyCount, hasEmpathized, orderBoard, rankWeeklyHot } from '../../domain/board'
 import { isPrecheckComplete } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
+import { buildMyActivity } from './activity'
 
 export function HomeScreen() {
-  const { state, toggleQuestionEmpathy } = useCommunity()
+  const { state } = useCommunity()
   const navigate = useNavigate()
 
-  const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
-  const hot = orderBoard(state.questions, ranks)
-    .filter((question) => ranks.find((rank) => rank.questionId === question.id)?.isHot)
-    .slice(0, 3)
   const mine = state.questions.filter((question) => question.patientId === state.patientId)
   const mineIds = new Set(mine.map((question) => question.id))
   const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
   const precheckComplete = isPrecheckComplete(state.precheck)
+  const latestActivity = buildMyActivity(state.questions, state.answers, state.patientId)[0]
 
   return (
     <div className="screen">
@@ -47,25 +41,62 @@ export function HomeScreen() {
         </button>
       </section>
 
-      <section aria-labelledby="home-hot-heading">
-        <h2 id="home-hot-heading">HOT 사연</h2>
-        {hot.length === 0 ? (
-          <p className="empty-note">이번 주에는 아직 상단에 고정된 글이 없습니다.</p>
+      <section aria-labelledby="home-activity-heading">
+        <h2 id="home-activity-heading">최근 내 활동</h2>
+        {latestActivity ? (
+          <button
+            type="button"
+            className="home-activity-card"
+            onClick={() => navigate(`/questions/${latestActivity.question.id}`)}
+          >
+            <span>{latestActivity.kind === 'answer' ? '새 답변' : '내 사연'}</span>
+            <strong>{latestActivity.question.title}</strong>
+            <small>{latestActivity.occurredAt.slice(0, 10)}</small>
+            <span aria-hidden="true">›</span>
+          </button>
         ) : (
-          <div className="card-list">
-            {hot.map((question) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                answerCount={state.answers.filter((a) => a.questionId === question.id).length}
-                empathyCount={empathyCount(state.empathies, question.id)}
-                empathized={hasEmpathized(state.empathies, question.id, state.patientId)}
-                isHot
-                onToggleEmpathy={toggleQuestionEmpathy}
-              />
-            ))}
-          </div>
+          <p className="empty-note">질문을 남기면 진행 상황을 여기에서 확인할 수 있습니다.</p>
         )}
+      </section>
+
+      <section aria-labelledby="home-quick-heading">
+        <h2 id="home-quick-heading">빠른 메뉴</h2>
+        <div className="home-quick-menu">
+          <button type="button" aria-label="사전 확인" onClick={() => navigate('/me/precheck')}>
+            <strong>사전 확인</strong>
+            <span>비대면 진료 준비</span>
+          </button>
+          <button type="button" aria-label="예약 내역" onClick={() => navigate('/me/appointments')}>
+            <strong>예약 내역</strong>
+            <span>희망 시간 확인</span>
+          </button>
+          <button type="button" aria-label="내소식" onClick={() => navigate('/news')}>
+            <strong>내소식</strong>
+            <span>사연과 답변 확인</span>
+          </button>
+        </div>
+      </section>
+
+      <section className="care-prep-card" aria-labelledby="care-prep-heading">
+        <p className="eyebrow">BEFORE YOUR VISIT</p>
+        <h2 id="care-prep-heading">진료 준비</h2>
+        <p>진료 전에 아래 세 가지를 메모해 두면 증상을 더 정확하게 설명할 수 있습니다.</p>
+        <ul>
+          <li>증상이 시작된 날과 달라진 과정</li>
+          <li>현재 복용 중인 약 이름</li>
+          <li>의사에게 꼭 묻고 싶은 내용</li>
+        </ul>
+      </section>
+
+      <section className="stories-entry-card" aria-labelledby="stories-entry-heading">
+        <div>
+          <p className="eyebrow">COMMUNITY</p>
+          <h2 id="stories-entry-heading">비슷한 고민이 궁금한가요?</h2>
+          <p>공개 사연과 전문의 답변은 사연 탭에서 따로 확인할 수 있습니다.</p>
+        </div>
+        <button type="button" className="secondary-cta" onClick={() => navigate('/stories')}>
+          사연 둘러보기
+        </button>
       </section>
 
       <InstallCard />
