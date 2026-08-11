@@ -33,6 +33,10 @@ export function QuestionDetailScreen() {
 
   return (
     <div className="screen">
+      <button type="button" className="back-link" onClick={() => navigate('/stories')}>
+        <span aria-hidden="true">‹</span> 사연
+      </button>
+
       <article className="question-detail">
         <div className="post-byline">
           <span className="post-avatar" aria-hidden="true">

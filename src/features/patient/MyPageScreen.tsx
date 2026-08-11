@@ -32,13 +32,13 @@ export function MyPageScreen() {
       </section>
 
       <div className="my-stats" aria-label="활동 요약">
-        <button type="button" onClick={() => navigate('/news')}>
+        <button type="button" aria-label={`내 사연 ${mine.length}건`} onClick={() => navigate('/news')}>
           <strong>{mine.length}</strong>
-          <span>내 사연 {mine.length}</span>
+          <span>내 사연</span>
         </button>
-        <button type="button" onClick={() => navigate('/news')}>
+        <button type="button" aria-label={`받은 답변 ${answerCount}건`} onClick={() => navigate('/news')}>
           <strong>{answerCount}</strong>
-          <span>받은 답변 {answerCount}</span>
+          <span>받은 답변</span>
         </button>
       </div>
 

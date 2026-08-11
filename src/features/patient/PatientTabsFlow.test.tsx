@@ -34,8 +34,8 @@ describe('patient tab screens', () => {
     render(<App />)
 
     expect(screen.getByRole('heading', { name: 'MY' })).toBeInTheDocument()
-    expect(screen.getByText('내 사연 3')).toBeInTheDocument()
-    expect(screen.getByText('받은 답변 2')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '내 사연 3건' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '받은 답변 2건' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '비대면 진료 사전 확인' }))
 

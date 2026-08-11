@@ -38,6 +38,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
+  background: radial-gradient(circle at 8% 5%, rgba(39, 179, 177, 0.09), transparent 28rem), #e8eef3;
 }
 
 button,
@@ -50,6 +52,26 @@ select {
 :focus-visible {
   outline: 3px solid rgba(35, 115, 170, 0.35);
   outline-offset: 2px;
+}
+
+/*
+ * 한글은 어절 단위로 끊어야 읽힌다. keep-all만 두면 한 어절이 칸보다 길 때
+ * 넘쳐서 잘리므로 overflow-wrap을 안전장치로 함께 건다.
+ */
+h1,
+h2,
+h3,
+h4,
+p,
+dt,
+dd,
+li,
+label,
+legend,
+button,
+figcaption {
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }
 
 .visually-hidden {
@@ -70,7 +92,9 @@ select {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--surface-muted);
+  background: #f4f7f9;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .app-body {
@@ -84,9 +108,11 @@ select {
   position: sticky;
   top: 0;
   z-index: 6;
-  padding: 10px 16px 8px;
-  color: #eaf3fa;
-  background: var(--navy-900);
+  padding: max(12px, env(safe-area-inset-top)) 18px 10px;
+  color: var(--navy-900);
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(220, 229, 235, 0.85);
+  backdrop-filter: blur(14px);
 }
 
 .app-header-row {
@@ -96,18 +122,26 @@ select {
   justify-content: space-between;
   width: min(100%, 1160px);
   margin: 0 auto;
+  min-height: 42px;
 }
 
 .brand-block {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
+  display: inline-flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
 }
 
 .brand {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-size: 21px;
+  font-weight: 850;
+  letter-spacing: -0.055em;
 }
 
 .brand-tagline {
@@ -170,20 +204,21 @@ select {
 
 .screen {
   width: min(100%, 760px);
-  padding: 18px 16px 32px;
+  padding: 22px 18px calc(104px + env(safe-area-inset-bottom));
   margin: 0 auto;
 }
 
 .screen h1 {
   margin: 0 0 6px;
-  font-size: 22px;
-  letter-spacing: -0.02em;
+  font-size: clamp(23px, 6vw, 30px);
+  letter-spacing: -0.045em;
 }
 
 .screen h2 {
   margin: 26px 0 10px;
-  font-size: 16px;
+  font-size: 18px;
   letter-spacing: -0.01em;
+  margin-top: 30px;
 }
 
 .screen-lead,
@@ -192,6 +227,7 @@ select {
   font-size: 14px;
   line-height: 1.65;
   color: var(--ink-700);
+  max-width: 52ch;
 }
 
 .eyebrow {
@@ -204,16 +240,21 @@ select {
 }
 
 .hero {
-  padding: 22px 18px;
-  margin-bottom: 8px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
+  padding: 27px 22px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, rgba(39, 179, 177, 0.12), rgba(228, 241, 250, 0.65)), #ffffff;
+  border: 0;
+  border-radius: 22px;
+  box-shadow: 0 16px 42px rgba(11, 41, 68, 0.09);
+  position: relative;
+  overflow: hidden;
 }
 
 .hero h1 {
-  font-size: 26px;
+  font-size: clamp(28px, 7vw, 38px);
+  max-width: 18ch;
+  margin-bottom: 10px;
+  line-height: 1.18;
 }
 
 .bottom-nav {
@@ -225,20 +266,26 @@ select {
   width: 100%;
   background: var(--surface);
   border-top: 1px solid var(--line);
+  align-items: flex-end;
+  min-height: calc(72px + env(safe-area-inset-bottom));
+  padding: 5px 4px env(safe-area-inset-bottom);
+  box-shadow: 0 -8px 28px rgba(11, 41, 68, 0.07);
 }
 
 .bottom-nav button {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   align-items: center;
-  padding: 9px 4px 11px;
-  font-size: 11px;
+  padding: 5px 2px 7px;
+  font-size: 10.5px;
   color: var(--ink-500);
   cursor: pointer;
   background: transparent;
   border: 0;
+  justify-content: flex-end;
+  min-height: 62px;
 }
 
 .bottom-nav button span {
@@ -306,11 +353,12 @@ select {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
+  margin-top: 22px;
 }
 
 .question-card.is-hot {
-  border-color: var(--cyan-500);
-  box-shadow: 0 0 0 1px var(--cyan-100);
+  border-color: rgba(39, 179, 177, 0.5);
+  box-shadow: 0 8px 24px rgba(39, 179, 177, 0.09);
 }
 
 .hot-badge {
@@ -423,6 +471,25 @@ select {
   word-break: keep-all;
 }
 
+/* 상세에서 목록으로 돌아가는 길. 작성 화면의 닫기 버튼과 짝을 맞춘다. */
+.back-link {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 10px 6px 6px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-700);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.back-link:hover {
+  color: var(--blue-700);
+}
+
 .question-detail .question-body {
   font-size: 15.5px;
   color: var(--ink-900);
@@ -449,6 +516,10 @@ select {
   font-size: 11px;
   font-weight: 700;
   color: var(--ink-500);
+}
+
+.intake-summary > div:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 
 .intake-summary dd {
@@ -505,10 +576,6 @@ select {
 .post-author {
   font-weight: 700;
   color: var(--ink-900);
-}
-
-.answer-thread {
-  margin-top: 22px;
 }
 
 .thread-heading {
@@ -1174,6 +1241,7 @@ select {
   color: #eaf3fa;
   background: var(--navy-800);
   border-radius: 14px;
+  margin-top: 28px;
 }
 
 .install-card h2 {
@@ -1281,13 +1349,6 @@ select {
 
 /* 환자 앱 개편 — 모바일 전체 화면, 데스크톱 웹/앱 미리보기 */
 
-body {
-  overflow-x: hidden;
-  background:
-    radial-gradient(circle at 8% 5%, rgba(39, 179, 177, 0.09), transparent 28rem),
-    #e8eef3;
-}
-
 button {
   min-width: 44px;
   min-height: 44px;
@@ -1303,43 +1364,6 @@ button {
 
 .app-viewport {
   width: 100%;
-}
-
-.app-root {
-  position: relative;
-  overflow-x: hidden;
-  background: #f4f7f9;
-}
-
-.app-header {
-  padding: max(12px, env(safe-area-inset-top)) 18px 10px;
-  color: var(--navy-900);
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid rgba(220, 229, 235, 0.85);
-  backdrop-filter: blur(14px);
-}
-
-.app-header-row {
-  min-height: 42px;
-}
-
-.brand-block {
-  display: inline-flex;
-  flex-direction: row;
-  gap: 8px;
-  align-items: center;
-  min-height: 44px;
-  padding: 0;
-  color: inherit;
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-}
-
-.brand {
-  font-size: 21px;
-  font-weight: 850;
-  letter-spacing: -0.055em;
 }
 
 .demo-badge {
@@ -1364,34 +1388,6 @@ button {
   border-radius: 999px;
 }
 
-.screen {
-  width: min(100%, 760px);
-  padding: 22px 18px calc(104px + env(safe-area-inset-bottom));
-}
-
-.screen h1 {
-  font-size: clamp(23px, 6vw, 30px);
-  letter-spacing: -0.045em;
-}
-
-.screen h2 {
-  margin-top: 30px;
-  font-size: 18px;
-}
-
-.hero {
-  position: relative;
-  padding: 27px 22px;
-  margin-bottom: 16px;
-  overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(39, 179, 177, 0.12), rgba(228, 241, 250, 0.65)),
-    #ffffff;
-  border: 0;
-  border-radius: 22px;
-  box-shadow: 0 16px 42px rgba(11, 41, 68, 0.09);
-}
-
 .hero::after {
   position: absolute;
   right: -28px;
@@ -1401,17 +1397,6 @@ button {
   content: '';
   background: rgba(39, 179, 177, 0.09);
   border-radius: 50%;
-}
-
-.hero h1 {
-  max-width: 12ch;
-  margin-bottom: 10px;
-  font-size: clamp(29px, 8vw, 40px);
-  line-height: 1.18;
-}
-
-.hero-lead {
-  max-width: 52ch;
 }
 
 .hero .primary-cta {
@@ -1539,9 +1524,13 @@ button {
 .stories-entry-card {
   padding: 21px 19px;
   margin-top: 26px;
-  background: #ffffff;
+  background: linear-gradient(135deg, #ffffff, var(--blue-100));
   border: 1px solid var(--line);
   border-radius: 18px;
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  justify-content: space-between;
 }
 
 .care-prep-card h2,
@@ -1567,14 +1556,6 @@ button {
   color: var(--ink-700);
 }
 
-.stories-entry-card {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
-  justify-content: space-between;
-  background: linear-gradient(135deg, #ffffff, var(--blue-100));
-}
-
 .stories-entry-card .secondary-cta {
   flex: none;
 }
@@ -1584,11 +1565,6 @@ button {
   border-color: #e1e8ed;
   border-radius: 17px;
   box-shadow: 0 7px 22px rgba(24, 48, 72, 0.045);
-}
-
-.question-card.is-hot {
-  border-color: rgba(39, 179, 177, 0.5);
-  box-shadow: 0 8px 24px rgba(39, 179, 177, 0.09);
 }
 
 .story-filters {
@@ -1775,6 +1751,7 @@ button {
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 17px;
+  padding: 2px 18px 18px;
 }
 
 .my-menu > button {
@@ -1804,10 +1781,6 @@ button {
   font-size: 12px;
   line-height: 1.5;
   color: var(--ink-500);
-}
-
-.demo-settings {
-  padding: 2px 18px 18px;
 }
 
 .demo-settings p {
@@ -1981,6 +1954,7 @@ button {
 .expert-gate-screen {
   max-width: 680px;
   padding-top: max(16px, env(safe-area-inset-top));
+  min-height: 100vh;
 }
 
 .ask-header {
@@ -2015,10 +1989,6 @@ button {
   border-radius: 999px;
 }
 
-.expert-gate-screen {
-  min-height: 100vh;
-}
-
 .expert-gate-card {
   padding: 34px 24px;
   margin-top: 12vh;
@@ -2046,25 +2016,6 @@ button {
   margin: 10px auto 22px;
   line-height: 1.7;
   color: var(--ink-700);
-}
-
-.install-card {
-  margin-top: 28px;
-}
-
-.bottom-nav {
-  align-items: flex-end;
-  min-height: calc(72px + env(safe-area-inset-bottom));
-  padding: 5px 4px env(safe-area-inset-bottom);
-  box-shadow: 0 -8px 28px rgba(11, 41, 68, 0.07);
-}
-
-.bottom-nav button {
-  gap: 2px;
-  justify-content: flex-end;
-  min-height: 62px;
-  padding: 5px 2px 7px;
-  font-size: 10.5px;
 }
 
 .nav-icon-wrap {
