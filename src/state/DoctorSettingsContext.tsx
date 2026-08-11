@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import { demoDoctorSettings, settingsFor } from '../data/demoDoctorSettings'
+import type { ReviewState } from '../domain/doctorFeed'
 import type { DoctorSettings } from '../domain/types'
 
 interface DoctorSettingsContextValue {
@@ -11,6 +12,9 @@ interface DoctorSettingsContextValue {
   settingsOf: (doctorId: string, templateId?: string) => DoctorSettings
   update: (doctorId: string, patch: Partial<DoctorSettings>, notice: string) => void
   notice: string
+  /** 사연을 읽었는지 미뤘는지. 지운 것이 아니라 나중에 볼 것으로 표시한다. */
+  reviewOf: (doctorId: string, questionId: string) => ReviewState
+  setReview: (doctorId: string, questionId: string, state: ReviewState) => void
   reset: () => void
 }
 
@@ -25,6 +29,7 @@ const DoctorSettingsContext = createContext<DoctorSettingsContextValue | null>(n
 export function DoctorSettingsProvider({ children }: PropsWithChildren) {
   const [overrides, setOverrides] = useState<DoctorSettings[]>(demoDoctorSettings)
   const [notice, setNotice] = useState('')
+  const [reviews, setReviews] = useState<Record<string, ReviewState>>({})
 
   const settingsOf = useCallback(
     (doctorId: string, templateId?: string) =>
@@ -46,14 +51,28 @@ export function DoctorSettingsProvider({ children }: PropsWithChildren) {
     [],
   )
 
+  const reviewOf = useCallback(
+    (doctorId: string, questionId: string): ReviewState => reviews[`${doctorId}:${questionId}`] ?? 'new',
+    [reviews],
+  )
+
+  const setReview = useCallback(
+    (doctorId: string, questionId: string, state: ReviewState) => {
+      setReviews((prev) => ({ ...prev, [`${doctorId}:${questionId}`]: state }))
+      setNotice(state === 'held' ? '나중에 볼 것으로 표시했습니다.' : '읽음으로 표시했습니다.')
+    },
+    [],
+  )
+
   const reset = useCallback(() => {
+    setReviews({})
     setOverrides(demoDoctorSettings)
     setNotice('의사 설정을 처음 상태로 되돌렸습니다.')
   }, [])
 
   const value = useMemo<DoctorSettingsContextValue>(
-    () => ({ settingsOf, update, notice, reset }),
-    [settingsOf, update, notice, reset],
+    () => ({ settingsOf, update, notice, reviewOf, setReview, reset }),
+    [settingsOf, update, notice, reviewOf, setReview, reset],
   )
 
   return <DoctorSettingsContext.Provider value={value}>{children}</DoctorSettingsContext.Provider>

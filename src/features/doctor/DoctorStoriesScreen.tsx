@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { demoWeekEndingOn } from '../../data/demoCalendar'
 import { boardRuleSet } from '../../data/rules/boardRules'
 import { empathyCount, rankWeeklyHot } from '../../domain/board'
-import { keywordFeed } from '../../domain/doctorFeed'
+import { applyReview, keywordFeed } from '../../domain/doctorFeed'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 import { useDoctorSettings } from '../../state/DoctorSettingsContext'
@@ -19,13 +19,15 @@ type StoryTab = 'matched' | 'hot'
 export function DoctorStoriesScreen() {
   const { state } = useCommunity()
   const { doctors, findDoctor } = useDirectory()
-  const { settingsOf } = useDoctorSettings()
+  const { settingsOf, reviewOf, setReview } = useDoctorSettings()
   const navigate = useNavigate()
   const [tab, setTab] = useState<StoryTab>('matched')
 
   const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const settings = settingsOf(doctor.id, doctor.templateId)
-  const feed = keywordFeed(doctor, settings, state.questions)
+  const feed = applyReview(keywordFeed(doctor, settings, state.questions), (questionId) =>
+    reviewOf(doctor.id, questionId),
+  )
 
   const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
   const hot = state.questions.filter((question) =>
@@ -74,8 +76,21 @@ export function DoctorStoriesScreen() {
           </div>
         ) : (
           <div className="card-list">
-            {feed.map((item) => (
-              <article key={item.question.id} className="question-card">
+            {feed.map((item) => {
+              const review = reviewOf(doctor.id, item.question.id)
+              const urgent = item.question.triage.redFlags.length > 0
+              return (
+              <article
+                key={item.question.id}
+                className={`question-card ${urgent ? 'is-urgent' : ''} ${
+                  review === 'held' ? 'is-held' : ''
+                }`}
+              >
+                {urgent && (
+                  <span className="urgent-badge">
+                    <span aria-hidden="true">!</span> 응급 신호
+                  </span>
+                )}
                 <button
                   type="button"
                   className="question-open"
@@ -95,8 +110,34 @@ export function DoctorStoriesScreen() {
                     </span>
                   ))}
                 </div>
+                <div className="question-footer">
+                  <span className="answer-count">
+                    {review === 'held' ? '나중에 볼 것' : review === 'read' ? '읽음' : '새 사연'}
+                  </span>
+                  <span className="review-actions">
+                    <button
+                      type="button"
+                      className="text-link"
+                      onClick={() =>
+                        setReview(doctor.id, item.question.id, review === 'read' ? 'new' : 'read')
+                      }
+                    >
+                      {review === 'read' ? '안 읽음' : '읽음'}
+                    </button>
+                    <button
+                      type="button"
+                      className="text-link"
+                      onClick={() =>
+                        setReview(doctor.id, item.question.id, review === 'held' ? 'new' : 'held')
+                      }
+                    >
+                      {review === 'held' ? '되돌리기' : '나중에'}
+                    </button>
+                  </span>
+                </div>
               </article>
-            ))}
+              )
+            })}
           </div>
         )
       ) : (

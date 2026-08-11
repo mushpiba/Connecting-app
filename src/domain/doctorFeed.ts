@@ -71,3 +71,28 @@ export function notificationDigest(feed: FeedItem[], limit: number): Notificatio
     limit,
   }
 }
+
+export type ReviewState = 'new' | 'read' | 'held'
+
+/**
+ * 응급 신호가 걸린 사연을 먼저 보여준다.
+ *
+ * 의사가 목록을 위에서부터 읽는다는 전제 위에서, 지금 봐야 하는 것이 아래에
+ * 묻히면 안 된다. 나머지는 원래 순서를 그대로 둔다. 우리가 정한 기준으로
+ * 줄을 세우기 시작하면 그게 곧 노출 우선권이 된다.
+ */
+export function urgentFirst(items: FeedItem[]): FeedItem[] {
+  const urgent = items.filter((item) => item.question.triage.redFlags.length > 0)
+  const rest = items.filter((item) => item.question.triage.redFlags.length === 0)
+  return [...urgent, ...rest]
+}
+
+/** 보류한 것은 목록 아래로 내린다. 지운 것이 아니라 미룬 것이다. */
+export function applyReview(
+  items: FeedItem[],
+  reviewOf: (questionId: string) => ReviewState,
+): FeedItem[] {
+  const held = items.filter((item) => reviewOf(item.question.id) === 'held')
+  const active = items.filter((item) => reviewOf(item.question.id) !== 'held')
+  return [...urgentFirst(active), ...held]
+}

@@ -1,7 +1,7 @@
 import { demoQuestions } from '../data/demoQuestions'
 import { demoDoctors } from '../data/demoDoctors'
 import { settingsFor } from '../data/demoDoctorSettings'
-import { directRequests, keywordFeed, notificationDigest } from './doctorFeed'
+import { applyReview, directRequests, keywordFeed, notificationDigest, urgentFirst } from './doctorFeed'
 
 const ent = demoDoctors.find((doctor) => doctor.id === 'doc-han-ent')!
 const derm = demoDoctors.find((doctor) => doctor.id === 'doc-skin-derm')!
@@ -79,5 +79,45 @@ describe('notificationDigest', () => {
 
   it('상한이 넉넉하면 남는 것이 없다', () => {
     expect(notificationDigest(feed, 100).heldBack).toBe(0)
+  })
+})
+
+describe('urgentFirst', () => {
+  /** 응급 신호가 걸린 사연은 어느 진료과에도 안 걸릴 수 있어 직접 만든다. */
+  const feed = ['q-nose', 'q-knee', 'q-chest'].map((id) => ({
+    question: demoQuestions.find((question) => question.id === id)!,
+    reasons: ['specialty' as const],
+    matchedKeywords: [],
+  }))
+
+  it('응급 신호가 걸린 사연을 맨 위로 올린다', () => {
+    const sorted = urgentFirst(feed)
+
+    expect(sorted[0].question.triage.redFlags.length).toBeGreaterThan(0)
+  })
+
+  it('나머지 순서는 그대로 둔다', () => {
+    const sorted = urgentFirst(feed)
+    const rest = sorted.filter((item) => item.question.triage.redFlags.length === 0)
+    const original = feed.filter((item) => item.question.triage.redFlags.length === 0)
+
+    expect(rest.map((item) => item.question.id)).toEqual(original.map((item) => item.question.id))
+  })
+})
+
+describe('applyReview', () => {
+  const feed = keywordFeed(ent, settingsFor(ent.id), demoQuestions)
+
+  it('보류한 사연을 아래로 내린다', () => {
+    const first = feed[0].question.id
+    const sorted = applyReview(feed, (id) => (id === first ? 'held' : 'new'))
+
+    expect(sorted.at(-1)?.question.id).toBe(first)
+  })
+
+  it('보류해도 목록에서 사라지지 않는다', () => {
+    const sorted = applyReview(feed, () => 'held')
+
+    expect(sorted).toHaveLength(feed.length)
   })
 })
