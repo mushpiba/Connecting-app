@@ -28,8 +28,25 @@ import { QuestionDetailScreen } from './features/patient/QuestionDetailScreen'
 import { PrecheckScreen } from './features/patient/PrecheckScreen'
 import { DoctorAnswerScreen } from './features/doctor/DoctorAnswerScreen'
 import { DoctorInboxScreen } from './features/doctor/DoctorInboxScreen'
+import { JoinScreen } from './features/patient/JoinScreen'
 import { CommunityProvider } from './state/CommunityContext'
+import { SessionProvider, useSession } from './state/SessionContext'
 import { PatientSettingsProvider } from './state/PatientSettingsContext'
+
+/** 라이브 모드에서 아직 참여하지 않았으면 문 앞에서 멈춘다. */
+function SessionGate({ children }: { children: React.ReactNode }) {
+  const { status } = useSession()
+
+  if (status === 'loading') {
+    return <p className="boot-note">불러오는 중…</p>
+  }
+
+  if (status === 'signed-out' || status === 'error') {
+    return <JoinScreen />
+  }
+
+  return <>{children}</>
+}
 
 function AppRoutes() {
   const location = useLocation()
@@ -106,11 +123,15 @@ function AppRoutes() {
 export function App() {
   return (
     <HashRouter>
-      <CommunityProvider>
-        <PatientSettingsProvider>
-          <AppRoutes />
-        </PatientSettingsProvider>
-      </CommunityProvider>
+      <SessionProvider>
+        <CommunityProvider>
+          <PatientSettingsProvider>
+            <SessionGate>
+              <AppRoutes />
+            </SessionGate>
+          </PatientSettingsProvider>
+        </CommunityProvider>
+      </SessionProvider>
     </HashRouter>
   )
 }

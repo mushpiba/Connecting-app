@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react'
 import type { PropsWithChildren } from 'react'
 import { toggleEmpathy } from '../domain/board'
 import type {
@@ -17,6 +17,18 @@ import {
   demoQuestions,
 } from '../data/demoQuestions'
 import { demoDoctors } from '../data/demoDoctors'
+import { isLiveMode } from '../data/supabaseClient'
+import {
+  fetchSnapshot,
+  insertAnswer,
+  insertBooking,
+  insertQuestion,
+  setEmpathy,
+  subscribeToChanges,
+} from '../data/liveRepository'
+import { hasEmpathized } from '../domain/board'
+import { useSession } from './SessionContext'
+import type { LiveSnapshot } from '../data/liveRepository'
 
 export interface CommunityState {
   role: AppRole
@@ -39,6 +51,7 @@ export type CommunityAction =
   | { type: 'complete-precheck'; precheck: TelemedicinePrecheck }
   | { type: 'request-encounter'; questionId: string; doctorId: string }
   | { type: 'request-booking'; booking: BookingRequest }
+  | { type: 'load-snapshot'; snapshot: LiveSnapshot; profileId: string; role: AppRole }
   | { type: 'reset' }
 
 export const initialPrecheck: TelemedicinePrecheck = {
@@ -96,6 +109,18 @@ export function communityReducer(
       const kept = state.bookings.filter((item) => item.id !== action.booking.id)
       return { ...state, bookings: [...kept, action.booking] }
     }
+    /** 서버에서 읽은 것으로 통째로 갈아 끼운다. 무엇이 바뀌었는지 따지지 않는다. */
+    case 'load-snapshot':
+      return {
+        ...state,
+        role: action.role,
+        patientId: action.profileId,
+        doctorId: action.role === 'doctor' ? action.profileId : state.doctorId,
+        questions: action.snapshot.questions,
+        answers: action.snapshot.answers,
+        empathies: action.snapshot.empathies,
+        bookings: action.snapshot.bookings,
+      }
     case 'reset':
       return initialCommunityState
     default:
@@ -115,6 +140,8 @@ interface CommunityContextValue {
   requestEncounter: (questionId: string, doctorId: string) => void
   requestBooking: (booking: BookingRequest) => void
   resetDemo: () => void
+  /** 라이브 모드에서만 채워진다. 화면은 없으면 데모 픽스처를 쓴다. */
+  live: LiveSnapshot | null
 }
 
 const CommunityContext = createContext<CommunityContextValue | null>(null)
@@ -122,6 +149,33 @@ const CommunityContext = createContext<CommunityContextValue | null>(null)
 export function CommunityProvider({ children }: PropsWithChildren) {
   const [state, dispatch] = useReducer(communityReducer, initialCommunityState)
   const [statusNotice, setStatusNotice] = useState('')
+  const [live, setLive] = useState<LiveSnapshot | null>(null)
+  const { status, profile } = useSession()
+  const ready = isLiveMode && status === 'ready' && profile !== null
+
+  const reload = useCallback(async () => {
+    if (!profile) return
+    try {
+      const snapshot = await fetchSnapshot()
+      setLive(snapshot)
+      dispatch({
+        type: 'load-snapshot',
+        snapshot,
+        profileId: profile.id,
+        role: profile.role,
+      })
+    } catch (error) {
+      setStatusNotice(error instanceof Error ? error.message : '불러오지 못했습니다.')
+    }
+  }, [profile])
+
+  useEffect(() => {
+    if (!ready) return
+    void reload()
+    return subscribeToChanges(() => {
+      void reload()
+    })
+  }, [ready, reload])
 
   const value = useMemo<CommunityContextValue>(
     () => ({
@@ -133,14 +187,37 @@ export function CommunityProvider({ children }: PropsWithChildren) {
       },
       switchDoctor: (doctorId) => dispatch({ type: 'switch-doctor', doctorId }),
       publishQuestion: (question) => {
+        if (ready && profile) {
+          void insertQuestion(question, profile.id)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+          setStatusNotice('사연을 올렸습니다.')
+          return
+        }
         dispatch({ type: 'publish-question', question })
         setStatusNotice('질문을 등록했습니다. 브라우저 메모리에만 저장했습니다.')
       },
       publishAnswer: (answer) => {
+        if (ready && profile) {
+          void insertAnswer(answer.questionId, profile.id, answer.body)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+          setStatusNotice('답변을 등록했습니다.')
+          return
+        }
         dispatch({ type: 'publish-answer', answer })
         setStatusNotice('답변을 등록했습니다. 브라우저 메모리에만 저장했습니다.')
       },
-      toggleQuestionEmpathy: (questionId) => dispatch({ type: 'toggle-empathy', questionId }),
+      toggleQuestionEmpathy: (questionId) => {
+        if (ready && profile) {
+          const on = !hasEmpathized(state.empathies, questionId, profile.id)
+          void setEmpathy(questionId, profile.id, on)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+          return
+        }
+        dispatch({ type: 'toggle-empathy', questionId })
+      },
       completePrecheck: (precheck) => {
         dispatch({ type: 'complete-precheck', precheck })
         setStatusNotice('비대면 사전 확인을 마쳤습니다.')
@@ -150,6 +227,13 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         setStatusNotice('진료 신청 의사를 전달했습니다. 실제 예약은 이루어지지 않습니다.')
       },
       requestBooking: (booking) => {
+        if (ready && profile) {
+          void insertBooking(booking, profile.id)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+          setStatusNotice('희망 시간을 전달했습니다. 실제 예약은 병원이 확인해야 확정됩니다.')
+          return
+        }
         dispatch({ type: 'request-booking', booking })
         setStatusNotice('희망 시간을 전달했습니다. 실제 예약은 병원이 확인해야 확정됩니다.')
       },
@@ -157,8 +241,9 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         dispatch({ type: 'reset' })
         setStatusNotice('데모가 초기 상태로 복원됐습니다.')
       },
+      live,
     }),
-    [state, statusNotice],
+    [state, statusNotice, live, ready, profile, reload],
   )
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>
