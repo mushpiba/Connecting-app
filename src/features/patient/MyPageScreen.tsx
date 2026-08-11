@@ -2,15 +2,22 @@ import { useNavigate } from 'react-router-dom'
 import { demoPatients } from '../../data/demoQuestions'
 import { isPrecheckComplete } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
+import { usePatientSettings } from '../../state/PatientSettingsContext'
 
 export function MyPageScreen() {
   const { state, resetDemo } = useCommunity()
+  const { settings, resetSettings } = usePatientSettings()
   const navigate = useNavigate()
   const patient = demoPatients.find((item) => item.id === state.patientId)
   const mine = state.questions.filter((question) => question.patientId === state.patientId)
   const mineIds = new Set(mine.map((question) => question.id))
   const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
   const precheckComplete = isPrecheckComplete(state.precheck)
+  const paymentLabel = settings.paymentMethodId === 'none' ? '등록된 수단 없음' : '데모 수단 선택됨'
+  const resetAll = () => {
+    resetDemo()
+    resetSettings()
+  }
 
   return (
     <div className="screen my-screen">
@@ -35,7 +42,8 @@ export function MyPageScreen() {
         </button>
       </div>
 
-      <section className="my-menu" aria-label="MY 메뉴">
+      <h2 className="my-section-title">진료 준비</h2>
+      <section className="my-menu" aria-label="진료 준비 메뉴">
         <button
           type="button"
           aria-label="비대면 진료 사전 확인"
@@ -47,8 +55,48 @@ export function MyPageScreen() {
           </span>
           <span aria-hidden="true">›</span>
         </button>
+        <button type="button" aria-label="주소 설정" onClick={() => navigate('/me/address')}>
+          <span>
+            <strong>주소 설정</strong>
+            <small>{settings.address.region}{settings.address.detail ? ` · ${settings.address.detail}` : ''}</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button type="button" aria-label="결제수단 설정" onClick={() => navigate('/me/payment')}>
+          <span>
+            <strong>결제수단 설정</strong>
+            <small>{paymentLabel}</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button type="button" aria-label="예약 내역" onClick={() => navigate('/me/appointments')}>
+          <span>
+            <strong>예약 내역</strong>
+            <small>{state.bookings.length > 0 ? `전달한 희망 시간 ${state.bookings.length}건` : '전달한 희망 시간 없음'}</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+      </section>
+
+      <h2 className="my-section-title">앱 설정</h2>
+      <section className="my-menu" aria-label="앱 설정 메뉴">
+        <button type="button" aria-label="알림 설정" onClick={() => navigate('/me/notifications')}>
+          <span>
+            <strong>알림 설정</strong>
+            <small>답변·예약 소식 알림 선택</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button type="button" aria-label="개인정보 설정" onClick={() => navigate('/me/privacy')}>
+          <span>
+            <strong>개인정보 설정</strong>
+            <small>질문 공개 범위와 프로필 표시</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
         <button
           type="button"
+          aria-label="앱 사용법 다시 보기"
           onClick={() => navigate('/onboarding', { state: { returnTo: '/me' } })}
         >
           <span>
@@ -62,7 +110,7 @@ export function MyPageScreen() {
       <section className="demo-settings" aria-labelledby="demo-settings-heading">
         <h2 id="demo-settings-heading">설정</h2>
         <p>질문·답변·사전 확인을 시연 시작 상태로 되돌립니다.</p>
-        <button type="button" className="secondary-cta" onClick={resetDemo}>
+        <button type="button" className="secondary-cta" onClick={resetAll}>
           데모 초기화
         </button>
       </section>

@@ -11,6 +11,13 @@ import { DoctorProfileScreen } from './features/patient/DoctorProfileScreen'
 import { HomeScreen } from './features/patient/HomeScreen'
 import { ExpertGateScreen } from './features/patient/ExpertGateScreen'
 import { MyPageScreen } from './features/patient/MyPageScreen'
+import {
+  AddressSettingsScreen,
+  AppointmentsScreen,
+  NotificationSettingsScreen,
+  PaymentSettingsScreen,
+  PrivacySettingsScreen,
+} from './features/patient/MySettingsScreens'
 import { NewsScreen } from './features/patient/NewsScreen'
 import {
   ONBOARDING_COMPLETE_KEY,
@@ -21,6 +28,7 @@ import { PrecheckScreen } from './features/patient/PrecheckScreen'
 import { DoctorAnswerScreen } from './features/doctor/DoctorAnswerScreen'
 import { DoctorInboxScreen } from './features/doctor/DoctorInboxScreen'
 import { CommunityProvider } from './state/CommunityContext'
+import { PatientSettingsProvider } from './state/PatientSettingsContext'
 
 function AppRoutes() {
   const location = useLocation()
@@ -53,7 +61,7 @@ function AppRoutes() {
   const focused =
     location.pathname === '/ask' ||
     location.pathname === '/expert' ||
-    location.pathname === '/me/precheck'
+    location.pathname.startsWith('/me/')
 
   return (
     <div className={`app-stage is-${previewMode}-preview`}>
@@ -76,6 +84,11 @@ function AppRoutes() {
             <Route path="/booking/:doctorId" element={<BookingScreen />} />
             <Route path="/me" element={<MyPageScreen />} />
             <Route path="/me/precheck" element={<PrecheckScreen />} />
+            <Route path="/me/address" element={<AddressSettingsScreen />} />
+            <Route path="/me/payment" element={<PaymentSettingsScreen />} />
+            <Route path="/me/notifications" element={<NotificationSettingsScreen />} />
+            <Route path="/me/privacy" element={<PrivacySettingsScreen />} />
+            <Route path="/me/appointments" element={<AppointmentsScreen />} />
             <Route path="/doctor/inbox" element={<DoctorInboxScreen />} />
             <Route path="/doctor/questions/:questionId" element={<DoctorAnswerScreen />} />
             <Route path="*" element={<Navigate replace to="/home" />} />
@@ -92,7 +105,9 @@ export function App() {
   return (
     <HashRouter>
       <CommunityProvider>
-        <AppRoutes />
+        <PatientSettingsProvider>
+          <AppRoutes />
+        </PatientSettingsProvider>
       </CommunityProvider>
     </HashRouter>
   )
