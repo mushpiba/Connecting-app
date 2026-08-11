@@ -1161,6 +1161,56 @@ select {
   color: #0d6a68;
 }
 
+/* 설치 안내 — Chrome이 설치 가능 판정을 내렸을 때만 뜬다. */
+
+.install-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  color: #eaf3fa;
+  background: var(--navy-800);
+  border-radius: 14px;
+}
+
+.install-card h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.install-card p {
+  max-width: 46ch;
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #b9d3e6;
+}
+
+.install-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.install-actions .primary-cta {
+  padding: 9px 18px;
+  color: var(--navy-900);
+  background: #ffffff;
+}
+
+.text-button {
+  padding: 9px 10px;
+  font-size: 12.5px;
+  color: #b9d3e6;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
 @media (min-width: 768px) {
   .app-body {
     flex-direction: row;

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { InstallCard } from '../../components/InstallCard'
 import { QuestionCard } from '../../components/QuestionCard'
 import { boardRuleSet } from '../../data/rules/boardRules'
 import { demoWeekEndingOn } from '../../data/demoCalendar'
@@ -17,6 +18,8 @@ export function HomeScreen() {
 
   return (
     <div className="screen">
+      <InstallCard />
+
       <section className="hero" aria-labelledby="home-hero-heading">
         <p className="eyebrow">SYMPTOM TO CARE · DEMO</p>
         <h1 id="home-hero-heading">어디가 불편하신가요</h1>
