@@ -1,14 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useCommunity } from '../state/CommunityContext'
+import { AppIcon } from './AppIcon'
 
 const patientTabs = [
-  { path: '/home', label: '홈', glyph: '⌂' },
-  { path: '/board', label: '게시판', glyph: '▤' },
-  { path: '/ask', label: '질문하기', glyph: '✚' },
-  { path: '/me', label: '마이', glyph: '☺' },
-]
+  { path: '/home', label: '홈', icon: 'home' },
+  { path: '/stories', label: '사연', icon: 'stories' },
+  { path: '/ask', label: 'Q', icon: 'ask', primary: true },
+  { path: '/news', label: '내소식', icon: 'news' },
+  { path: '/me', label: 'MY', icon: 'me' },
+] as const
 
-const doctorTabs = [{ path: '/doctor/inbox', label: '받은 질문', glyph: '▤' }]
+const doctorTabs = [{ path: '/doctor/inbox', label: '받은 질문', icon: 'stories' }] as const
 
 export function BottomNav() {
   const { state } = useCommunity()
@@ -24,12 +26,15 @@ export function BottomNav() {
           <button
             key={tab.path}
             type="button"
-            className={active ? 'is-active' : ''}
+            className={`${active ? 'is-active' : ''} ${'primary' in tab && tab.primary ? 'is-primary' : ''}`}
+            aria-label={tab.label}
             aria-current={active ? 'page' : undefined}
             onClick={() => navigate(tab.path)}
           >
-            <span aria-hidden="true">{tab.glyph}</span>
-            {tab.label}
+            <span className="nav-icon-wrap">
+              <AppIcon name={tab.icon} />
+            </span>
+            {'primary' in tab && tab.primary ? null : tab.label}
           </button>
         )
       })}

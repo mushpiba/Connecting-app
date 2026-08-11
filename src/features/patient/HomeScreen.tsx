@@ -4,6 +4,7 @@ import { QuestionCard } from '../../components/QuestionCard'
 import { boardRuleSet } from '../../data/rules/boardRules'
 import { demoWeekEndingOn } from '../../data/demoCalendar'
 import { empathyCount, hasEmpathized, orderBoard, rankWeeklyHot } from '../../domain/board'
+import { isPrecheckComplete } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
 
 export function HomeScreen() {
@@ -11,15 +12,16 @@ export function HomeScreen() {
   const navigate = useNavigate()
 
   const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
-  const hot = orderBoard(state.questions, ranks).filter(
-    (question) => ranks.find((rank) => rank.questionId === question.id)?.isHot,
-  )
+  const hot = orderBoard(state.questions, ranks)
+    .filter((question) => ranks.find((rank) => rank.questionId === question.id)?.isHot)
+    .slice(0, 3)
   const mine = state.questions.filter((question) => question.patientId === state.patientId)
+  const mineIds = new Set(mine.map((question) => question.id))
+  const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
+  const precheckComplete = isPrecheckComplete(state.precheck)
 
   return (
     <div className="screen">
-      <InstallCard />
-
       <section className="hero" aria-labelledby="home-hero-heading">
         <p className="eyebrow">SYMPTOM TO CARE · DEMO</p>
         <h1 id="home-hero-heading">어디가 불편하신가요</h1>
@@ -32,8 +34,21 @@ export function HomeScreen() {
         </button>
       </section>
 
+      <section className="home-summary" aria-label="내 진료 준비와 소식">
+        <button type="button" onClick={() => navigate('/me/precheck')}>
+          <span className="summary-label">비대면 진료</span>
+          <strong>{precheckComplete ? '사전 확인 완료' : '사전 확인 필요'}</strong>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button type="button" onClick={() => navigate('/news')}>
+          <span className="summary-label">내소식</span>
+          <strong>받은 답변 {answerCount}개</strong>
+          <span aria-hidden="true">›</span>
+        </button>
+      </section>
+
       <section aria-labelledby="home-hot-heading">
-        <h2 id="home-hot-heading">이번 주 많이 공감한 글</h2>
+        <h2 id="home-hot-heading">HOT 사연</h2>
         {hot.length === 0 ? (
           <p className="empty-note">이번 주에는 아직 상단에 고정된 글이 없습니다.</p>
         ) : (
@@ -53,25 +68,7 @@ export function HomeScreen() {
         )}
       </section>
 
-      <section aria-labelledby="home-mine-heading">
-        <h2 id="home-mine-heading">내 질문</h2>
-        {mine.length === 0 ? (
-          <p className="empty-note">아직 올린 질문이 없습니다.</p>
-        ) : (
-          <div className="card-list">
-            {mine.map((question) => (
-              <QuestionCard
-                key={question.id}
-                question={question}
-                answerCount={state.answers.filter((a) => a.questionId === question.id).length}
-                empathyCount={empathyCount(state.empathies, question.id)}
-                empathized={hasEmpathized(state.empathies, question.id, state.patientId)}
-                isHot={false}
-              />
-            ))}
-          </div>
-        )}
-      </section>
+      <InstallCard />
     </div>
   )
 }

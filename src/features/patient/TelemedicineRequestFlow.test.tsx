@@ -6,7 +6,7 @@ async function completePrecheck(
   user: ReturnType<typeof userEvent.setup>,
   region = '인천 미추홀구',
 ) {
-  window.location.hash = '#/me'
+  window.location.hash = '#/me/precheck'
   await user.selectOptions(await screen.findByLabelText('사는 지역'), region)
   await user.click(screen.getByRole('checkbox', { name: /본인 확인을 마쳤습니다/ }))
   await user.click(screen.getByRole('checkbox', { name: '위 조건을 확인했습니다' }))

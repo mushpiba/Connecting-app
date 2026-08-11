@@ -3,8 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { App } from '../../App'
 
 async function viewAs(user: ReturnType<typeof userEvent.setup>, optionLabel: string) {
-  await user.click(screen.getByRole('button', { name: '의사' }))
-  await user.selectOptions(screen.getByLabelText('지금 보고 있는 계정'), [optionLabel])
+  await user.click(screen.getByRole('button', { name: 'expert' }))
+  await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
+  await user.selectOptions(await screen.findByLabelText('지금 보고 있는 계정'), [optionLabel])
 }
 
 describe('doctor answer flow', () => {
@@ -49,7 +50,7 @@ describe('doctor answer flow', () => {
 
     expect(screen.getByRole('heading', { name: '받은 질문' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '환자' }))
+    await user.click(screen.getByRole('button', { name: '환자 화면' }))
     window.location.hash = '#/questions/q-sleep'
 
     expect(await screen.findByRole('heading', { name: '의사 답변 2' })).toBeInTheDocument()

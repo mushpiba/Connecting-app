@@ -31,7 +31,7 @@ export default defineConfig({
         ],
         shortcuts: [
           { name: '증상 적어보기', short_name: '질문하기', url: './#/ask' },
-          { name: '자유게시판', short_name: '게시판', url: './#/board' },
+          { name: '사연 둘러보기', short_name: '사연', url: './#/stories' },
         ],
       },
       workbox: {

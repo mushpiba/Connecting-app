@@ -154,8 +154,14 @@ export function AskScreen() {
   }
 
   return (
-    <div className="screen">
-      <h1>증상 적어보기</h1>
+    <div className="screen ask-screen">
+      <div className="ask-header">
+        <button type="button" aria-label="질문 작성 닫기" onClick={() => navigate('/home')}>
+          <span aria-hidden="true">×</span>
+        </button>
+        <h1>증상 적어보기</h1>
+        <span aria-hidden="true" />
+      </div>
       <p className="step-indicator">
         {step === 'symptom' && '1 / 3 · 증상'}
         {step === 'history' && '2 / 3 · 진료 이력'}

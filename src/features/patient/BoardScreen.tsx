@@ -1,14 +1,27 @@
+import { useState } from 'react'
 import { QuestionCard } from '../../components/QuestionCard'
 import { demoWeekEndingOn } from '../../data/demoCalendar'
 import { boardRuleSet } from '../../data/rules/boardRules'
 import { empathyCount, hasEmpathized, orderBoard, rankWeeklyHot } from '../../domain/board'
 import { useCommunity } from '../../state/CommunityContext'
 
+export type StoryFilter = 'all' | 'hot' | 'answered'
+
 export function BoardScreen() {
   const { state, toggleQuestionEmpathy } = useCommunity()
+  const [filter, setFilter] = useState<StoryFilter>('all')
 
   const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
   const ordered = orderBoard(state.questions, ranks)
+  const visible = ordered.filter((question) => {
+    if (filter === 'hot') {
+      return ranks.some((rank) => rank.questionId === question.id && rank.isHot)
+    }
+    if (filter === 'answered') {
+      return state.answers.some((answer) => answer.questionId === question.id)
+    }
+    return true
+  })
 
   return (
     <div className="screen">
@@ -18,8 +31,25 @@ export function BoardScreen() {
         눈에 걸립니다.
       </p>
 
+      <div className="story-filters" aria-label="사연 필터">
+        {([
+          ['all', '전체'],
+          ['hot', 'HOT'],
+          ['answered', '답변 있음'],
+        ] as const).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={filter === value}
+            onClick={() => setFilter(value)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="card-list">
-        {ordered.map((question) => (
+        {visible.map((question) => (
           <QuestionCard
             key={question.id}
             question={question}

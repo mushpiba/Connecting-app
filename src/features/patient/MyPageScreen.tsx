@@ -1,131 +1,70 @@
-import { useState } from 'react'
-import { demoNowIso } from '../../data/demoCalendar'
-import { demoRegions } from '../../data/demoClinics'
-import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
+import { useNavigate } from 'react-router-dom'
+import { demoPatients } from '../../data/demoQuestions'
 import { isPrecheckComplete } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
-import type { EligibilityException } from '../../domain/types'
-
-const exceptionOptions: { value: EligibilityException; label: string }[] = [
-  { value: 'none', label: '해당 없음' },
-  { value: 'rare-disease', label: '희귀질환' },
-  { value: 'type1-diabetes', label: '1형 당뇨' },
-  { value: 'post-op-followup', label: '수술 후 경과관찰' },
-  { value: 'correctional-facility', label: '교정시설 수용' },
-]
 
 export function MyPageScreen() {
-  const { state, completePrecheck } = useCommunity()
-  const [region, setRegion] = useState(state.precheck.region)
-  const [identityVerified, setIdentityVerified] = useState(state.precheck.identityVerified)
-  const [agreed, setAgreed] = useState(state.precheck.agreedToTerms)
-  const [count, setCount] = useState(state.precheck.monthlyTelemedicineCount)
-  const [exception, setException] = useState<EligibilityException>(state.precheck.exception)
-
-  const done = isPrecheckComplete(state.precheck)
-  const params = eligibilityRuleSet.params
-
-  const submit = (event: React.FormEvent) => {
-    event.preventDefault()
-    completePrecheck({
-      completedAt: demoNowIso,
-      identityVerified,
-      region,
-      monthlyTelemedicineCount: count,
-      exception,
-      agreedToTerms: agreed,
-    })
-  }
+  const { state, resetDemo } = useCommunity()
+  const navigate = useNavigate()
+  const patient = demoPatients.find((item) => item.id === state.patientId)
+  const mine = state.questions.filter((question) => question.patientId === state.patientId)
+  const mineIds = new Set(mine.map((question) => question.id))
+  const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
+  const precheckComplete = isPrecheckComplete(state.precheck)
 
   return (
-    <div className="screen">
-      <h1>마이페이지</h1>
+    <div className="screen my-screen">
+      <h1>MY</h1>
 
-      <section aria-labelledby="precheck-heading">
-        <h2 id="precheck-heading">비대면 진료 사전 확인</h2>
-        <p className="screen-lead">
-          한 번만 확인해 두면 의사 프로필에서 비대면 진료가 가능한지 바로 보입니다.
-        </p>
+      <section className="profile-summary" aria-label="프로필 요약">
+        <span className="profile-avatar" aria-hidden="true">민</span>
+        <div>
+          <strong>{patient?.displayName ?? 'MediVU 사용자'}</strong>
+          <p>{patient?.region ?? state.precheck.region}</p>
+        </div>
+      </section>
 
-        <ul className="condition-list">
-          <li>본인 확인을 마쳐야 합니다.</li>
-          <li>
-            같은 의료기관에서 최근 {params.revisitValidMonths}개월 안에 같은 증상으로 진료받은 기록이
-            있으면 재진으로 봅니다.
-          </li>
-          <li>초진은 환자와 의료기관이 같은 지역일 때만 가능합니다.</li>
-          <li>초진 처방일수는 최대 {params.firstVisitMaxPrescriptionDays}일로 제한됩니다.</li>
-          <li>환자 한 명이 한 달에 받을 수 있는 비대면 진료는 {params.monthlyVisitCapPerPatient}회입니다.</li>
-          <li>병원급은 희귀질환, 1형 당뇨, 수술 후 경과관찰, 교정시설 등 예외에만 해당합니다.</li>
-        </ul>
+      <div className="my-stats" aria-label="활동 요약">
+        <button type="button" onClick={() => navigate('/news')}>
+          <strong>{mine.length}</strong>
+          <span>내 사연 {mine.length}</span>
+        </button>
+        <button type="button" onClick={() => navigate('/news')}>
+          <strong>{answerCount}</strong>
+          <span>받은 답변 {answerCount}</span>
+        </button>
+      </div>
 
-        <form className="intake-form" onSubmit={submit}>
-          <label htmlFor="precheck-region">사는 지역</label>
-          <select
-            id="precheck-region"
-            value={region}
-            onChange={(event) => setRegion(event.target.value)}
-          >
-            {demoRegions.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
+      <section className="my-menu" aria-label="MY 메뉴">
+        <button
+          type="button"
+          aria-label="비대면 진료 사전 확인"
+          onClick={() => navigate('/me/precheck')}
+        >
+          <span>
+            <strong>비대면 진료 사전 확인</strong>
+            <small>{precheckComplete ? '확인 완료' : '진료 연결 전에 확인해 주세요'}</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/onboarding', { state: { returnTo: '/me' } })}
+        >
+          <span>
+            <strong>앱 사용법 다시 보기</strong>
+            <small>사연부터 진료 연결까지 3단계로 안내합니다</small>
+          </span>
+          <span aria-hidden="true">›</span>
+        </button>
+      </section>
 
-          <label htmlFor="precheck-count">이번 달 비대면 진료 횟수</label>
-          <input
-            id="precheck-count"
-            type="number"
-            min={0}
-            max={9}
-            value={count}
-            onChange={(event) => setCount(Number(event.target.value))}
-          />
-
-          <label htmlFor="precheck-exception">질환 예외</label>
-          <select
-            id="precheck-exception"
-            value={exception}
-            onChange={(event) => setException(event.target.value as EligibilityException)}
-          >
-            {exceptionOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <label className="choice">
-            <input
-              type="checkbox"
-              checked={identityVerified}
-              onChange={(event) => setIdentityVerified(event.target.checked)}
-            />
-            본인 확인을 마쳤습니다 (시연용 체크)
-          </label>
-
-          <label className="choice">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(event) => setAgreed(event.target.checked)}
-            />
-            위 조건을 확인했습니다
-          </label>
-
-          <button type="submit" className="primary-cta" disabled={!identityVerified || !agreed}>
-            사전 확인 마치기
-          </button>
-        </form>
-
-        <p className="precheck-status" role="status">
-          {done ? '비대면 사전 확인 완료' : '비대면 사전 확인 전'}
-        </p>
-        <p className="clinical-caveat">
-          이 확인은 브라우저 메모리에만 저장됩니다. 실제 본인확인 절차가 아닙니다. 적용 규칙{' '}
-          {eligibilityRuleSet.name} · 기준일 {eligibilityRuleSet.asOf}
-        </p>
+      <section className="demo-settings" aria-labelledby="demo-settings-heading">
+        <h2 id="demo-settings-heading">설정</h2>
+        <p>질문·답변·사전 확인을 시연 시작 상태로 되돌립니다.</p>
+        <button type="button" className="secondary-cta" onClick={resetDemo}>
+          데모 초기화
+        </button>
       </section>
     </div>
   )
