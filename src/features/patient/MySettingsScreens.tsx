@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { findClinic } from '../../data/demoClinics'
-import { findDoctor } from '../../data/demoDoctors'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
 import type { DemoPaymentMethodId } from '../../state/PatientSettingsContext'
 import type { PostVisibility } from '../../domain/types'
@@ -205,6 +204,7 @@ export function PrivacySettingsScreen() {
 
 export function AppointmentsScreen() {
   const { state } = useCommunity()
+  const { findDoctor, findClinic } = useDirectory()
   const navigate = useNavigate()
 
   return (

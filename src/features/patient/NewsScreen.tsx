@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom'
-import { findDoctor } from '../../data/demoDoctors'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 import { buildMyActivity } from './activity'
 
 export function NewsScreen() {
   const { state } = useCommunity()
   const navigate = useNavigate()
+  const { findDoctor } = useDirectory()
   const activity = buildMyActivity(state.questions, state.answers, state.patientId)
 
   return (

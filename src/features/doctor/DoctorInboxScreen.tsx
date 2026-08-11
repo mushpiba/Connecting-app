@@ -1,15 +1,16 @@
 import { useNavigate } from 'react-router-dom'
-import { demoDoctors, findDoctor } from '../../data/demoDoctors'
-import { findClinic } from '../../data/demoClinics'
 import { matchDoctors } from '../../domain/routing'
 import { listVisibleQuestions } from '../../domain/visibility'
+import { isLiveMode } from '../../data/supabaseClient'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 
 export function DoctorInboxScreen() {
   const { state, switchDoctor } = useCommunity()
   const navigate = useNavigate()
+  const { doctors, findDoctor, findClinic } = useDirectory()
 
-  const doctor = findDoctor(state.doctorId) ?? demoDoctors[0]
+  const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const clinic = findClinic(doctor.clinicId)
   const visible = listVisibleQuestions(doctor, state.questions)
 
@@ -17,18 +18,22 @@ export function DoctorInboxScreen() {
     <div className="screen">
       <h1>받은 질문</h1>
 
-      <label htmlFor="doctor-select">지금 보고 있는 계정</label>
-      <select
-        id="doctor-select"
-        value={doctor.id}
-        onChange={(event) => switchDoctor(event.target.value)}
-      >
-        {demoDoctors.map((item) => (
-          <option key={item.id} value={item.id}>
-            {item.name} · {findClinic(item.clinicId)?.name}
-          </option>
-        ))}
-      </select>
+      {!isLiveMode && (
+        <>
+          <label htmlFor="doctor-select">지금 보고 있는 계정</label>
+          <select
+            id="doctor-select"
+            value={doctor.id}
+            onChange={(event) => switchDoctor(event.target.value)}
+          >
+            {doctors.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name} · {findClinic(item.clinicId)?.name}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
       <p className="screen-lead">{clinic?.name} · 공개 범위에 따라 보이는 글이 다릅니다.</p>
 
       {!doctor.licenseVerified && (

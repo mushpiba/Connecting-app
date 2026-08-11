@@ -19,7 +19,7 @@ describe('App', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: 'expert' }))
-    await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
+    await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
 
     expect(screen.getByRole('heading', { name: '받은 질문' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('의사 화면으로 전환했습니다.')
@@ -30,7 +30,7 @@ describe('App', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: 'expert' }))
-    await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
+    await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
     await user.click(screen.getByRole('button', { name: '환자 화면' }))
     await user.click(screen.getByRole('button', { name: 'MY' }))
     await user.click(screen.getByRole('button', { name: '데모 초기화' }))

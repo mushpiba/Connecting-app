@@ -49,5 +49,7 @@ export default defineConfig({
     // 문진 흐름 테스트는 userEvent.type이 글자마다 전체 화면을 다시 그려서
     // 기본 5초를 넘긴다. 느린 것이지 매달린 것이 아니다.
     testTimeout: 20000,
+    // 시드 SQL 생성기는 파일을 쓰는 도구라 기본 실행에서 뺀다.
+    exclude: ['node_modules/**', 'scripts/**'],
   },
 })

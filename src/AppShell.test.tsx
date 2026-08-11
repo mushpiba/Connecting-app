@@ -56,9 +56,9 @@ describe('patient app shell', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: 'expert' }))
-    expect(screen.getByRole('heading', { name: '의사 인증은 준비 중입니다' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '어느 의사로 들어갈까요' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
+    await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
     expect(screen.getByRole('heading', { name: '받은 질문' })).toBeInTheDocument()
   })
 })

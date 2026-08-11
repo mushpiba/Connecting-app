@@ -3,21 +3,21 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoNowIso, demoToday } from '../../data/demoCalendar'
-import { findClinic } from '../../data/demoClinics'
-import { demoDoctors, findDoctor } from '../../data/demoDoctors'
 import { findQuestion } from '../../data/demoQuestions'
 import { symptomDurationDays } from '../../domain/intake'
 import { canSeePriorVisit } from '../../domain/routing'
 import { canDoctorAnswer } from '../../domain/visibility'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 
 export function DoctorAnswerScreen() {
   const { questionId } = useParams()
   const { state, publishAnswer } = useCommunity()
   const navigate = useNavigate()
+  const { doctors, findDoctor, findClinic } = useDirectory()
   const [body, setBody] = useState('')
 
-  const doctor = findDoctor(state.doctorId) ?? demoDoctors[0]
+  const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const question = findQuestion(state.questions, questionId ?? '')
 
   if (!question || !canDoctorAnswer(doctor, question)) {

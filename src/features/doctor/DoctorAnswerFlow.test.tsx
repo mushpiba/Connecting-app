@@ -4,7 +4,7 @@ import { App } from '../../App'
 
 async function viewAs(user: ReturnType<typeof userEvent.setup>, optionLabel: string) {
   await user.click(screen.getByRole('button', { name: 'expert' }))
-  await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
+  await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
   await user.selectOptions(await screen.findByLabelText('지금 보고 있는 계정'), [optionLabel])
 }
 

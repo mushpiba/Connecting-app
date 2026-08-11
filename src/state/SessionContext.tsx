@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { PropsWithChildren } from 'react'
+import { demoDoctors } from '../data/demoDoctors'
 import { isLiveMode, supabase } from '../data/supabaseClient'
 import type { ProfileRow } from '../data/liveMappers'
 
@@ -10,6 +11,8 @@ interface SessionContextValue {
   profile: ProfileRow | null
   error: string
   joinAs: (displayName: string, region: string) => Promise<void>
+  becomeDoctor: (templateId: string) => Promise<void>
+  becomePatient: () => Promise<void>
   leave: () => Promise<void>
 }
 
@@ -31,7 +34,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
     const client = supabase!
     const { data, error: loadError } = await client
       .from('profiles')
-      .select('id, display_name, role, region, license_verified, clinic_id, specialty')
+      .select('id, display_name, role, region, license_verified, clinic_id, specialty, template_id')
       .eq('id', userId)
       .maybeSingle()
 
@@ -111,6 +114,50 @@ export function SessionProvider({ children }: PropsWithChildren) {
     await loadProfile(userId)
   }, [loadProfile])
 
+  /**
+   * 준비된 의사 프로필 하나를 골라 그 자리로 들어간다.
+   *
+   * 데모 한정이다. 실제 서비스에서 면허 검증을 화면에서 스스로 켤 수 있으면
+   * 그건 검증이 아니다. 여기에는 진짜 신원이 없고 데이터가 전부 가상이라
+   * 주최자가 매번 SQL을 치지 않도록 이렇게 둔다.
+   */
+  const becomeDoctor = useCallback(async (templateId: string) => {
+    if (!supabase || !profile) return
+    const template = demoDoctors.find((item) => item.id === templateId)
+    if (!template) return
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({
+        role: 'doctor',
+        license_verified: true,
+        clinic_id: template.clinicId,
+        specialty: template.specialty,
+        template_id: template.id,
+      })
+      .eq('id', profile.id)
+
+    if (updateError) {
+      setError(updateError.message)
+      return
+    }
+    await loadProfile(profile.id)
+  }, [loadProfile, profile])
+
+  const becomePatient = useCallback(async () => {
+    if (!supabase || !profile) return
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ role: 'patient', license_verified: false, template_id: null })
+      .eq('id', profile.id)
+
+    if (updateError) {
+      setError(updateError.message)
+      return
+    }
+    await loadProfile(profile.id)
+  }, [loadProfile, profile])
+
   const leave = useCallback(async () => {
     if (!supabase) return
     await supabase.auth.signOut()
@@ -119,8 +166,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
   }, [])
 
   const value = useMemo<SessionContextValue>(
-    () => ({ status, profile, error, joinAs, leave }),
-    [status, profile, error, joinAs, leave],
+    () => ({ status, profile, error, joinAs, becomeDoctor, becomePatient, leave }),
+    [status, profile, error, joinAs, becomeDoctor, becomePatient, leave],
   )
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>

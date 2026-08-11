@@ -19,6 +19,7 @@ export interface ProfileRow {
   license_verified: boolean
   clinic_id: string | null
   specialty: string | null
+  template_id: string | null
 }
 
 export interface QuestionRow {
@@ -183,21 +184,21 @@ export function toPatient(row: ProfileRow): Patient {
 }
 
 /**
- * 실제 계정에는 자기소개나 약력이 없다. 화면이 요구하는 자리를 빈 값으로
- * 채우고, 프로필을 채우는 화면은 나중에 만든다.
+ * 계정에는 자기소개나 약력이 없다. 준비된 프로필을 골라 들어왔으면 그 내용을
+ * 채워 넣고, 아니면 빈 자리로 둔다.
  */
-export function toDoctor(row: ProfileRow): Doctor {
+export function toDoctor(row: ProfileRow, template?: Doctor): Doctor {
   return {
     id: row.id,
     name: row.display_name,
-    clinicId: row.clinic_id ?? '',
-    specialty: (row.specialty ?? 'family-medicine') as Specialty,
+    clinicId: row.clinic_id ?? template?.clinicId ?? '',
+    specialty: (row.specialty ?? template?.specialty ?? 'family-medicine') as Specialty,
     licenseNumber: '',
     licenseVerified: row.license_verified,
-    keywords: [],
+    keywords: template?.keywords ?? [],
     notificationsEnabled: true,
-    bio: '',
-    consultStyle: '',
-    career: [],
+    bio: template?.bio ?? '',
+    consultStyle: template?.consultStyle ?? '',
+    career: template?.career ?? [],
   }
 }

@@ -2,12 +2,11 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { demoNowIso, demoToday } from '../../data/demoCalendar'
-import { findClinic } from '../../data/demoClinics'
-import { findDoctor } from '../../data/demoDoctors'
 import { bookingDays, firstOpenDay } from '../../domain/booking'
 import { weekdayLabels } from '../../domain/clinicHours'
 import { documentOptions, groupSlots } from '../../domain/documents'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 import type { DocumentType } from '../../domain/types'
 
 const DAY_COUNT = 14
@@ -24,6 +23,7 @@ export function BookingScreen() {
   const { doctorId } = useParams()
   const { state, requestBooking } = useCommunity()
   const navigate = useNavigate()
+  const { findDoctor, findClinic } = useDirectory()
 
   const doctor = findDoctor(doctorId ?? '')
   const clinic = doctor ? findClinic(doctor.clinicId) : undefined

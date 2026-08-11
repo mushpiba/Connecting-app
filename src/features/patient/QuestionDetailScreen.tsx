@@ -4,16 +4,16 @@ import { AnswerCard } from '../../components/AnswerCard'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoToday } from '../../data/demoCalendar'
-import { findClinic } from '../../data/demoClinics'
-import { findDoctor } from '../../data/demoDoctors'
-import { findPatient, findQuestion } from '../../data/demoQuestions'
+import { findQuestion } from '../../data/demoQuestions'
 import { symptomDurationDays } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 
 export function QuestionDetailScreen() {
   const { questionId } = useParams()
   const { state, addNote, removeQuestion } = useCommunity()
   const navigate = useNavigate()
+  const { findDoctor, findClinic, findPatient } = useDirectory()
   const [noteBody, setNoteBody] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
 

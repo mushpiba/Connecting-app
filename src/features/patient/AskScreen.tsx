@@ -165,7 +165,7 @@ export function AskScreen() {
     setStep('result')
   }
 
-  const publish = () => {
+  const publish = async () => {
     if (!result) return
     const question: Question = {
       id: `q-local-${state.questions.length + 1}`,
@@ -186,8 +186,11 @@ export function AskScreen() {
       painLevel: form.painLevel,
       intakeAnswers: form.intakeAnswers,
     }
-    publishQuestion(question)
-    setPosted(question)
+    try {
+      setPosted(await publishQuestion(question))
+    } catch {
+      // 실패 사유는 상단 안내에 이미 떠 있다.
+    }
   }
 
   return (
@@ -199,7 +202,12 @@ export function AskScreen() {
         <h1>증상 적어보기</h1>
         {/* 마지막 단계에서만 상단 완료를 연다. 앱에서 익숙한 자리다. */}
         {step === 'result' && result && !posted ? (
-          <button type="button" className="ask-submit" aria-label="사연 등록" onClick={publish}>
+          <button
+            type="button"
+            className="ask-submit"
+            aria-label="사연 등록"
+            onClick={() => void publish()}
+          >
             <span aria-hidden="true">✓</span>
           </button>
         ) : (
@@ -582,7 +590,7 @@ export function AskScreen() {
                 달린 답변이 무엇을 보고 쓴 것인지 알 수 없어집니다. 빠뜨린 내용은 사연 화면에서
                 덧붙일 수 있습니다.
               </p>
-              <button type="button" className="primary-cta" onClick={publish}>
+              <button type="button" className="primary-cta" onClick={() => void publish()}>
                 게시판에 올리기
               </button>
               <button type="button" className="secondary-button" onClick={() => setStep('symptom')}>

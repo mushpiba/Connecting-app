@@ -1,3 +1,4 @@
+import { demoDoctors } from './demoDoctors'
 import { requireSupabase } from './supabaseClient'
 import {
   toAnswer,
@@ -53,7 +54,7 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
     client.from('question_notes').select('*').order('created_at'),
     client
       .from('profiles')
-      .select('id, display_name, role, region, license_verified, clinic_id, specialty'),
+      .select('id, display_name, role, region, license_verified, clinic_id, specialty, template_id'),
   ])
 
   const failure = [questions, answers, empathies, bookings, clinics, notes, profiles].find(
@@ -76,7 +77,14 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
       body: row.body,
       createdAt: row.created_at,
     })),
-    doctors: profileRows.filter((row) => row.role === 'doctor').map(toDoctor),
+    doctors: profileRows
+      .filter((row) => row.role === 'doctor')
+      .map((row) =>
+        toDoctor(
+          row,
+          demoDoctors.find((template) => template.id === row.template_id),
+        ),
+      ),
     patients: profileRows.map(toPatient),
   }
 }

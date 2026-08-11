@@ -152,7 +152,7 @@ interface CommunityContextValue {
   statusNotice: string
   switchRole: (role: AppRole) => void
   switchDoctor: (doctorId: string) => void
-  publishQuestion: (question: Question) => void
+  publishQuestion: (question: Question) => Promise<Question>
   publishAnswer: (answer: Answer) => void
   toggleQuestionEmpathy: (questionId: string) => void
   completePrecheck: (precheck: TelemedicinePrecheck) => void
@@ -207,16 +207,25 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         setStatusNotice(role === 'doctor' ? '의사 화면으로 전환했습니다.' : '환자 화면으로 전환했습니다.')
       },
       switchDoctor: (doctorId) => dispatch({ type: 'switch-doctor', doctorId }),
-      publishQuestion: (question) => {
+      /**
+       * 저장된 사연을 돌려준다. 라이브에서는 서버가 새 id를 만들기 때문에
+       * 화면이 들고 있던 임시 id로 이동하면 없는 글을 열게 된다.
+       */
+      publishQuestion: async (question) => {
         if (ready && profile) {
-          void insertQuestion(question, profile.id)
-            .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
-          setStatusNotice('사연을 올렸습니다.')
-          return
+          try {
+            const saved = await insertQuestion(question, profile.id)
+            await reload()
+            setStatusNotice('사연을 올렸습니다.')
+            return saved
+          } catch (error) {
+            setStatusNotice(error instanceof Error ? error.message : '올리지 못했습니다.')
+            throw error
+          }
         }
         dispatch({ type: 'publish-question', question })
         setStatusNotice('질문을 등록했습니다. 브라우저 메모리에만 저장했습니다.')
+        return question
       },
       publishAnswer: (answer) => {
         if (ready && profile) {

@@ -3,17 +3,17 @@ import { ClinicMap } from '../../components/ClinicMap'
 import { ClinicSchedule } from '../../components/ClinicSchedule'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { demoToday } from '../../data/demoCalendar'
-import { findClinic } from '../../data/demoClinics'
-import { findDoctor } from '../../data/demoDoctors'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
 import { buildReferralNotice } from '../../domain/notice'
 import { evaluateTelemedicineGate } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
+import { useDirectory } from '../../state/directory'
 
 export function DoctorProfileScreen() {
   const { doctorId } = useParams()
   const { state, requestEncounter } = useCommunity()
   const navigate = useNavigate()
+  const { findDoctor, findClinic } = useDirectory()
 
   const doctor = findDoctor(doctorId ?? '')
   const clinic = doctor ? findClinic(doctor.clinicId) : undefined
