@@ -12,7 +12,7 @@ export function BoardScreen() {
 
   return (
     <div className="screen">
-      <h1>자유게시판</h1>
+      <h1>사연</h1>
       <p className="screen-lead">
         공개로 올린 질문이 모입니다. 한 주 동안 공감이 많이 모인 글은 위로 올라가 여러 과의 의사
         눈에 걸립니다.

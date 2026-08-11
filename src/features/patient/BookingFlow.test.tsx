@@ -84,10 +84,10 @@ describe('booking flow', () => {
 
   it('토요일 휴진 의료기관은 토요일을 막는다', async () => {
     const user = userEvent.setup()
+    window.location.hash = '#/doctors/doc-skin-derm'
     render(<App />)
 
-    window.location.hash = '#/doctors/doc-skin-derm'
-    await user.click(await screen.findByRole('button', { name: /초진 대면 진료 예약/ }))
+    await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
 
     expect(screen.getByRole('button', { name: '2026-08-15 토요일 휴진' })).toBeDisabled()
   })
