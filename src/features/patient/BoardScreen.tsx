@@ -5,7 +5,7 @@ import { boardRuleSet } from '../../data/rules/boardRules'
 import { empathyCount, hasEmpathized, orderBoard, rankWeeklyHot } from '../../domain/board'
 import { useCommunity } from '../../state/CommunityContext'
 
-export type StoryFilter = 'all' | 'hot' | 'answered'
+export type StoryFilter = 'all' | 'hot' | 'mine'
 
 export function BoardScreen() {
   const { state, toggleQuestionEmpathy } = useCommunity()
@@ -13,15 +13,23 @@ export function BoardScreen() {
 
   const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
   const ordered = orderBoard(state.questions, ranks)
-  const visible = ordered.filter((question) => {
-    if (filter === 'hot') {
-      return ranks.some((rank) => rank.questionId === question.id && rank.isHot)
-    }
-    if (filter === 'answered') {
-      return state.answers.some((answer) => answer.questionId === question.id)
-    }
-    return true
-  })
+
+  /**
+   * 내 사연은 공개 목록을 거치지 않는다. 비공개로 올린 글도 내 것이라
+   * 여기서 못 보면 확인할 자리가 없다.
+   */
+  const mine = [...state.questions]
+    .filter((question) => question.patientId === state.patientId)
+    .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
+
+  const visible =
+    filter === 'mine'
+      ? mine
+      : ordered.filter((question) =>
+          filter === 'hot'
+            ? ranks.some((rank) => rank.questionId === question.id && rank.isHot)
+            : true,
+        )
 
   return (
     <div className="screen">
@@ -35,7 +43,7 @@ export function BoardScreen() {
         {([
           ['all', '전체'],
           ['hot', 'HOT'],
-          ['answered', '답변 있음'],
+          ['mine', '내 사연'],
         ] as const).map(([value, label]) => (
           <button
             key={value}
@@ -50,6 +58,16 @@ export function BoardScreen() {
         ))}
       </div>
 
+      {visible.length === 0 ? (
+        <div className="empty-state">
+          <h2>{filter === 'mine' ? '아직 올린 사연이 없어요' : '해당하는 사연이 없어요'}</h2>
+          <p>
+            {filter === 'mine'
+              ? '증상을 적어 올리면 여기에서 공개 범위와 함께 확인할 수 있습니다.'
+              : '다른 탭에서 사연을 확인해 보세요.'}
+          </p>
+        </div>
+      ) : (
       <div className="card-list">
         {visible.map((question) => (
           <QuestionCard
@@ -59,10 +77,12 @@ export function BoardScreen() {
             empathyCount={empathyCount(state.empathies, question.id)}
             empathized={hasEmpathized(state.empathies, question.id, state.patientId)}
             isHot={ranks.find((rank) => rank.questionId === question.id)?.isHot ?? false}
-            onToggleEmpathy={toggleQuestionEmpathy}
+            showVisibility={filter === 'mine'}
+            onToggleEmpathy={filter === 'mine' ? undefined : toggleQuestionEmpathy}
           />
         ))}
       </div>
+      )}
 
       <p className="clinical-caveat">
         정렬 규칙 {boardRuleSet.name} · 기준일 {boardRuleSet.asOf} · 최근 {boardRuleSet.windowDays}일

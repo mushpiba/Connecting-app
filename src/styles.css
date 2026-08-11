@@ -1921,6 +1921,13 @@ button {
   background: linear-gradient(135deg, #ffffff, var(--blue-100));
   border: 1px solid var(--line);
   border-radius: 18px;
+}
+
+/*
+ * 안내 카드는 문단이 넷이라 가로로 눌리면 제목까지 두 줄로 쪼개진다.
+ * 좌우 배치는 글과 버튼 둘로 끝나는 카드에서만 쓴다.
+ */
+.stories-entry-card {
   display: flex;
   gap: 16px;
   align-items: flex-end;

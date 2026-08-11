@@ -32,8 +32,8 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'expert' }))
     await user.click(screen.getByRole('button', { name: '데모 의사 화면 둘러보기' }))
     await user.click(screen.getByRole('button', { name: '환자 화면' }))
-    window.location.hash = '#/me'
-    await user.click(await screen.findByRole('button', { name: '데모 초기화' }))
+    await user.click(screen.getByRole('button', { name: 'MY' }))
+    await user.click(screen.getByRole('button', { name: '데모 초기화' }))
 
     expect(screen.getByRole('status')).toHaveTextContent('데모가 초기 상태로 복원됐습니다.')
   })

@@ -3,19 +3,32 @@ import userEvent from '@testing-library/user-event'
 import { App } from '../../App'
 
 describe('patient tab screens', () => {
-  it('사연에서 답변이 있는 글만 골라본다', async () => {
+  it('사연에서 내가 쓴 글만 골라본다', async () => {
     const user = userEvent.setup()
     window.location.hash = '#/stories'
     render(<App />)
 
-    await user.click(screen.getByRole('tab', { name: '답변 있음' }))
+    await user.click(screen.getByRole('tab', { name: '내 사연' }))
 
     expect(
       screen.getByRole('button', { name: '2주째 콧물과 코막힘이 안 나아요 자세히 보기' }),
     ).toBeInTheDocument()
     expect(
-      screen.queryByRole('button', { name: '계단 내려갈 때만 무릎이 시큰합니다 자세히 보기' }),
+      screen.queryByRole('button', { name: '두 달째 잠이 안 옵니다 자세히 보기' }),
     ).not.toBeInTheDocument()
+  })
+
+  it('내 사연에는 비공개로 올린 글과 공개 범위를 함께 보여준다', async () => {
+    const user = userEvent.setup()
+    window.location.hash = '#/stories'
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: '내 사연' }))
+
+    expect(
+      screen.getByRole('button', { name: '지난번 처방 이후 경과를 여쭙습니다 자세히 보기' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('진료받은 의사만')).toBeInTheDocument()
   })
 
   it('내소식에 내 사연과 도착한 답변만 보여준다', () => {

@@ -1,7 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { demoToday } from '../data/demoCalendar'
 import { symptomDurationDays } from '../domain/intake'
-import type { Question, SymptomCourse } from '../domain/types'
+import type { PostVisibility, Question, SymptomCourse } from '../domain/types'
+
+const visibilityLabels: Record<PostVisibility, string> = {
+  public: '공개',
+  'specialty-only': '관련 진료과만',
+  'prior-clinic-only': '진료받은 의사만',
+}
 
 const courseLabels: Record<SymptomCourse, string> = {
   worsening: '점점 심해짐',
@@ -16,6 +22,7 @@ interface QuestionCardProps {
   empathyCount: number
   empathized: boolean
   isHot: boolean
+  showVisibility?: boolean
   onToggleEmpathy?: (questionId: string) => void
 }
 
@@ -25,6 +32,7 @@ export function QuestionCard({
   empathyCount,
   empathized,
   isHot,
+  showVisibility = false,
   onToggleEmpathy,
 }: QuestionCardProps) {
   const navigate = useNavigate()
@@ -47,6 +55,9 @@ export function QuestionCard({
         <span className="question-excerpt">{question.body}</span>
       </button>
       <div className="question-actions">
+        {showVisibility && (
+          <span className="specialty-chip is-muted">{visibilityLabels[question.visibility]}</span>
+        )}
         {question.triage.suggestions.map((suggestion) => (
           <span key={suggestion.specialty} className="specialty-chip">
             {suggestion.label}
