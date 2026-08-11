@@ -1,10 +1,18 @@
 import { useNavigate } from 'react-router-dom'
-import { matchDoctors } from '../../domain/routing'
-import { listVisibleQuestions } from '../../domain/visibility'
+import { demoToday } from '../../data/demoCalendar'
 import { isLiveMode } from '../../data/supabaseClient'
+import { directRequests } from '../../domain/doctorFeed'
+import { documentLabel } from '../../domain/documents'
+import { symptomDurationDays } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 
+/**
+ * 나를 지목해서 온 것만 모은다.
+ *
+ * 환자가 우리 의료기관에서 진료받았다고 밝힌 사연과 나에게 온 예약 요청이다.
+ * 답을 기다리는 사람이 정해져 있어 사연 모음과 성격이 다르다.
+ */
 export function DoctorInboxScreen() {
   const { state, switchDoctor } = useCommunity()
   const navigate = useNavigate()
@@ -12,11 +20,11 @@ export function DoctorInboxScreen() {
 
   const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const clinic = findClinic(doctor.clinicId)
-  const visible = listVisibleQuestions(doctor, state.questions)
+  const direct = directRequests(doctor, state.questions, state.bookings)
 
   return (
     <div className="screen">
-      <h1>받은 질문</h1>
+      <h1>직접 받은 질문</h1>
 
       {!isLiveMode && (
         <>
@@ -34,48 +42,72 @@ export function DoctorInboxScreen() {
           </select>
         </>
       )}
-      <p className="screen-lead">{clinic?.name} · 공개 범위에 따라 보이는 글이 다릅니다.</p>
+
+      <p className="screen-lead">
+        {clinic?.name}에서 진료받았다고 밝힌 환자가 남긴 사연과, 나에게 온 예약 요청입니다.
+      </p>
 
       {!doctor.licenseVerified && (
-        <p className="gate-reason">
-          면허 검증을 마쳐야 질문이 전달되고 답변을 쓸 수 있습니다. 검증 전에는 목록이 비어 있습니다.
-        </p>
+        <p className="gate-reason">면허 검증을 마쳐야 질문이 전달되고 답변을 쓸 수 있습니다.</p>
       )}
 
-      {visible.length === 0 ? (
-        <p className="empty-note">이 계정에 보이는 질문이 없습니다.</p>
+      <h2>지목한 사연 {direct.questions.length}</h2>
+      {direct.questions.length === 0 ? (
+        <div className="empty-state">
+          <h2>아직 지목한 사연이 없어요</h2>
+          <p>진료받았던 의사에게만 공개한 사연이 여기로 옵니다.</p>
+          <div className="empty-state-actions">
+            <button
+              type="button"
+              className="primary-cta"
+              onClick={() => navigate('/doctor/stories')}
+            >
+              사연 모음 보기
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="card-list">
-          {visible.map((question) => {
-            const match = matchDoctors(question, [doctor])[0]
-            return (
-              <article key={question.id} className="question-card">
-                <button
-                  type="button"
-                  className="question-open"
-                  aria-label={`${question.title} 답변하기`}
-                  onClick={() => navigate(`/doctor/questions/${question.id}`)}
-                >
-                  <strong>{question.title}</strong>
-                  <span className="question-meta">
-                    {question.triage.suggestions.map((item) => item.label).join(' · ') ||
-                      '진료과 미분류'}
-                  </span>
-                </button>
-                <div className="question-actions">
-                  {match?.reasons.includes('specialty') && (
-                    <span className="specialty-chip">내 진료과</span>
-                  )}
-                  {match?.reasons.includes('keyword') && (
-                    <span className="specialty-chip">등록 키워드 일치</span>
-                  )}
-                  {question.visibility !== 'public' && (
-                    <span className="specialty-chip is-muted">비공개 글</span>
-                  )}
-                </div>
-              </article>
-            )
-          })}
+          {direct.questions.map((question) => (
+            <article key={question.id} className="question-card">
+              <button
+                type="button"
+                className="question-open"
+                aria-label={`${question.title} 답변하기`}
+                onClick={() => navigate(`/doctor/questions/${question.id}`)}
+              >
+                <strong>{question.title}</strong>
+                <span className="question-excerpt">{question.body}</span>
+              </button>
+              <div className="question-actions">
+                <span className="specialty-chip">우리 의료기관 진료 이력</span>
+                <span className="question-meta">
+                  증상 {symptomDurationDays(question.onsetDate, demoToday)}일째
+                </span>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+
+      <h2>받은 예약 요청 {direct.bookings.length}</h2>
+      {direct.bookings.length === 0 ? (
+        <p className="empty-note">전달된 희망 시간이 없습니다.</p>
+      ) : (
+        <div className="list-card">
+          {direct.bookings.map((booking) => (
+            <div key={booking.id} className="list-row">
+              <span className="row-tag is-question">예약 요청</span>
+              <span className="row-title">
+                {booking.date} {booking.time}
+              </span>
+              <span className="row-note">
+                {booking.documentTypes.length > 0
+                  ? booking.documentTypes.map(documentLabel).join(', ')
+                  : '서류 없음'}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 

@@ -21,7 +21,7 @@ describe('App', () => {
     await user.click(screen.getByRole('button', { name: 'expert' }))
     await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
 
-    expect(screen.getByRole('heading', { name: '받은 질문' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '가상 김이비' })).toBeInTheDocument()
     expect(screen.getByRole('status')).toHaveTextContent('의사 화면으로 전환했습니다.')
   })
 

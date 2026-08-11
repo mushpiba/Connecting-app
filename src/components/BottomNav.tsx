@@ -15,7 +15,17 @@ const patientTabs = [
   { path: '/me', label: 'MY', icon: 'me' },
 ] as const
 
-const doctorTabs = [{ path: '/doctor/inbox', label: '받은 질문', icon: 'stories' }] as const
+/**
+ * 의사는 매일 답변하고 진료한다. 설정은 한 번 정하고 두는 것이라 MY 안에 넣는다.
+ * 하단에 설정 버튼을 늘어놓으면 정작 일하는 화면이 밀린다.
+ */
+const doctorTabs = [
+  { path: '/doctor/home', label: '홈', icon: 'home' },
+  { path: '/doctor/inbox', label: '받은 질문', icon: 'news' },
+  { path: '/doctor/stories', label: '사연', icon: 'stories' },
+  { path: '/doctor/visits', label: '진료', icon: 'calendar' },
+  { path: '/doctor/me', label: 'MY', icon: 'me' },
+] as const
 
 export function BottomNav() {
   const { state } = useCommunity()

@@ -33,7 +33,7 @@ export function ExpertGateScreen() {
     }
     switchDoctor(doctorId)
     switchRole('doctor')
-    navigate('/doctor/inbox')
+    navigate('/doctor/home')
   }
 
   return (

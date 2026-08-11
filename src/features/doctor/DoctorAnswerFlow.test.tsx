@@ -5,6 +5,7 @@ import { App } from '../../App'
 async function viewAs(user: ReturnType<typeof userEvent.setup>, optionLabel: string) {
   await user.click(screen.getByRole('button', { name: 'expert' }))
   await user.click(screen.getByRole('button', { name: /가상 김이비/ }))
+  await user.click(screen.getByRole('button', { name: '받은 질문' }))
   await user.selectOptions(await screen.findByLabelText('지금 보고 있는 계정'), [optionLabel])
 }
 
@@ -24,14 +25,17 @@ describe('doctor answer flow', () => {
     expect(screen.queryByText('지난번 처방 이후 경과를 여쭙습니다')).not.toBeInTheDocument()
   })
 
-  it('진료과 한정 글은 다른 과 의사에게 보이지 않는다', async () => {
+  it('진료과 한정 글은 사연 모음에서 그 과 의사에게만 보인다', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await viewAs(user, 'doc-forest-im')
+    await user.click(screen.getByRole('button', { name: '사연' }))
     expect(screen.getByText('식후 속쓰림이 반복됩니다')).toBeInTheDocument()
 
+    await user.click(screen.getByRole('button', { name: '받은 질문' }))
     await user.selectOptions(screen.getByLabelText('지금 보고 있는 계정'), ['doc-inha-psy'])
+    await user.click(screen.getByRole('button', { name: '사연' }))
     expect(screen.queryByText('식후 속쓰림이 반복됩니다')).not.toBeInTheDocument()
   })
 
@@ -40,6 +44,7 @@ describe('doctor answer flow', () => {
     render(<App />)
 
     await viewAs(user, 'doc-inha-psy')
+    await user.click(screen.getByRole('button', { name: '사연' }))
     await user.click(screen.getByRole('button', { name: '두 달째 잠이 안 옵니다 답변하기' }))
 
     await user.type(
@@ -48,7 +53,7 @@ describe('doctor answer flow', () => {
     )
     await user.click(screen.getByRole('button', { name: '답변 등록' }))
 
-    expect(screen.getByRole('heading', { name: '받은 질문' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '직접 받은 질문' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '환자 화면' }))
     window.location.hash = '#/questions/q-sleep'

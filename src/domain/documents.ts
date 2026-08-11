@@ -1,4 +1,4 @@
-import type { DocumentType } from './types'
+import type { DocumentType, SlotBand } from './types'
 
 export interface DocumentOption {
   type: DocumentType
@@ -37,7 +37,6 @@ export function documentLabel(type: DocumentType): string {
 }
 
 /** 시간 칸을 새벽·오전·오후·야간으로 묶는다. 60칸을 평평하게 두면 못 고른다. */
-export type SlotBand = 'dawn' | 'morning' | 'afternoon' | 'night'
 
 export interface SlotGroup {
   band: SlotBand
@@ -47,7 +46,7 @@ export interface SlotGroup {
   slots: string[]
 }
 
-const bandLabels: Record<SlotBand, { label: string; note: string }> = {
+export const bandLabels: Record<SlotBand, { label: string; note: string }> = {
   dawn: { label: '새벽', note: '이 시간대에는 진료 가능한 의사가 적을 수 있어요.' },
   morning: { label: '오전', note: '' },
   afternoon: { label: '오후', note: '' },

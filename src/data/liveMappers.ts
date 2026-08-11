@@ -200,5 +200,6 @@ export function toDoctor(row: ProfileRow, template?: Doctor): Doctor {
     bio: template?.bio ?? '',
     consultStyle: template?.consultStyle ?? '',
     career: template?.career ?? [],
+    templateId: row.template_id ?? undefined,
   }
 }

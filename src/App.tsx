@@ -27,9 +27,19 @@ import {
 import { QuestionDetailScreen } from './features/patient/QuestionDetailScreen'
 import { PrecheckScreen } from './features/patient/PrecheckScreen'
 import { DoctorAnswerScreen } from './features/doctor/DoctorAnswerScreen'
+import { DoctorHomeScreen } from './features/doctor/DoctorHomeScreen'
+import { DoctorStoriesScreen } from './features/doctor/DoctorStoriesScreen'
+import { DoctorVisitsScreen } from './features/doctor/DoctorVisitsScreen'
+import {
+  DoctorKeywordSettingsScreen,
+  DoctorMyScreen,
+  DoctorProfileSettingsScreen,
+  DoctorTelemedicineSettingsScreen,
+} from './features/doctor/DoctorSettingsScreens'
 import { DoctorInboxScreen } from './features/doctor/DoctorInboxScreen'
 import { JoinScreen } from './features/patient/JoinScreen'
 import { CommunityProvider } from './state/CommunityContext'
+import { DoctorSettingsProvider } from './state/DoctorSettingsContext'
 import { SessionProvider, useSession } from './state/SessionContext'
 import { PatientSettingsProvider } from './state/PatientSettingsContext'
 
@@ -79,7 +89,8 @@ function AppRoutes() {
   const focused =
     location.pathname === '/ask' ||
     location.pathname === '/expert' ||
-    location.pathname.startsWith('/me/')
+    location.pathname.startsWith('/me/') ||
+    location.pathname.startsWith('/doctor/me/')
 
   return (
     <div className={`app-stage is-${previewMode}-preview`}>
@@ -108,7 +119,14 @@ function AppRoutes() {
             <Route path="/me/notifications" element={<NotificationSettingsScreen />} />
             <Route path="/me/privacy" element={<PrivacySettingsScreen />} />
             <Route path="/me/appointments" element={<AppointmentsScreen />} />
+            <Route path="/doctor/home" element={<DoctorHomeScreen />} />
             <Route path="/doctor/inbox" element={<DoctorInboxScreen />} />
+            <Route path="/doctor/stories" element={<DoctorStoriesScreen />} />
+            <Route path="/doctor/visits" element={<DoctorVisitsScreen />} />
+            <Route path="/doctor/me" element={<DoctorMyScreen />} />
+            <Route path="/doctor/me/profile" element={<DoctorProfileSettingsScreen />} />
+            <Route path="/doctor/me/keywords" element={<DoctorKeywordSettingsScreen />} />
+            <Route path="/doctor/me/telemedicine" element={<DoctorTelemedicineSettingsScreen />} />
             <Route path="/doctor/questions/:questionId" element={<DoctorAnswerScreen />} />
             <Route path="*" element={<Navigate replace to="/home" />} />
               </Routes>
@@ -126,9 +144,11 @@ export function App() {
       <SessionProvider>
         <CommunityProvider>
           <PatientSettingsProvider>
-            <SessionGate>
-              <AppRoutes />
-            </SessionGate>
+            <DoctorSettingsProvider>
+              <SessionGate>
+                <AppRoutes />
+              </SessionGate>
+            </DoctorSettingsProvider>
           </PatientSettingsProvider>
         </CommunityProvider>
       </SessionProvider>

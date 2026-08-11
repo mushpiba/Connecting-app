@@ -250,7 +250,29 @@ export interface Doctor {
   /** 진료 방법. 어떻게 진료하는지 의사가 직접 쓴 한 문단. */
   consultStyle: string
   career: string[]
+  /** 준비된 프로필을 골라 들어왔으면 그 id. 설정 기본값을 여기서 찾는다. */
+  templateId?: string
 }
+
+/** 의사가 직접 정하는 값들. 프로필과 알림과 비대면 운영이 한 덩어리다. */
+export interface DoctorSettings {
+  doctorId: string
+  /** 진료 보고 싶은 사례. 이 말이 들어간 사연이 사연 모음에 올라온다. */
+  keywords: string[]
+  /** 하루에 받을 사연 알림 최대 개수. 넘치면 알림을 보내지 않는다. */
+  dailyNotificationLimit: number
+  telemedicineEnabled: boolean
+  /** 한 건에 잡는 시간(분). */
+  slotMinutes: number
+  /** 초진 비대면을 받을지. 재진만 받는 의사가 많다. */
+  acceptsFirstVisit: boolean
+  /** 비대면을 여는 시간대. 진료시간과 별개로 의사가 정한다. */
+  telemedicineBands: SlotBand[]
+  /** 환자에게 보이는 한 줄. 무엇을 준비해 오면 좋은지 적는다. */
+  telemedicineNote: string
+}
+
+export type SlotBand = 'dawn' | 'morning' | 'afternoon' | 'night'
 
 export interface Patient {
   id: string
