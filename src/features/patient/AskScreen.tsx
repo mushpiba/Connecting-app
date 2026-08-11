@@ -334,7 +334,7 @@ export function AskScreen() {
           </fieldset>
 
           {/* 부위를 고르면 그 부위에서 의사가 실제로 묻는 것들이 열린다. */}
-          {questionsFor(activeAreas).map((question) => {
+          {questionsFor(activeAreas, form.selectedSymptoms).map((question) => {
             const values = answerValues(form.intakeAnswers, question.id)
             const setValues = (next: string[]) =>
               update({ intakeAnswers: withAnswer(form.intakeAnswers, question.id, next) })

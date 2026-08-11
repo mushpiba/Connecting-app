@@ -16,6 +16,11 @@ export interface IntakeQuestion {
   help?: string
   /** 어디서 가져온 문항인지. 화면에 근거로 표시한다. */
   source?: string
+  /**
+   * 이 증상들 중 하나를 골랐을 때만 묻는다.
+   * 감기 이야기에 호흡곤란 척도까지 따라붙으면 물어볼 것이 관련 없는 것으로 찬다.
+   */
+  showWhen?: string[]
   min?: number
   max?: number
   minLabel?: string
@@ -67,6 +72,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['general', 'ent', 'child'],
       label: '가장 높았던 체온',
       kind: 'number',
+      showWhen: ['발열', '미열', '오한', '몸살', '아이'],
       unit: '℃',
       min: 35,
       max: 42,
@@ -77,6 +83,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['ent', 'general'],
       label: '가래 색',
       kind: 'single',
+      showWhen: ['기침', '가래'],
       options: [
         { value: 'none', label: '가래 없음' },
         { value: 'clear', label: '투명' },
@@ -92,6 +99,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       label: '숨이 차는 정도',
       kind: 'single',
       source: 'mMRC 호흡곤란 척도',
+      showWhen: ['기침', '가래'],
       options: [
         { value: '0', label: '힘든 운동을 할 때만' },
         { value: '1', label: '평지를 빨리 걷거나 언덕을 오를 때' },
@@ -105,6 +113,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['digestive'],
       label: '식사와 어떤 관계가 있나요',
       kind: 'single',
+      showWhen: ['복통', '속쓰림', '소화', '메스꺼움'],
       options: [
         { value: 'before', label: '공복일 때 심함' },
         { value: 'after', label: '식후에 심함' },
@@ -117,6 +126,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       label: '변 모양',
       kind: 'single',
       source: 'Bristol 대변 척도',
+      showWhen: ['설사', '변비'],
       options: [
         { value: '1', label: '딱딱한 덩어리로 끊어짐' },
         { value: '2', label: '울퉁불퉁한 소시지 모양' },
@@ -132,6 +142,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['mind'],
       label: '잠들기까지 걸리는 시간',
       kind: 'number',
+      showWhen: ['불면', '잠'],
       unit: '분',
       min: 0,
       max: 300,
@@ -141,6 +152,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['mind'],
       label: '밤에 깨는 횟수',
       kind: 'number',
+      showWhen: ['불면', '잠'],
       unit: '회',
       min: 0,
       max: 20,
@@ -185,6 +197,7 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
       areas: ['urinary'],
       label: '하루 소변 횟수',
       kind: 'number',
+      showWhen: ['소변', '배뇨', '방광'],
       unit: '회',
       min: 0,
       max: 40,
@@ -236,9 +249,15 @@ export const questionBankRuleSet: QuestionBankRuleSet = {
   ],
 }
 
-export function questionsFor(areas: BodyArea[]): IntakeQuestion[] {
-  return questionBankRuleSet.questions.filter(
-    (question) =>
-      question.areas === 'all' || question.areas.some((area) => areas.includes(area)),
-  )
+/**
+ * 범주에 해당하고, 조건이 걸린 문항은 그 증상을 골랐을 때만 준다.
+ * 물어볼 것이 관련 없는 것으로 차면 환자는 아무것도 채우지 않는다.
+ */
+export function questionsFor(areas: BodyArea[], symptoms: string[] = []): IntakeQuestion[] {
+  return questionBankRuleSet.questions.filter((question) => {
+    const inArea = question.areas === 'all' || question.areas.some((area) => areas.includes(area))
+    if (!inArea) return false
+    if (!question.showWhen) return true
+    return question.showWhen.some((keyword) => symptoms.includes(keyword))
+  })
 }

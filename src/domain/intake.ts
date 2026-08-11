@@ -34,9 +34,11 @@ export function canChoosePriorClinicOnly(form: Pick<IntakeForm, 'priorVisit'>): 
 /**
  * 진료과 분류 결과를 문진 부위로 되돌린다.
  *
- * 환자가 부위 체크를 건너뛰어도 적은 내용에서 범주를 잡아 그 범주의 문항을
- * 연다. 고른 부위가 있으면 그것과 합친다. 넓게 잡아 질문이 늘어나는 쪽이
- * 좁게 잡아 물어야 할 것을 놓치는 쪽보다 낫다.
+ * 환자가 부위 체크를 건너뛰어도 적은 내용에서 범주를 잡아 그 범주의 문항을 연다.
+ *
+ * 추론은 가장 점수가 높은 하나만 쓴다. 후보 셋을 전부 열면 콧물 이야기에
+ * 수면과 전신 문항까지 따라붙어 물어볼 것이 서른 개가 된다. 나머지 범주가
+ * 필요하면 환자가 부위를 직접 고르면 된다.
  */
 const specialtyAreas: Record<Specialty, BodyArea> = {
   otolaryngology: 'ent',
@@ -52,6 +54,9 @@ const specialtyAreas: Record<Specialty, BodyArea> = {
 }
 
 export function inferAreas(selected: BodyArea[], triage: TriageResult): BodyArea[] {
-  const inferred = triage.suggestions.map((item) => specialtyAreas[item.specialty])
-  return [...new Set([...selected.filter((area) => area !== 'unsure'), ...inferred])]
+  const picked = selected.filter((area) => area !== 'unsure')
+  const top = triage.suggestions[0]
+  const inferred = top ? [specialtyAreas[top.specialty]] : []
+
+  return [...new Set([...picked, ...inferred])]
 }

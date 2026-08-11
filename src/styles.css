@@ -504,6 +504,12 @@ figcaption {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin-top: 8px;
+}
+
+.symptom-chip {
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .symptom-chip {
@@ -523,15 +529,29 @@ figcaption {
 }
 
 /* 슬라이더는 모바일에서 정확히 못 집는다. 일자 버튼으로 둔다. */
+/*
+ * 부모 fieldset 이 flex 라 자식이 최소 폭으로 부풀어 프레임을 넘겼다.
+ * 이 블록들은 세로로 흐르는 게 맞아서 block 으로 되돌린다.
+ */
+.pain-scale,
+.bank-question,
+.symptom-chip-group {
+  display: block;
+}
+
 .pain-buttons {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  grid-template-columns: repeat(10, minmax(0, 1fr));
   gap: 4px;
   width: 100%;
 }
 
 .pain-button {
-  padding: 10px 0;
+  min-width: 0;
+  padding: 10px 2px;
+}
+
+.pain-button {
   font-size: 13px;
   font-weight: 700;
   color: var(--ink-700);
@@ -564,13 +584,14 @@ figcaption {
 }
 
 .number-answer {
-  display: inline-flex;
+  display: flex;
   gap: 6px;
   align-items: center;
+  margin-top: 8px;
 }
 
 .number-answer input {
-  width: 110px;
+  width: min(140px, 100%);
 }
 
 .number-answer .unit {
