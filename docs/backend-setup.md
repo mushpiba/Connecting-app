@@ -15,10 +15,23 @@ Supabase를 쓴다. 정적 사이트가 직접 붙으므로 서버를 따로 돌
 
 ## 둘. 스키마 올리기 (2분)
 
-프로젝트 대시보드 → **SQL Editor** → New query
+프로젝트 대시보드 → **SQL Editor** → New query. 아래 순서대로 붙여넣고 실행한다.
 
-1. `supabase/schema.sql` 내용을 붙여넣고 실행
-2. `supabase/seed.sql` 내용을 붙여넣고 실행
+1. `supabase/schema.sql`
+2. `supabase/seed.sql` — 의료기관 넷
+3. `supabase/migration-002.sql` — 통증 척도, 문진 답, 덧붙임, 서류
+4. `supabase/migration-003.sql` — 002에서 빠뜨린 컬럼
+5. `supabase/migration-004.sql` — 준비된 의사 프로필 선택
+6. `supabase/seed-demo.sql` — 소개용 사연과 답변
+
+전부 여러 번 실행해도 같은 결과가 되도록 두었다. `already exists` 나
+`duplicate key` 오류가 뜨면 그 부분은 이미 적용됐다는 뜻이고 그냥 넘어가도 된다.
+
+`seed-demo.sql` 은 픽스처에서 만든다. 사연을 고쳤으면 다시 뽑는다.
+
+```powershell
+npx vitest run scripts/emit-demo-seed.test.ts
+```
 
 ## 셋. 로그인 방식 켜기 (2분)
 
@@ -40,10 +53,15 @@ Supabase를 쓴다. 정적 사이트가 직접 붙으므로 서버를 따로 돌
 `schema.sql`의 RLS 정책이 한다. `service_role` 키는 절대 공유하지 않는다.
 그 키는 RLS를 통째로 무시한다.
 
-## 다섯. 의사 계정 승인
+## 다섯. 의사 계정
 
-면허 검증은 스스로 못 켠다. 트리거가 막아 둔다. 테스트에서 누군가를 의사로
-만들려면 주최자가 SQL Editor에서 직접 올린다.
+앱에서 `expert` 를 누르면 준비된 의사 프로필 중 하나를 고른다. 주최자가 매번
+SQL을 칠 필요가 없다.
+
+이것은 데모 한정이다. 실제 서비스에서 면허 검증을 화면에서 스스로 켤 수 있으면
+그건 검증이 아니다. 실서비스로 갈 때 가장 먼저 되돌려야 할 자리다.
+
+특정 계정을 직접 올리고 싶으면 SQL Editor에서 이렇게 한다.
 
 ```sql
 -- 먼저 누가 들어왔는지 본다

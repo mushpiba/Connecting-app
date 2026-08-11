@@ -52,4 +52,5 @@ insert into clinics (
       {"weekday":"fri","open":"08:00","close":"17:30"},
       {"weekday":"sat","open":"08:00","close":"12:00"},
       {"weekday":"sun","open":null,"close":null}]'::jsonb
-  );
+  )
+on conflict (id) do nothing;
