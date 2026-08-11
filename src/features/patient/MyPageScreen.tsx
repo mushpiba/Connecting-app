@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
+import { AppIcon } from '../../components/AppIcon'
 import { demoPatients } from '../../data/demoQuestions'
+import { carePrepProgress } from '../../domain/carePrep'
 import { isPrecheckComplete } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
@@ -13,6 +15,7 @@ export function MyPageScreen() {
   const mineIds = new Set(mine.map((question) => question.id))
   const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
   const precheckComplete = isPrecheckComplete(state.precheck)
+  const prep = carePrepProgress(state.precheck, settings.address.detail.trim() !== '')
   const paymentLabel = settings.paymentMethodId === 'none' ? '등록된 수단 없음' : '데모 수단 선택됨'
   const resetAll = () => {
     resetDemo()
@@ -29,6 +32,51 @@ export function MyPageScreen() {
           <strong>{patient?.displayName ?? 'MediVU 사용자'}</strong>
           <p>{patient?.region ?? state.precheck.region}</p>
         </div>
+      </section>
+
+      <nav className="my-shortcuts" aria-label="바로가기">
+        <button type="button" onClick={() => navigate('/news')}>
+          <AppIcon name="stories" />
+          내 사연
+        </button>
+        <button type="button" onClick={() => navigate('/news')}>
+          <AppIcon name="news" />
+          내소식
+        </button>
+        <button type="button" onClick={() => navigate('/map')}>
+          <AppIcon name="map" />
+          내 주변 병원
+        </button>
+      </nav>
+
+      <section className="prep-progress" aria-labelledby="prep-progress-heading">
+        <div className="prep-progress-head">
+          <h2 id="prep-progress-heading">비대면 진료 준비</h2>
+          <span>{prep.doneCount} / {prep.total} 완료</span>
+        </div>
+        <div
+          className="prep-bar"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={prep.percent}
+          aria-label={`비대면 진료 준비 ${prep.percent}퍼센트`}
+        >
+          <span style={{ width: `${prep.percent}%` }} />
+        </div>
+        <ul className="prep-steps">
+          {prep.steps.map((step) => (
+            <li key={step.id} className={step.done ? 'is-done' : ''}>
+              <span aria-hidden="true">{step.done ? '✓' : '○'}</span>
+              {step.label}
+            </li>
+          ))}
+        </ul>
+        {!prep.complete && (
+          <button type="button" className="primary-cta" onClick={() => navigate('/me/precheck')}>
+            남은 항목 채우기
+          </button>
+        )}
       </section>
 
       <div className="my-stats" aria-label="활동 요약">

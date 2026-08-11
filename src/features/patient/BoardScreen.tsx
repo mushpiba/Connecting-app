@@ -31,7 +31,7 @@ export function BoardScreen() {
         눈에 걸립니다.
       </p>
 
-      <div className="story-filters" aria-label="사연 필터">
+      <div className="segment-tabs" role="tablist" aria-label="사연 필터">
         {([
           ['all', '전체'],
           ['hot', 'HOT'],
@@ -40,7 +40,9 @@ export function BoardScreen() {
           <button
             key={value}
             type="button"
-            aria-pressed={filter === value}
+            role="tab"
+            aria-selected={filter === value}
+            className={filter === value ? 'is-active' : ''}
             onClick={() => setFilter(value)}
           >
             {label}

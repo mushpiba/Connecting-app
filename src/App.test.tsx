@@ -11,7 +11,7 @@ describe('App', () => {
     window.location.hash = '#/nowhere'
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: '어디가 불편하신가요' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '의사 2명이 답변했어요' })).toBeInTheDocument()
   })
 
   it('역할을 의사로 바꾸면 받은 질문 화면으로 간다', async () => {

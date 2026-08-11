@@ -8,7 +8,7 @@ describe('patient tab screens', () => {
     window.location.hash = '#/stories'
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '답변 있음' }))
+    await user.click(screen.getByRole('tab', { name: '답변 있음' }))
 
     expect(
       screen.getByRole('button', { name: '2주째 콧물과 코막힘이 안 나아요 자세히 보기' }),

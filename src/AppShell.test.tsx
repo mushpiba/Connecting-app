@@ -15,9 +15,27 @@ describe('patient app shell', () => {
       '홈',
       '사연',
       'Q',
-      '내소식',
+      '지도',
       'MY',
     ])
+  })
+
+  it('내소식은 헤더 아이콘으로 들어간다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '내소식' }))
+
+    expect(screen.getByRole('heading', { name: '내소식' })).toBeInTheDocument()
+  })
+
+  it('지도 탭에서 내 주변 병원을 연다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '지도' }))
+
+    expect(screen.getByRole('heading', { name: '내 주변 병원' })).toBeInTheDocument()
   })
 
   it('데스크톱 보기 모드를 앱 미리보기로 전환한다', async () => {

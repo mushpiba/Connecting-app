@@ -211,9 +211,17 @@ export function AppointmentsScreen() {
     <div className="screen settings-screen">
       <SettingsHeader title="예약 내역" />
       {state.bookings.length === 0 ? (
-        <div className="settings-empty">
-          <strong>전달한 예약 희망 시간이 없습니다.</strong>
-          <p>의사 프로필에서 대면 진료 희망 시간을 선택하면 여기에 표시됩니다.</p>
+        <div className="empty-state">
+          <h2>전달한 희망 시간이 없어요</h2>
+          <p>사연에 답변한 의사 프로필에서 대면 진료 희망 시간을 고르면 여기에 쌓입니다.</p>
+          <div className="empty-state-actions">
+            <button type="button" className="primary-cta" onClick={() => navigate('/map')}>
+              내 주변 병원 보기
+            </button>
+            <button type="button" className="secondary-button" onClick={() => navigate('/stories')}>
+              사연 둘러보기
+            </button>
+          </div>
         </div>
       ) : (
         <div className="appointment-list">

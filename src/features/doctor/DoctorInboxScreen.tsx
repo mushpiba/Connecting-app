@@ -29,10 +29,13 @@ export function DoctorInboxScreen() {
           </option>
         ))}
       </select>
-      <p className="screen-lead">
-        {clinic?.name} · 공개 범위에 따라 보이는 글이 다릅니다.
-        {!doctor.licenseVerified && ' 면허 검증 전이라 질문이 전달되지 않습니다.'}
-      </p>
+      <p className="screen-lead">{clinic?.name} · 공개 범위에 따라 보이는 글이 다릅니다.</p>
+
+      {!doctor.licenseVerified && (
+        <p className="gate-reason">
+          면허 검증을 마쳐야 질문이 전달되고 답변을 쓸 수 있습니다. 검증 전에는 목록이 비어 있습니다.
+        </p>
+      )}
 
       {visible.length === 0 ? (
         <p className="empty-note">이 계정에 보이는 질문이 없습니다.</p>

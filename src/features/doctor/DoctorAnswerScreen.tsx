@@ -8,7 +8,7 @@ import { demoDoctors, findDoctor } from '../../data/demoDoctors'
 import { findQuestion } from '../../data/demoQuestions'
 import { symptomDurationDays } from '../../domain/intake'
 import { canSeePriorVisit } from '../../domain/routing'
-import { canDoctorSeeQuestion } from '../../domain/visibility'
+import { canDoctorAnswer } from '../../domain/visibility'
 import { useCommunity } from '../../state/CommunityContext'
 
 export function DoctorAnswerScreen() {
@@ -20,10 +20,14 @@ export function DoctorAnswerScreen() {
   const doctor = findDoctor(state.doctorId) ?? demoDoctors[0]
   const question = findQuestion(state.questions, questionId ?? '')
 
-  if (!question || !canDoctorSeeQuestion(doctor, question)) {
+  if (!question || !canDoctorAnswer(doctor, question)) {
     return (
       <div className="screen">
-        <p className="empty-note">이 계정에는 보이지 않는 질문입니다.</p>
+        <p className="empty-note">
+          {doctor.licenseVerified
+            ? '이 계정에는 보이지 않는 질문입니다.'
+            : '면허 검증을 마쳐야 답변할 수 있습니다.'}
+        </p>
         <button type="button" className="secondary-button" onClick={() => navigate('/doctor/inbox')}>
           받은 질문으로
         </button>

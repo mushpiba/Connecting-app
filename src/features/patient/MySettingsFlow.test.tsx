@@ -61,7 +61,7 @@ describe('MY settings demo flows', () => {
     await user.click(screen.getByRole('button', { name: '예약 내역' }))
 
     expect(screen.getByRole('heading', { name: '예약 내역' })).toBeInTheDocument()
-    expect(screen.getByText('전달한 예약 희망 시간이 없습니다.')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '전달한 희망 시간이 없어요' })).toBeInTheDocument()
   })
 
   it('전달한 예약 희망 시간을 예약 내역에서 확인한다', async () => {

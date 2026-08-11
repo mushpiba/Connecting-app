@@ -24,7 +24,7 @@ describe('ask flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '증상 적어보기' }))
+    await user.click(screen.getByRole('button', { name: 'Q' }))
     expect(screen.getByRole('heading', { name: '증상 적어보기' })).toBeInTheDocument()
 
     await fillSymptomStep(user)
@@ -45,7 +45,7 @@ describe('ask flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '증상 적어보기' }))
+    await user.click(screen.getByRole('button', { name: 'Q' }))
     await fillSymptomStep(user)
     await user.click(screen.getByRole('button', { name: '다음' }))
 
@@ -57,7 +57,7 @@ describe('ask flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '증상 적어보기' }))
+    await user.click(screen.getByRole('button', { name: 'Q' }))
     await fillSymptomStep(user)
 
     await user.click(screen.getByRole('radio', { name: '예' }))
@@ -71,7 +71,7 @@ describe('ask flow', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '증상 적어보기' }))
+    await user.click(screen.getByRole('button', { name: 'Q' }))
     await user.type(screen.getByLabelText('질문 제목'), '가슴이 답답합니다')
     await user.type(
       screen.getByLabelText('증상을 자유롭게 적어주세요'),

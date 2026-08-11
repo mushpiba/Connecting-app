@@ -160,7 +160,14 @@ export function AskScreen() {
           <span aria-hidden="true">×</span>
         </button>
         <h1>증상 적어보기</h1>
-        <span aria-hidden="true" />
+        {/* 마지막 단계에서만 상단 완료를 연다. 앱에서 익숙한 자리다. */}
+        {step === 'result' && result && !posted ? (
+          <button type="button" className="ask-submit" aria-label="사연 등록" onClick={publish}>
+            <span aria-hidden="true">✓</span>
+          </button>
+        ) : (
+          <span aria-hidden="true" />
+        )}
       </div>
       <p className="step-indicator">
         {step === 'symptom' && '1 / 3 · 증상'}

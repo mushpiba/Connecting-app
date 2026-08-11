@@ -9,6 +9,7 @@ import { BoardScreen } from './features/patient/BoardScreen'
 import { BookingScreen } from './features/patient/BookingScreen'
 import { DoctorProfileScreen } from './features/patient/DoctorProfileScreen'
 import { HomeScreen } from './features/patient/HomeScreen'
+import { MapScreen } from './features/patient/MapScreen'
 import { ExpertGateScreen } from './features/patient/ExpertGateScreen'
 import { MyPageScreen } from './features/patient/MyPageScreen'
 import {
@@ -78,6 +79,7 @@ function AppRoutes() {
             <Route path="/stories" element={<BoardScreen />} />
             <Route path="/board" element={<Navigate replace to="/stories" />} />
             <Route path="/news" element={<NewsScreen />} />
+            <Route path="/map" element={<MapScreen />} />
             <Route path="/expert" element={<ExpertGateScreen />} />
             <Route path="/questions/:questionId" element={<QuestionDetailScreen />} />
             <Route path="/doctors/:doctorId" element={<DoctorProfileScreen />} />

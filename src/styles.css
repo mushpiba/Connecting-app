@@ -472,6 +472,400 @@ figcaption {
 }
 
 /* 상세에서 목록으로 돌아가는 길. 작성 화면의 닫기 버튼과 짝을 맞춘다. */
+/* 화면 제목 아래 필터. 언더라인 탭이라 항목이 늘어도 가로로 이어 붙는다. */
+.ask-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  background: var(--blue-700);
+  border: 0;
+  border-radius: 50%;
+}
+
+/* 홈 — 지금 할 일 하나를 크게, 나머지는 카드 하나 안에 줄로 */
+
+.next-step {
+  padding: 22px 20px;
+  margin-bottom: 12px;
+  background: linear-gradient(140deg, var(--cyan-100), #f1f7fb 70%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.next-step.is-answered {
+  background: linear-gradient(140deg, #dff0ff, #f2f8fd 70%);
+}
+
+.next-step.is-booked {
+  background: linear-gradient(140deg, #e6f4ee, #f3f9f6 70%);
+}
+
+.next-step h1 {
+  max-width: 18ch;
+  margin: 0 0 8px;
+  font-size: clamp(24px, 6.4vw, 32px);
+  line-height: 1.22;
+}
+
+.next-step-detail {
+  max-width: 44ch;
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink-700);
+}
+
+.prep-nudge {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  text-align: left;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.prep-nudge-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.prep-nudge-text strong {
+  font-size: 14px;
+  color: var(--ink-900);
+}
+
+.prep-nudge-text span {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-500);
+}
+
+/* 카드 하나 안에 항목을 구분선으로 잇는다. 항목마다 카드를 쓰면 스크롤만 길어진다. */
+.list-card {
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.list-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.list-row:last-child {
+  border-bottom: 0;
+}
+
+.list-row .app-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--blue-700);
+}
+
+.row-tag {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-700);
+  background: var(--blue-100);
+  border-radius: 999px;
+}
+
+.row-tag.is-answer {
+  color: #0d6a68;
+  background: var(--cyan-100);
+}
+
+.row-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-900);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row-note,
+.list-row time {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.row-chevron {
+  flex: 0 0 auto;
+  color: var(--ink-500);
+}
+
+/* 지도 */
+
+.region-map {
+  margin: 12px 0 16px;
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  align-items: center;
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+  border-radius: 50%;
+}
+
+.legend-dot.is-open {
+  background: var(--cyan-500);
+}
+
+.legend-dot.is-closed {
+  background: #8fa2b1;
+}
+
+.clinic-result {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.clinic-result-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.clinic-result-head strong {
+  font-size: 15px;
+}
+
+.clinic-result-meta {
+  margin: 4px 0 10px;
+  font-size: 12.5px;
+  color: var(--ink-500);
+}
+
+.clinic-result-doctors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.text-link {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue-700);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.header-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+}
+
+.header-icon-button .app-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* MY 바로가기와 진료 준비 진행바 */
+
+.my-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 14px 0;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.my-shortcuts button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 14px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-700);
+  cursor: pointer;
+  background: var(--surface);
+  border: 0;
+}
+
+.my-shortcuts .app-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--blue-700);
+}
+
+.prep-progress {
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.prep-progress-head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.prep-progress-head h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.prep-progress-head span {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--blue-700);
+}
+
+.prep-bar {
+  height: 8px;
+  margin: 10px 0;
+  overflow: hidden;
+  background: #e7edf2;
+  border-radius: 999px;
+}
+
+.prep-bar span {
+  display: block;
+  height: 100%;
+  background: var(--cyan-500);
+  border-radius: 999px;
+}
+
+.prep-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 0;
+  margin: 0 0 12px;
+  list-style: none;
+}
+
+.prep-steps li {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 12.5px;
+  color: var(--ink-500);
+}
+
+.prep-steps li.is-done {
+  color: #0d6a68;
+}
+
+/* 빈 화면. 다음에 할 일을 두 갈래로 준다. */
+
+.empty-state {
+  padding: 32px 20px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.empty-state h2 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+.empty-state p {
+  max-width: 34ch;
+  margin: 0 auto 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-500);
+}
+
+.empty-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.segment-tabs {
+  position: sticky;
+  top: 66px;
+  z-index: 4;
+  display: flex;
+  gap: 2px;
+  margin: 0 0 14px;
+  overflow-x: auto;
+  background: var(--surface-muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.segment-tabs button {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-500);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+}
+
+.segment-tabs button.is-active {
+  color: var(--ink-900);
+  border-bottom-color: var(--navy-900);
+}
+
 .back-link {
   display: inline-flex;
   gap: 4px;
@@ -1567,34 +1961,6 @@ button {
   box-shadow: 0 7px 22px rgba(24, 48, 72, 0.045);
 }
 
-.story-filters {
-  position: sticky;
-  top: 66px;
-  z-index: 4;
-  display: flex;
-  gap: 8px;
-  padding: 8px 0 14px;
-  margin-bottom: 2px;
-  background: linear-gradient(#f4f7f9 78%, transparent);
-}
-
-.story-filters button {
-  padding: 8px 15px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-500);
-  cursor: pointer;
-  background: #ffffff;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-}
-
-.story-filters button[aria-pressed='true'] {
-  color: #ffffff;
-  background: var(--navy-900);
-  border-color: var(--navy-900);
-}
-
 .activity-feed {
   position: relative;
   display: flex;
@@ -2391,7 +2757,7 @@ button {
     background: transparent;
   }
 
-  .is-app-preview .story-filters {
+  .is-app-preview .segment-tabs {
     top: 0;
   }
 

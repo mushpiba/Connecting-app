@@ -14,7 +14,18 @@ export function NewsScreen() {
       <p className="screen-lead">내가 쓴 사연과 새로 도착한 전문의 답변을 한곳에서 확인하세요.</p>
 
       {activity.length === 0 ? (
-        <p className="empty-note">아직 도착한 소식이 없습니다.</p>
+        <div className="empty-state">
+          <h2>아직 도착한 소식이 없어요</h2>
+          <p>증상을 사연으로 남기면 관련 진료과 의사의 답변이 여기에 쌓입니다.</p>
+          <div className="empty-state-actions">
+            <button type="button" className="primary-cta" onClick={() => navigate('/ask')}>
+              증상 적어보기
+            </button>
+            <button type="button" className="secondary-button" onClick={() => navigate('/stories')}>
+              사연 둘러보기
+            </button>
+          </div>
+        </div>
       ) : (
         <div className="activity-feed">
           {activity.map((item) => (

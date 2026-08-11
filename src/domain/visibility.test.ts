@@ -1,7 +1,7 @@
 import { triageRuleSet } from '../data/rules/triageRules'
 import { canSeePriorVisit } from './routing'
 import { triage } from './triage'
-import { canDoctorSeeQuestion, listVisibleQuestions } from './visibility'
+import { canDoctorAnswer, canDoctorSeeQuestion, listVisibleQuestions } from './visibility'
 import type { Doctor, PostVisibility, Question } from './types'
 
 function doctor(overrides: Partial<Doctor> = {}): Doctor {
@@ -117,5 +117,27 @@ describe('listVisibleQuestions', () => {
       'q-a',
       'q-b',
     ])
+  })
+})
+
+describe('canDoctorAnswer', () => {
+  it('면허를 검증한 의사는 답변할 수 있다', () => {
+    expect(canDoctorAnswer(doctor(), question())).toBe(true)
+  })
+
+  it('면허 미검증 의사는 공개 글도 볼 수 없고 답변할 수 없다', () => {
+    const pending = doctor({ licenseVerified: false })
+
+    expect(canDoctorSeeQuestion(pending, question())).toBe(false)
+    expect(canDoctorAnswer(pending, question())).toBe(false)
+  })
+
+  it('면허를 검증해도 안 보이는 글에는 답변할 수 없다', () => {
+    expect(
+      canDoctorAnswer(
+        doctor({ clinicId: 'clinic-other' }),
+        question({ visibility: 'prior-clinic-only' }),
+      ),
+    ).toBe(false)
   })
 })
