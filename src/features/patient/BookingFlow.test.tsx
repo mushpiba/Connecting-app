@@ -43,19 +43,48 @@ describe('booking flow', () => {
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
 
     expect(screen.getByRole('button', { name: '12:30' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '13:00' })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: '14:00' })).toBeInTheDocument()
   })
 
-  it('시간을 고르기 전에는 전달 버튼이 비활성이다', async () => {
+  it('시간을 고르기 전에는 다음으로 갈 수 없다', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
 
-    expect(screen.getByRole('button', { name: '희망 시간 전달' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '다음' })).toBeDisabled()
+  })
+
+  it('시간대별로 묶어서 보여준다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(screen.getByRole('heading', { name: '오전' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '오후' })).toBeInTheDocument()
+  })
+
+  it('진료 후 필요한 서류를 함께 고른다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '10:30' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+
+    expect(screen.getByRole('checkbox', { name: /진료비 영수증/ })).toBeInTheDocument()
+    await user.click(screen.getByRole('checkbox', { name: /진료비 영수증/ }))
+    await user.click(screen.getByRole('button', { name: '희망 시간 전달' }))
+
+    expect(screen.getByText(/2026-08-10 10:30 희망 시간을 전달했습니다/)).toBeInTheDocument()
   })
 
   it('날짜와 시간을 고르면 희망 시간을 전달한다', async () => {
@@ -64,7 +93,9 @@ describe('booking flow', () => {
 
     await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
     await user.click(screen.getByRole('button', { name: '2026-08-11 화요일' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '10:30' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '희망 시간 전달' }))
 
     expect(screen.getByText(/2026-08-11 10:30 희망 시간을 전달했습니다/)).toBeInTheDocument()
@@ -77,6 +108,7 @@ describe('booking flow', () => {
 
     await user.click(screen.getByRole('button', { name: /초진 대면 진료 예약/ }))
     await user.click(screen.getByRole('button', { name: '2026-08-15 토요일' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
 
     expect(screen.getByRole('button', { name: '12:30' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '15:00' })).not.toBeInTheDocument()

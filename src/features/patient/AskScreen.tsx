@@ -4,7 +4,11 @@ import { TriageSummary } from '../../components/TriageSummary'
 import { demoClassifier } from '../../data/classifier'
 import { demoNowIso, demoToday } from '../../data/demoCalendar'
 import { demoClinics, demoRegions } from '../../data/demoClinics'
-import { canChoosePriorClinicOnly } from '../../domain/intake'
+import { triageRuleSet } from '../../data/rules/triageRules'
+import { triage } from '../../domain/triage'
+import { chipGroupsFor } from '../../data/rules/symptomChips'
+import { questionsFor } from '../../data/rules/questionBank'
+import { canChoosePriorClinicOnly, inferAreas } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
 import type {
   BodyArea,
@@ -72,6 +76,24 @@ function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((item) => item !== value) : [...list, value]
 }
 
+function answerValues(answers: IntakeForm['intakeAnswers'], questionId: string): string[] {
+  return answers.find((item) => item.questionId === questionId)?.values ?? []
+}
+
+function withAnswer(
+  answers: IntakeForm['intakeAnswers'],
+  questionId: string,
+  values: string[],
+): IntakeForm['intakeAnswers'] {
+  const kept = answers.filter((item) => item.questionId !== questionId)
+  return values.length === 0 ? kept : [...kept, { questionId, values }]
+}
+
+const painLabels: Record<number, string> = {
+  1: '거의 안 아픔',
+  10: '참기 어려움',
+}
+
 const emptyForm: IntakeForm = {
   title: '',
   body: '',
@@ -84,6 +106,9 @@ const emptyForm: IntakeForm = {
   priorVisit: null,
   sameSymptoms: false,
   visibility: 'public',
+  selectedSymptoms: [],
+  painLevel: null,
+  intakeAnswers: [],
 }
 
 export function AskScreen() {
@@ -99,6 +124,15 @@ export function AskScreen() {
   const [posted, setPosted] = useState<Question | null>(null)
 
   const update = (patch: Partial<IntakeForm>) => setForm((prev) => ({ ...prev, ...patch }))
+
+  /**
+   * 부위 체크를 건너뛰어도 적은 내용에서 범주를 잡아 그 범주의 문항을 연다.
+   * 환자가 자기 증상이 어느 과인지 아는 경우는 드물다.
+   */
+  const activeAreas = inferAreas(
+    form.bodyAreas,
+    triage(`${form.title} ${form.body}`, triageRuleSet),
+  )
 
   const priorVisit = hasPriorVisit
     ? { clinicId: priorClinicId, visitedOn: priorVisitedOn, selfReported: true as const }
@@ -148,6 +182,9 @@ export function AskScreen() {
       dailyImpact: form.dailyImpact,
       triedRemedies: form.triedRemedies,
       bodyAreas: form.bodyAreas,
+      selectedSymptoms: form.selectedSymptoms,
+      painLevel: form.painLevel,
+      intakeAnswers: form.intakeAnswers,
     }
     publishQuestion(question)
     setPosted(question)
@@ -242,6 +279,119 @@ export function AskScreen() {
               </label>
             ))}
           </fieldset>
+
+          {chipGroupsFor(activeAreas).map((group) => (
+            <fieldset key={group.area} className="symptom-chip-group">
+              <legend>{group.label} 증상</legend>
+              <p className="tip-line">
+                <span aria-hidden="true">💡</span> TIP {group.tip}
+              </p>
+              <div className="symptom-chips">
+                {group.chips.map((chip) => {
+                  const on = form.selectedSymptoms.includes(chip.keyword)
+                  return (
+                    <button
+                      key={chip.label}
+                      type="button"
+                      className={`symptom-chip ${on ? 'is-active' : ''}`}
+                      aria-pressed={on}
+                      onClick={() =>
+                        update({ selectedSymptoms: toggle(form.selectedSymptoms, chip.keyword) })
+                      }
+                    >
+                      <span aria-hidden="true">{on ? '✓' : '+'}</span> {chip.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </fieldset>
+          ))}
+
+          <fieldset className="pain-scale">
+            <legend>아픈 정도를 골라주세요 (선택)</legend>
+            <p className="field-hint">
+              환자분이 느끼는 대로 고르시면 됩니다. 이 숫자로 판정하지 않고 의사에게 그대로
+              전달합니다.
+            </p>
+            <div className="pain-buttons" role="group" aria-label="아픈 정도 1에서 10">
+              {Array.from({ length: 10 }, (_, index) => index + 1).map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  className={`pain-button ${form.painLevel === level ? 'is-active' : ''}`}
+                  aria-pressed={form.painLevel === level}
+                  onClick={() => update({ painLevel: form.painLevel === level ? null : level })}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+            <div className="pain-legend">
+              <span>{painLabels[1]}</span>
+              <span>{painLabels[10]}</span>
+            </div>
+            <p className="source-note">NRS 숫자통증척도</p>
+          </fieldset>
+
+          {/* 부위를 고르면 그 부위에서 의사가 실제로 묻는 것들이 열린다. */}
+          {questionsFor(activeAreas).map((question) => {
+            const values = answerValues(form.intakeAnswers, question.id)
+            const setValues = (next: string[]) =>
+              update({ intakeAnswers: withAnswer(form.intakeAnswers, question.id, next) })
+
+            return (
+              <fieldset key={question.id} className="bank-question">
+                <legend>{question.label}</legend>
+                {question.help && <p className="field-hint">{question.help}</p>}
+
+                {question.kind === 'number' && (
+                  <span className="number-answer">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min={question.min}
+                      max={question.max}
+                      value={values[0] ?? ''}
+                      aria-label={question.label}
+                      onChange={(event) =>
+                        setValues(event.target.value === '' ? [] : [event.target.value])
+                      }
+                    />
+                    {question.unit && <span className="unit">{question.unit}</span>}
+                  </span>
+                )}
+
+                {(question.kind === 'single' || question.kind === 'multi') && (
+                  <div className="option-chips">
+                    {question.options?.map((option) => {
+                      const on = values.includes(option.value)
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          className={`symptom-chip ${on ? 'is-active' : ''}`}
+                          aria-pressed={on}
+                          onClick={() =>
+                            setValues(
+                              question.kind === 'multi'
+                                ? toggle(values, option.value)
+                                : on
+                                  ? []
+                                  : [option.value],
+                            )
+                          }
+                        >
+                          {option.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {question.source && <p className="source-note">{question.source}</p>}
+              </fieldset>
+            )
+          })}
 
           <fieldset>
             <legend>일상생활에 얼마나 지장이 있나요</legend>
@@ -427,6 +577,11 @@ export function AskScreen() {
             </div>
           ) : (
             <div className="result-actions">
+              <p className="publish-warning">
+                <strong>올린 뒤에는 고칠 수 없습니다.</strong> 지나간 증상 설명이 바뀌면 그 위에
+                달린 답변이 무엇을 보고 쓴 것인지 알 수 없어집니다. 빠뜨린 내용은 사연 화면에서
+                덧붙일 수 있습니다.
+              </p>
               <button type="button" className="primary-cta" onClick={publish}>
                 게시판에 올리기
               </button>

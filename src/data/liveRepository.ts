@@ -18,10 +18,12 @@ import type {
   Empathy,
   Patient,
   Question,
+  QuestionNote,
 } from '../domain/types'
 
 export interface LiveSnapshot {
   questions: Question[]
+  notes: QuestionNote[]
   answers: Answer[]
   empathies: Empathy[]
   bookings: BookingRequest[]
@@ -31,7 +33,7 @@ export interface LiveSnapshot {
 }
 
 const QUESTION_COLUMNS =
-  'id, author_id, title, body, visibility, onset_date, course, daily_impact, tried_remedies, body_areas, triage, prior_clinic_id, prior_visited_on, same_symptoms, created_at'
+  'id, author_id, title, body, visibility, onset_date, course, daily_impact, tried_remedies, body_areas, selected_symptoms, pain_level, intake_answers, triage, prior_clinic_id, prior_visited_on, same_symptoms, created_at'
 
 /**
  * 한 번에 전부 읽는다. 테스트 규모에서는 페이지를 나눌 이유가 없고, 나누면
@@ -42,18 +44,19 @@ const QUESTION_COLUMNS =
 export async function fetchSnapshot(): Promise<LiveSnapshot> {
   const client = requireSupabase()
 
-  const [questions, answers, empathies, bookings, clinics, profiles] = await Promise.all([
+  const [questions, answers, empathies, bookings, clinics, notes, profiles] = await Promise.all([
     client.from('questions').select(QUESTION_COLUMNS).order('created_at', { ascending: false }),
     client.from('answers').select('*').order('created_at'),
     client.from('empathies').select('*'),
     client.from('bookings').select('*').order('created_at'),
     client.from('clinics').select('*'),
+    client.from('question_notes').select('*').order('created_at'),
     client
       .from('profiles')
       .select('id, display_name, role, region, license_verified, clinic_id, specialty'),
   ])
 
-  const failure = [questions, answers, empathies, bookings, clinics, profiles].find(
+  const failure = [questions, answers, empathies, bookings, clinics, notes, profiles].find(
     (result) => result.error,
   )
   if (failure?.error) throw new Error(failure.error.message)
@@ -66,6 +69,13 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
     empathies: (empathies.data ?? []).map(toEmpathy),
     bookings: (bookings.data ?? []).map(toBooking),
     clinics: (clinics.data ?? []).map(toClinic),
+    notes: (notes.data ?? []).map((row) => ({
+      id: row.id,
+      questionId: row.question_id,
+      authorId: row.author_id,
+      body: row.body,
+      createdAt: row.created_at,
+    })),
     doctors: profileRows.filter((row) => row.role === 'doctor').map(toDoctor),
     patients: profileRows.map(toPatient),
   }
@@ -142,6 +152,25 @@ export async function insertBooking(
   return toBooking(data)
 }
 
+export async function deleteQuestion(questionId: string): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client.from('questions').delete().eq('id', questionId)
+  if (error) throw new Error(error.message)
+}
+
+/** 사연은 고칠 수 없다. 대신 덧붙인다. */
+export async function insertNote(
+  questionId: string,
+  authorId: string,
+  body: string,
+): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client
+    .from('question_notes')
+    .insert({ question_id: questionId, author_id: authorId, body })
+  if (error) throw new Error(error.message)
+}
+
 /**
  * 답변이 달리면 환자 화면이 바로 바뀌어야 한다. 무엇이 바뀌었는지까지
  * 따지지 않고 전체를 다시 읽는다. 이 규모에서는 그게 더 단순하고 안전하다.
@@ -155,6 +184,7 @@ export function subscribeToChanges(onChange: () => void): () => void {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'answers' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'empathies' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'question_notes' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, onChange)
     .subscribe()
 

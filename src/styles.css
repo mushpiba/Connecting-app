@@ -488,6 +488,292 @@ figcaption {
   border-radius: 50%;
 }
 
+/* 문진 — 증상 칩, 통증 척도, 문항 사전 */
+
+.symptom-chip-group .tip-line,
+.tip-line {
+  width: 100%;
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--warning);
+}
+
+.symptom-chips,
+.option-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.symptom-chip {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--ink-700);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.symptom-chip.is-active {
+  color: #ffffff;
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+}
+
+/* 슬라이더는 모바일에서 정확히 못 집는다. 일자 버튼으로 둔다. */
+.pain-buttons {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  width: 100%;
+}
+
+.pain-button {
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-700);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.pain-button.is-active {
+  color: #ffffff;
+  background: var(--blue-700);
+  border-color: var(--blue-700);
+}
+
+.pain-legend {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--ink-500);
+}
+
+.source-note {
+  width: 100%;
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: var(--ink-500);
+}
+
+.number-answer {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.number-answer input {
+  width: 110px;
+}
+
+.number-answer .unit {
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.publish-warning {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #7b551e;
+  background: #fff6e8;
+  border: 1px solid #f0dcb8;
+  border-radius: 12px;
+}
+
+/* 예약 — 시간대 묶음, 서류 발급 */
+
+.slot-band h3 {
+  margin: 16px 0 6px;
+  font-size: 13.5px;
+  color: var(--ink-700);
+}
+
+.slot-note {
+  padding: 8px 10px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--blue-700);
+  background: var(--blue-100);
+  border-radius: 8px;
+}
+
+.step-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.step-actions .primary-cta {
+  flex: 1;
+}
+
+.document-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.document-option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--surface-muted);
+  border-radius: 10px;
+}
+
+.document-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.document-option small {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+/* 사연 관리 — 덧붙임과 삭제 */
+
+.note-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.note-list article {
+  padding: 10px 12px;
+  background: var(--surface-muted);
+  border-left: 3px solid var(--blue-600);
+  border-radius: 0 10px 10px 0;
+}
+
+.note-tag {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-700);
+}
+
+.note-list p {
+  margin: 4px 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-700);
+}
+
+.note-list time {
+  font-size: 11.5px;
+  color: var(--ink-500);
+}
+
+.author-tools {
+  padding: 14px 16px;
+  margin-top: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.author-tools h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.note-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.note-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.text-link.is-danger {
+  color: var(--danger);
+}
+
+.danger-button {
+  flex: 1;
+  padding: 11px 18px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  background: var(--danger);
+  border: 0;
+  border-radius: 12px;
+}
+
+.delete-confirm {
+  padding: 12px 14px;
+  background: #fdeef0;
+  border: 1px solid #f3c9cf;
+  border-radius: 12px;
+}
+
+.delete-confirm p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #7c2d33;
+}
+
+/* 참여 화면 */
+
+.join-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: var(--surface-muted);
+}
+
+.join-card {
+  width: min(100%, 420px);
+  padding: 24px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.join-card h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.join-lead {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--ink-700);
+}
+
+.boot-note {
+  padding: 40px 16px;
+  font-size: 13.5px;
+  color: var(--ink-500);
+  text-align: center;
+}
+
 /* 홈 — 지금 할 일 하나를 크게, 나머지는 카드 하나 안에 줄로 */
 
 .next-step {

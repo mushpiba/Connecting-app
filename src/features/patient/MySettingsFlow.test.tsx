@@ -69,7 +69,9 @@ describe('MY settings demo flows', () => {
     window.location.hash = '#/booking/doc-skin-derm'
     render(<App />)
 
+    await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '10:30' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '희망 시간 전달' }))
     window.location.hash = '#/me/appointments'
 

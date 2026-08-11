@@ -35,6 +35,9 @@ const question: Question = {
   dailyImpact: 'disruptive',
   triedRemedies: ['otc'],
   bodyAreas: ['ent'],
+  selectedSymptoms: [],
+  painLevel: null,
+  intakeAnswers: [],
 }
 
 describe('matchDoctors', () => {

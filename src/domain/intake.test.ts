@@ -1,7 +1,7 @@
 import { intakeRuleSet } from '../data/rules/intakeRules'
 import { triageRuleSet } from '../data/rules/triageRules'
 import { createRuleClassifier } from './classifier'
-import { buildTriageText, canChoosePriorClinicOnly, symptomDurationDays } from './intake'
+import { buildTriageText, canChoosePriorClinicOnly, inferAreas, symptomDurationDays } from './intake'
 import { triage } from './triage'
 import type { IntakeForm } from './types'
 
@@ -18,6 +18,9 @@ function form(overrides: Partial<IntakeForm> = {}): IntakeForm {
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
     ...overrides,
   }
 }
@@ -105,5 +108,31 @@ describe('createRuleClassifier', () => {
 
     expect(classifier.id).toBe(triageRuleSet.name)
     expect(classifier.asOf).toBe(triageRuleSet.asOf)
+  })
+})
+
+describe('inferAreas', () => {
+  it('적은 내용에서 범주를 잡는다', () => {
+    const result = triage('콧물이랑 코막힘이 심합니다', triageRuleSet)
+
+    expect(inferAreas([], result)).toContain('ent')
+  })
+
+  it('고른 부위와 합친다', () => {
+    const result = triage('콧물이 납니다', triageRuleSet)
+
+    expect(inferAreas(['skin'], result)).toEqual(expect.arrayContaining(['skin', 'ent']))
+  })
+
+  it('잘 모르겠어요는 범주로 세지 않는다', () => {
+    const result = triage('그냥 궁금해서요', triageRuleSet)
+
+    expect(inferAreas(['unsure'], result)).toEqual([])
+  })
+
+  it('같은 범주가 두 번 들어가지 않는다', () => {
+    const result = triage('콧물 코막힘 기침', triageRuleSet)
+
+    expect(inferAreas(['ent'], result)).toEqual(['ent'])
   })
 })

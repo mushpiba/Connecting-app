@@ -26,6 +26,9 @@ type QuestionSeed = Pick<Question, 'id' | 'patientId' | 'createdAt'> &
     | 'priorVisit'
     | 'sameSymptoms'
     | 'visibility'
+    | 'selectedSymptoms'
+    | 'painLevel'
+    | 'intakeAnswers'
   >
 
 /**
@@ -47,6 +50,9 @@ function toQuestion(seed: QuestionSeed): Question {
       priorVisit: seed.priorVisit,
       sameSymptoms: seed.sameSymptoms,
       visibility: seed.visibility,
+      selectedSymptoms: seed.selectedSymptoms,
+      painLevel: seed.painLevel,
+      intakeAnswers: seed.intakeAnswers,
     },
     intakeRuleSet,
   )
@@ -72,6 +78,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: { clinicId: 'clinic-han', visitedOn: '2026-06-02', selfReported: true },
     sameSymptoms: true,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-rash',
@@ -88,6 +97,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-sleep',
@@ -103,6 +115,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-stomach',
@@ -118,6 +133,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'specialty-only',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-followup',
@@ -133,6 +151,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: { clinicId: 'clinic-han', visitedOn: '2026-06-02', selfReported: true },
     sameSymptoms: true,
     visibility: 'prior-clinic-only',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-knee',
@@ -148,6 +169,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-eye',
@@ -163,6 +187,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-child',
@@ -178,6 +205,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-fatigue',
@@ -193,6 +223,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
   {
     id: 'q-chest',
@@ -208,6 +241,9 @@ const seeds: QuestionSeed[] = [
     priorVisit: null,
     sameSymptoms: false,
     visibility: 'public',
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
   },
 ]
 

@@ -43,6 +43,9 @@ export function createRuleClassifier(
           priorVisit: null,
           sameSymptoms: false,
           visibility: 'public',
+          selectedSymptoms: [],
+          painLevel: null,
+          intakeAnswers: [],
         },
         intakeRules,
       )

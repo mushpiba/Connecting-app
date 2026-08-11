@@ -36,6 +36,9 @@ export interface QuestionRow {
   prior_clinic_id: string | null
   prior_visited_on: string | null
   same_symptoms: boolean
+  selected_symptoms: string[]
+  pain_level: number | null
+  intake_answers: Question['intakeAnswers']
   created_at: string
 }
 
@@ -60,6 +63,7 @@ export interface BookingRow {
   clinic_id: string
   visit_date: string
   visit_time: string
+  document_types: string[]
   created_at: string
 }
 
@@ -97,6 +101,9 @@ export function toQuestion(row: QuestionRow): Question {
     dailyImpact: row.daily_impact,
     triedRemedies: row.tried_remedies,
     bodyAreas: row.body_areas,
+    selectedSymptoms: row.selected_symptoms ?? [],
+    painLevel: row.pain_level,
+    intakeAnswers: row.intake_answers ?? [],
   }
 }
 
@@ -112,6 +119,9 @@ export function toQuestionInsert(question: Question, authorId: string) {
     daily_impact: question.dailyImpact,
     tried_remedies: question.triedRemedies,
     body_areas: question.bodyAreas,
+    selected_symptoms: question.selectedSymptoms,
+    pain_level: question.painLevel,
+    intake_answers: question.intakeAnswers,
     triage: question.triage,
     specialties: question.triage.suggestions.map((item) => item.specialty),
     prior_clinic_id: question.priorVisit?.clinicId ?? null,
@@ -142,6 +152,7 @@ export function toBooking(row: BookingRow): BookingRequest {
     date: row.visit_date,
     time: row.visit_time,
     requestedAt: row.created_at,
+    documentTypes: (row.document_types ?? []) as BookingRequest['documentTypes'],
   }
 }
 

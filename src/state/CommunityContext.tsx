@@ -7,6 +7,7 @@ import type {
   BookingRequest,
   Empathy,
   Question,
+  QuestionNote,
   TelemedicinePrecheck,
 } from '../domain/types'
 import { demoNowIso } from '../data/demoCalendar'
@@ -19,9 +20,11 @@ import {
 import { demoDoctors } from '../data/demoDoctors'
 import { isLiveMode } from '../data/supabaseClient'
 import {
+  deleteQuestion,
   fetchSnapshot,
   insertAnswer,
   insertBooking,
+  insertNote,
   insertQuestion,
   setEmpathy,
   subscribeToChanges,
@@ -40,6 +43,7 @@ export interface CommunityState {
   precheck: TelemedicinePrecheck
   requestedEncounterIds: string[]
   bookings: BookingRequest[]
+  notes: QuestionNote[]
 }
 
 export type CommunityAction =
@@ -51,6 +55,8 @@ export type CommunityAction =
   | { type: 'complete-precheck'; precheck: TelemedicinePrecheck }
   | { type: 'request-encounter'; questionId: string; doctorId: string }
   | { type: 'request-booking'; booking: BookingRequest }
+  | { type: 'remove-question'; questionId: string }
+  | { type: 'add-note'; note: QuestionNote }
   | { type: 'load-snapshot'; snapshot: LiveSnapshot; profileId: string; role: AppRole }
   | { type: 'reset' }
 
@@ -73,6 +79,7 @@ export const initialCommunityState: CommunityState = {
   precheck: initialPrecheck,
   requestedEncounterIds: [],
   bookings: [],
+  notes: [],
 }
 
 export function communityReducer(
@@ -120,7 +127,19 @@ export function communityReducer(
         answers: action.snapshot.answers,
         empathies: action.snapshot.empathies,
         bookings: action.snapshot.bookings,
+        notes: action.snapshot.notes,
       }
+    /** 사연을 지우면 그 위에 달린 답변과 덧붙임도 함께 사라진다. */
+    case 'remove-question':
+      return {
+        ...state,
+        questions: state.questions.filter((item) => item.id !== action.questionId),
+        answers: state.answers.filter((item) => item.questionId !== action.questionId),
+        notes: state.notes.filter((item) => item.questionId !== action.questionId),
+        empathies: state.empathies.filter((item) => item.questionId !== action.questionId),
+      }
+    case 'add-note':
+      return { ...state, notes: [...state.notes, action.note] }
     case 'reset':
       return initialCommunityState
     default:
@@ -139,6 +158,8 @@ interface CommunityContextValue {
   completePrecheck: (precheck: TelemedicinePrecheck) => void
   requestEncounter: (questionId: string, doctorId: string) => void
   requestBooking: (booking: BookingRequest) => void
+  removeQuestion: (questionId: string) => void
+  addNote: (questionId: string, body: string) => void
   resetDemo: () => void
   /** 라이브 모드에서만 채워진다. 화면은 없으면 데모 픽스처를 쓴다. */
   live: LiveSnapshot | null
@@ -236,6 +257,35 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         }
         dispatch({ type: 'request-booking', booking })
         setStatusNotice('희망 시간을 전달했습니다. 실제 예약은 병원이 확인해야 확정됩니다.')
+      },
+      removeQuestion: (questionId) => {
+        if (ready && profile) {
+          void deleteQuestion(questionId)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+        } else {
+          dispatch({ type: 'remove-question', questionId })
+        }
+        setStatusNotice('사연을 삭제했습니다.')
+      },
+      addNote: (questionId, body) => {
+        if (ready && profile) {
+          void insertNote(questionId, profile.id, body)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+        } else {
+          dispatch({
+            type: 'add-note',
+            note: {
+              id: `note-local-${state.notes.length + 1}`,
+              questionId,
+              authorId: state.patientId,
+              body,
+              createdAt: demoNowIso,
+            },
+          })
+        }
+        setStatusNotice('덧붙였습니다.')
       },
       resetDemo: () => {
         dispatch({ type: 'reset' })

@@ -42,6 +42,21 @@ export type DailyImpact = 'none' | 'mild' | 'disruptive' | 'severe'
 
 export type TriedRemedy = 'otc' | 'clinic' | 'rest' | 'none'
 
+/**
+ * 환자가 스스로 고른 통증 정도. 우리가 이 숫자로 무엇도 판정하지 않는다.
+ * 의사에게 그대로 전달만 한다. null이면 고르지 않은 것이다.
+ */
+export type PainLevel = number | null
+
+/** 문진 문항 하나에 대한 답. 값은 항상 배열이라 단일과 복수를 같이 다룬다. */
+export interface IntakeAnswer {
+  questionId: string
+  values: string[]
+}
+
+/** 진료 후 발급받을 서류. 발급은 병원이 한다. */
+export type DocumentType = 'visit-certificate' | 'receipt' | 'itemized-receipt'
+
 /** 증상 분류 결과. 진단명이 아니라 진료과만 다룬다. */
 export interface TriageSuggestion {
   specialty: Specialty
@@ -260,6 +275,24 @@ export interface Question {
   dailyImpact: DailyImpact
   triedRemedies: TriedRemedy[]
   bodyAreas: BodyArea[]
+  /** 칩으로 고른 증상. 본문에도 담기지만 목록으로도 남긴다. */
+  selectedSymptoms: string[]
+  painLevel: PainLevel
+  intakeAnswers: IntakeAnswer[]
+}
+
+/**
+ * 사연에 덧붙인 말.
+ *
+ * 사연은 등록하면 고칠 수 없다. 지나간 증상 설명이 조용히 바뀌면 그 위에 달린
+ * 답변이 무엇을 보고 쓴 것인지 알 수 없어진다. 대신 덧붙인다.
+ */
+export interface QuestionNote {
+  id: string
+  questionId: string
+  authorId: string
+  body: string
+  createdAt: string
 }
 
 export interface Answer {
@@ -311,6 +344,9 @@ export interface IntakeForm {
   priorVisit: PriorVisit | null
   sameSymptoms: boolean
   visibility: PostVisibility
+  selectedSymptoms: string[]
+  painLevel: PainLevel
+  intakeAnswers: IntakeAnswer[]
 }
 
 export interface IntakeRuleSet {
@@ -349,6 +385,7 @@ export interface BookingRequest {
   date: string
   time: string
   requestedAt: string
+  documentTypes: DocumentType[]
 }
 
 export type EncounterStatus = 'booked' | 'in-progress' | 'completed'

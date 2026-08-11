@@ -22,6 +22,9 @@ function question(id: string, overrides: Partial<Question> = {}): Question {
     dailyImpact: 'mild',
     triedRemedies: ['none'],
     bodyAreas: [],
+    selectedSymptoms: [],
+    painLevel: null,
+    intakeAnswers: [],
     ...overrides,
   }
 }

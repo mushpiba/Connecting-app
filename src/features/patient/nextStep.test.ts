@@ -11,6 +11,7 @@ const booking: BookingRequest = {
   date: '2026-08-11',
   time: '10:30',
   requestedAt: '2026-08-09T10:00:00.000Z',
+  documentTypes: [],
 }
 
 describe('resolveNextStep', () => {
