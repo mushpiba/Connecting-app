@@ -5,7 +5,7 @@ import { demoToday } from '../../data/demoCalendar'
 import { carePrepProgress } from '../../domain/carePrep'
 import { useCommunity } from '../../state/CommunityContext'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
-import { buildMyActivity } from './activity'
+import { groupMyActivity } from './activity'
 import { resolveNextStep } from './nextStep'
 
 const stepEyebrow: Record<string, string> = {
@@ -28,7 +28,7 @@ export function HomeScreen() {
     demoToday,
   )
   const prep = carePrepProgress(state.precheck, settings.address.detail.trim() !== '')
-  const activity = buildMyActivity(state.questions, state.answers, state.patientId).slice(0, 3)
+  const activity = groupMyActivity(state.questions, state.answers, state.patientId).slice(0, 3)
 
   return (
     <div className="screen">
@@ -78,16 +78,16 @@ export function HomeScreen() {
           <div className="list-card">
             {activity.map((item) => (
               <button
-                key={`${item.kind}-${item.id}`}
+                key={item.question.id}
                 type="button"
                 className="list-row"
                 onClick={() => navigate(`/questions/${item.question.id}`)}
               >
-                <span className={`row-tag is-${item.kind}`}>
-                  {item.kind === 'answer' ? '새 답변' : '내 사연'}
+                <span className={`row-tag ${item.hasAnswer ? 'is-answer' : 'is-question'}`}>
+                  {item.hasAnswer ? `새 답변 ${item.answerCount}` : '답변 대기'}
                 </span>
                 <span className="row-title">{item.question.title}</span>
-                <time dateTime={item.occurredAt}>{item.occurredAt.slice(0, 10)}</time>
+                <time dateTime={item.latestAt}>{item.latestAt.slice(0, 10)}</time>
                 <span className="row-chevron" aria-hidden="true">›</span>
               </button>
             ))}
