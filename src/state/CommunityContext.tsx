@@ -6,6 +6,8 @@ import type {
   AppRole,
   BookingRequest,
   Empathy,
+  EncounterRequest,
+  EncounterRequestStatus,
   Question,
   QuestionNote,
   TelemedicinePrecheck,
@@ -24,17 +26,30 @@ import {
   fetchSnapshot,
   insertAnswer,
   insertBooking,
+  insertEncounter,
   insertNote,
   insertQuestion,
   setEmpathy,
   subscribeToChanges,
+  updateEncounterStatus,
 } from '../data/liveRepository'
+import { clearLocal, readLocal, writeLocal } from './localStore'
 import { hasEmpathized } from '../domain/board'
 import { useSession } from './SessionContext'
 import type { LiveSnapshot } from '../data/liveRepository'
 
 export interface CommunityState {
   role: AppRole
+  /**
+   * 사람이 직접 화면을 바꿨는가.
+   *
+   * 서버에서 스냅샷을 다시 읽을 때마다 계정 역할로 화면을 되돌리고 있었다.
+   * 사연을 하나 올리면 곧바로 다시 읽으므로, 의사 계정으로 환자 화면을 보던
+   * 사람이 글을 쓰는 도중 의사 화면으로 튕겼다. 직접 고른 화면은 그대로 둔다.
+   *
+   * 새로 열면 다시 풀린다. 그때는 계정 역할을 따라가는 편이 맞다.
+   */
+  roleLocked: boolean
   patientId: string
   doctorId: string
   questions: Question[]
@@ -42,6 +57,8 @@ export interface CommunityState {
   empathies: Empathy[]
   precheck: TelemedicinePrecheck
   requestedEncounterIds: string[]
+  /** 서버에 남은 진료 신청. 라이브가 아니면 비어 있다. */
+  encounters: EncounterRequest[]
   bookings: BookingRequest[]
   notes: QuestionNote[]
 }
@@ -60,6 +77,9 @@ export type CommunityAction =
   | { type: 'load-snapshot'; snapshot: LiveSnapshot; profileId: string; role: AppRole }
   | { type: 'reset' }
 
+/** 새로고침해도 사전 확인이 남아야 한다. 기기 밖으로는 나가지 않는다. */
+const PRECHECK_KEY = 'medivu.precheck'
+
 export const initialPrecheck: TelemedicinePrecheck = {
   completedAt: null,
   identityVerified: false,
@@ -71,13 +91,15 @@ export const initialPrecheck: TelemedicinePrecheck = {
 
 export const initialCommunityState: CommunityState = {
   role: 'patient',
+  roleLocked: false,
   patientId: demoCurrentPatientId,
   doctorId: demoDoctors[0].id,
   questions: demoQuestions,
   answers: demoAnswers,
   empathies: demoEmpathies,
-  precheck: initialPrecheck,
+  precheck: readLocal(PRECHECK_KEY, initialPrecheck),
   requestedEncounterIds: [],
+  encounters: [],
   bookings: [],
   notes: [],
 }
@@ -88,7 +110,7 @@ export function communityReducer(
 ): CommunityState {
   switch (action.type) {
     case 'switch-role':
-      return { ...state, role: action.role }
+      return { ...state, role: action.role, roleLocked: true }
     case 'switch-doctor':
       return { ...state, doctorId: action.doctorId }
     case 'publish-question':
@@ -106,6 +128,7 @@ export function communityReducer(
         ),
       }
     case 'complete-precheck':
+      writeLocal(PRECHECK_KEY, action.precheck)
       return { ...state, precheck: action.precheck }
     case 'request-encounter': {
       const id = `${action.questionId}:${action.doctorId}`
@@ -120,7 +143,7 @@ export function communityReducer(
     case 'load-snapshot':
       return {
         ...state,
-        role: action.role,
+        role: state.roleLocked ? state.role : action.role,
         patientId: action.profileId,
         doctorId: action.role === 'doctor' ? action.profileId : state.doctorId,
         questions: action.snapshot.questions,
@@ -128,6 +151,7 @@ export function communityReducer(
         empathies: action.snapshot.empathies,
         bookings: action.snapshot.bookings,
         notes: action.snapshot.notes,
+        encounters: action.snapshot.encounters,
       }
     /** 사연을 지우면 그 위에 달린 답변과 덧붙임도 함께 사라진다. */
     case 'remove-question':
@@ -141,7 +165,8 @@ export function communityReducer(
     case 'add-note':
       return { ...state, notes: [...state.notes, action.note] }
     case 'reset':
-      return initialCommunityState
+      clearLocal(PRECHECK_KEY)
+      return { ...initialCommunityState, precheck: initialPrecheck, roleLocked: false }
     default:
       return state
   }
@@ -156,7 +181,13 @@ interface CommunityContextValue {
   publishAnswer: (answer: Answer) => void
   toggleQuestionEmpathy: (questionId: string) => void
   completePrecheck: (precheck: TelemedicinePrecheck) => void
-  requestEncounter: (questionId: string, doctorId: string) => void
+  /** 서버에 신청을 남기고 그 신청을 돌려준다. id 가 곧 진료방 주소다. */
+  requestEncounter: (
+    questionId: string,
+    doctorId: string,
+    clinicId: string,
+  ) => Promise<EncounterRequest | null>
+  setEncounterStatus: (encounterId: string, status: EncounterRequestStatus) => void
   requestBooking: (booking: BookingRequest) => void
   removeQuestion: (questionId: string) => void
   addNote: (questionId: string, body: string) => void
@@ -252,9 +283,28 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         dispatch({ type: 'complete-precheck', precheck })
         setStatusNotice('비대면 사전 확인을 마쳤습니다.')
       },
-      requestEncounter: (questionId, doctorId) => {
+      requestEncounter: async (questionId, doctorId, clinicId) => {
         dispatch({ type: 'request-encounter', questionId, doctorId })
-        setStatusNotice('진료 신청 의사를 전달했습니다. 실제 예약은 이루어지지 않습니다.')
+        if (ready && profile) {
+          try {
+            const encounter = await insertEncounter(questionId, profile.id, doctorId, clinicId)
+            await reload()
+            setStatusNotice('진료를 신청했습니다. 의사가 열면 진료방으로 들어갑니다.')
+            return encounter
+          } catch (error) {
+            setStatusNotice(error instanceof Error ? error.message : '신청하지 못했습니다.')
+            return null
+          }
+        }
+        setStatusNotice('진료 신청 의사를 전달했습니다. 브라우저 메모리에만 저장했습니다.')
+        return null
+      },
+      setEncounterStatus: (encounterId, status) => {
+        if (ready && profile) {
+          void updateEncounterStatus(encounterId, status)
+            .then(reload)
+            .catch((error: Error) => setStatusNotice(error.message))
+        }
       },
       requestBooking: (booking) => {
         if (ready && profile) {

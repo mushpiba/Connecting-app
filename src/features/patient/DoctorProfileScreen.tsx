@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ClinicMap } from '../../components/ClinicMap'
 import { ClinicSchedule } from '../../components/ClinicSchedule'
@@ -14,6 +15,7 @@ export function DoctorProfileScreen() {
   const { state, requestEncounter } = useCommunity()
   const navigate = useNavigate()
   const { findDoctor, findClinic } = useDirectory()
+  const [roomId, setRoomId] = useState<string | null>(null)
 
   const doctor = findDoctor(doctorId ?? '')
   const clinic = doctor ? findClinic(doctor.clinicId) : undefined
@@ -40,7 +42,14 @@ export function DoctorProfileScreen() {
     eligibilityRuleSet,
     demoToday,
   )
-  const requested = state.requestedEncounterIds.includes(`${question.id}:${doctor.id}`)
+  /* 서버에 남은 신청이 있으면 그것을 쓴다. 없으면 이번 화면에서 낸 신청을 쓴다. */
+  const savedEncounter = state.encounters.find(
+    (item) => item.doctorId === doctor.id && item.questionId === question.id,
+  )
+  const requested =
+    savedEncounter !== undefined ||
+    state.requestedEncounterIds.includes(`${question.id}:${doctor.id}`)
+  const openableRoomId = savedEncounter?.id ?? roomId
   const notice = gate.result && !gate.enabled ? buildReferralNotice(gate.result, clinic) : null
 
   return (
@@ -95,7 +104,11 @@ export function DoctorProfileScreen() {
           className="primary-cta"
           disabled={!gate.enabled || requested}
           aria-describedby={gate.enabled ? undefined : 'gate-reason'}
-          onClick={() => requestEncounter(question.id, doctor.id)}
+          onClick={() => {
+            void requestEncounter(question.id, doctor.id, clinic.id).then((encounter) => {
+              if (encounter) setRoomId(encounter.id)
+            })
+          }}
         >
           {requested ? '비대면 진료 신청함' : '비대면 진료 신청'}
         </button>
@@ -103,6 +116,25 @@ export function DoctorProfileScreen() {
           <p id="gate-reason" className="gate-reason">
             {gate.reason}
           </p>
+        )}
+
+        {/*
+          신청하고 나면 갈 곳이 있어야 한다. 신청만 하고 화면이 그대로면 다음에
+          무엇을 해야 하는지 알 수 없다. 의사가 먼저 열어야 붙으므로 그렇게 적는다.
+        */}
+        {requested && openableRoomId && (
+          <>
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={() => navigate(`/visit/${openableRoomId}`)}
+            >
+              진료방 들어가기 <span aria-hidden="true">›</span>
+            </button>
+            <p className="field-hint">
+              {doctor.name}에게 신청이 갔습니다. 의사가 진료방을 열면 연결됩니다.
+            </p>
+          </>
         )}
 
         <button

@@ -18,6 +18,60 @@ describe('communityReducer', () => {
     expect(next.role).toBe('doctor')
   })
 
+  /**
+   * 서버를 다시 읽을 때마다 계정 역할로 화면을 되돌리면, 의사 계정으로 환자
+   * 화면을 보던 사람이 글 하나 올리는 사이에 의사 화면으로 튕긴다.
+   */
+  it('직접 고른 화면은 스냅샷이 덮지 않는다', () => {
+    const emptySnapshot = {
+      questions: [],
+      notes: [],
+      answers: [],
+      empathies: [],
+      bookings: [],
+      clinics: [],
+      doctors: [],
+      patients: [],
+      encounters: [],
+    }
+
+    const switched = communityReducer(initialCommunityState, {
+      type: 'switch-role',
+      role: 'patient',
+    })
+    const next = communityReducer(switched, {
+      type: 'load-snapshot',
+      snapshot: emptySnapshot,
+      profileId: 'p-1',
+      role: 'doctor',
+    })
+
+    expect(next.role).toBe('patient')
+  })
+
+  it('직접 고르기 전에는 계정 역할을 따른다', () => {
+    const emptySnapshot = {
+      questions: [],
+      notes: [],
+      answers: [],
+      empathies: [],
+      bookings: [],
+      clinics: [],
+      doctors: [],
+      patients: [],
+      encounters: [],
+    }
+
+    const next = communityReducer(initialCommunityState, {
+      type: 'load-snapshot',
+      snapshot: emptySnapshot,
+      profileId: 'p-1',
+      role: 'doctor',
+    })
+
+    expect(next.role).toBe('doctor')
+  })
+
   it('새 질문을 맨 앞에 넣는다', () => {
     const next = communityReducer(initialCommunityState, { type: 'publish-question', question })
 

@@ -412,6 +412,34 @@ export interface BookingRequest {
 
 export type EncounterStatus = 'booked' | 'in-progress' | 'completed'
 
+/** 진료 신청 한 건의 상태. 서버 enum과 같은 값을 쓴다. */
+export type EncounterRequestStatus =
+  | 'requested'
+  | 'accepted'
+  | 'in-progress'
+  | 'completed'
+  | 'declined'
+
+/**
+ * 환자가 낸 비대면 진료 신청.
+ *
+ * Encounter 는 진료가 끝난 뒤 EMR로 넘길 내용까지 담는다. 신청은 그 앞 단계라
+ * 훨씬 가볍고, 무엇보다 서버에 남아야 한다. 신청이 화면 메모리에만 있으면
+ * 의사 쪽에는 아무 일도 일어나지 않는다.
+ *
+ * id 가 그대로 진료방 주소가 된다. 방 이름을 따로 만들면 두 사람이 서로 다른
+ * 방에 들어가는 길이 생긴다.
+ */
+export interface EncounterRequest {
+  id: string
+  questionId: string | null
+  patientId: string
+  doctorId: string
+  clinicId: string
+  status: EncounterRequestStatus
+  createdAt: string
+}
+
 export interface TranscriptLine {
   id: string
   speaker: 'patient' | 'doctor'

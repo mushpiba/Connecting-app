@@ -17,6 +17,8 @@ import type {
   Clinic,
   Doctor,
   Empathy,
+  EncounterRequest,
+  EncounterRequestStatus,
   Patient,
   Question,
   QuestionNote,
@@ -31,6 +33,7 @@ export interface LiveSnapshot {
   clinics: Clinic[]
   doctors: Doctor[]
   patients: Patient[]
+  encounters: EncounterRequest[]
 }
 
 const QUESTION_COLUMNS =
@@ -45,7 +48,8 @@ const QUESTION_COLUMNS =
 export async function fetchSnapshot(): Promise<LiveSnapshot> {
   const client = requireSupabase()
 
-  const [questions, answers, empathies, bookings, clinics, notes, profiles] = await Promise.all([
+  const [questions, answers, empathies, bookings, clinics, notes, profiles, encounters] =
+    await Promise.all([
     client.from('questions').select(QUESTION_COLUMNS).order('created_at', { ascending: false }),
     client.from('answers').select('*').order('created_at'),
     client.from('empathies').select('*'),
@@ -55,11 +59,22 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
     client
       .from('profiles')
       .select('id, display_name, role, region, license_verified, clinic_id, specialty, template_id'),
+    client
+      .from('encounters')
+      .select('id, question_id, patient_id, doctor_id, clinic_id, status, created_at')
+      .order('created_at', { ascending: false }),
   ])
 
-  const failure = [questions, answers, empathies, bookings, clinics, notes, profiles].find(
-    (result) => result.error,
-  )
+  const failure = [
+    questions,
+    answers,
+    empathies,
+    bookings,
+    clinics,
+    notes,
+    profiles,
+    encounters,
+  ].find((result) => result.error)
   if (failure?.error) throw new Error(failure.error.message)
 
   const profileRows = (profiles.data ?? []) as ProfileRow[]
@@ -86,7 +101,64 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
         ),
       ),
     patients: profileRows.map(toPatient),
+    encounters: (encounters.data ?? []).map((row) => ({
+      id: row.id,
+      questionId: row.question_id,
+      patientId: row.patient_id,
+      doctorId: row.doctor_id,
+      clinicId: row.clinic_id,
+      status: row.status as EncounterRequestStatus,
+      createdAt: row.created_at,
+    })),
   }
+}
+
+/**
+ * 진료 신청을 남긴다.
+ *
+ * 돌려받은 행을 그대로 쓴다. id 를 서버가 만들고 그 id 가 진료방 주소가 되므로,
+ * 화면이 임시 id 로 방을 열면 의사와 다른 방에 들어간다.
+ */
+export async function insertEncounter(
+  questionId: string | null,
+  patientId: string,
+  doctorId: string,
+  clinicId: string,
+): Promise<EncounterRequest> {
+  const client = requireSupabase()
+
+  const { data, error } = await client
+    .from('encounters')
+    .insert({
+      question_id: questionId,
+      patient_id: patientId,
+      doctor_id: doctorId,
+      clinic_id: clinicId,
+      status: 'requested',
+    })
+    .select('id, question_id, patient_id, doctor_id, clinic_id, status, created_at')
+    .single()
+
+  if (error) throw new Error(error.message)
+
+  return {
+    id: data.id,
+    questionId: data.question_id,
+    patientId: data.patient_id,
+    doctorId: data.doctor_id,
+    clinicId: data.clinic_id,
+    status: data.status as EncounterRequestStatus,
+    createdAt: data.created_at,
+  }
+}
+
+export async function updateEncounterStatus(
+  encounterId: string,
+  status: EncounterRequestStatus,
+): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client.from('encounters').update({ status }).eq('id', encounterId)
+  if (error) throw new Error(error.message)
 }
 
 export async function insertQuestion(question: Question, authorId: string): Promise<Question> {
@@ -194,6 +266,7 @@ export function subscribeToChanges(onChange: () => void): () => void {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'question_notes' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, onChange)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'encounters' }, onChange)
     .subscribe()
 
   return () => {

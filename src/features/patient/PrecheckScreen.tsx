@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { demoNowIso } from '../../data/demoCalendar'
 import { demoRegions } from '../../data/demoClinics'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
+import { carePrepProgress } from '../../domain/carePrep'
 import { isPrecheckComplete } from '../../domain/telemedicine'
+import { usePatientSettings } from '../../state/PatientSettingsContext'
 import type { EligibilityException } from '../../domain/types'
 import { useCommunity } from '../../state/CommunityContext'
 
@@ -17,6 +19,7 @@ const exceptionOptions: { value: EligibilityException; label: string }[] = [
 
 export function PrecheckScreen() {
   const { state, completePrecheck } = useCommunity()
+  const { settings } = usePatientSettings()
   const navigate = useNavigate()
   const [region, setRegion] = useState(state.precheck.region)
   const [identityVerified, setIdentityVerified] = useState(state.precheck.identityVerified)
@@ -25,6 +28,7 @@ export function PrecheckScreen() {
   const [exception, setException] = useState<EligibilityException>(state.precheck.exception)
 
   const done = isPrecheckComplete(state.precheck)
+  const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
   const params = eligibilityRuleSet.params
 
   const submit = (event: React.FormEvent) => {
@@ -120,8 +124,44 @@ export function PrecheckScreen() {
       <p className="precheck-status" role="status">
         {done ? '비대면 사전 확인 완료' : '비대면 사전 확인 전'}
       </p>
+
+      {/*
+        마쳤다는 것이 한 줄 글씨로만 남으면 끝난 줄 모르고 같은 화면을 다시 연다.
+        무엇이 끝났고 무엇이 남았는지 낱개로 보이고, 남은 것으로 바로 보낸다.
+      */}
+      {done && (
+        <section className={`precheck-done ${prep.complete ? 'is-complete' : ''}`}>
+          <p className="precheck-done-mark" aria-hidden="true">
+            {prep.complete ? '✓' : '···'}
+          </p>
+          <h2>{prep.complete ? '비대면 진료를 받을 수 있습니다' : '사전 확인을 마쳤습니다'}</h2>
+          <p className="precheck-done-count">
+            {prep.doneCount} / {prep.total} 완료
+          </p>
+          <ul className="prep-steps">
+            {prep.steps.map((step) => (
+              <li key={step.id} className={step.done ? 'is-done' : ''}>
+                <span aria-hidden="true">{step.done ? '✓' : '○'}</span> {step.label}
+              </li>
+            ))}
+          </ul>
+          {prep.complete ? (
+            <button type="button" className="primary-cta" onClick={() => navigate('/stories')}>
+              답변해 준 의사 찾아보기
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="primary-cta"
+              onClick={() => navigate('/me/address')}
+            >
+              주소 설정하러 가기
+            </button>
+          )}
+        </section>
+      )}
       <p className="clinical-caveat">
-        이 확인은 브라우저 메모리에만 저장됩니다. 실제 본인확인 절차가 아닙니다. 적용 규칙{' '}
+        이 확인은 이 기기에만 저장되고 서버로 보내지 않습니다. 실제 본인확인 절차가 아닙니다. 적용 규칙{' '}
         {eligibilityRuleSet.name} · 기준일 {eligibilityRuleSet.asOf}
       </p>
     </div>

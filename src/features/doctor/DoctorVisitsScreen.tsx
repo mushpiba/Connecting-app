@@ -9,7 +9,7 @@ import { useDirectory } from '../../state/directory'
 import { useDoctorSettings } from '../../state/DoctorSettingsContext'
 
 export function DoctorVisitsScreen() {
-  const { state } = useCommunity()
+  const { state, setEncounterStatus } = useCommunity()
   const { doctors, findDoctor, findClinic, findPatient } = useDirectory()
   const { settingsOf } = useDoctorSettings()
   const navigate = useNavigate()
@@ -19,6 +19,10 @@ export function DoctorVisitsScreen() {
   const settings = settingsOf(doctor.id, doctor.templateId)
   const bookings = directRequests(doctor, state.questions, state.bookings).bookings
   const schedule = clinic ? clinicScheduleOn(clinic, demoToday) : null
+  /* 나에게 온 신청만. 끝난 진료는 목록에서 뺀다. */
+  const encounters = state.encounters.filter(
+    (item) => item.doctorId === doctor.id && item.status !== 'completed' && item.status !== 'declined',
+  )
 
   return (
     <div className="screen">
@@ -62,6 +66,55 @@ export function DoctorVisitsScreen() {
                   schedule.nextOpen ? ` · 다음 ${weekdayLabels[schedule.nextOpen.weekday]}요일` : ''
                 }`)}
         </p>
+      </section>
+
+      <section aria-labelledby="visit-encounters-heading">
+        <h2 id="visit-encounters-heading">받은 비대면 진료 신청 {encounters.length}</h2>
+        {encounters.length === 0 ? (
+          <div className="empty-state">
+            <h2>들어온 신청이 없어요</h2>
+            <p>환자가 내 프로필에서 비대면 진료를 신청하면 여기로 옵니다.</p>
+          </div>
+        ) : (
+          <div className="card-list">
+            {encounters.map((encounter) => {
+              const question = state.questions.find((item) => item.id === encounter.questionId)
+              return (
+                <article key={encounter.id} className="appointment-card">
+                  <span className="status-chip">
+                    {encounter.status === 'requested' ? '신청 도착' : '진행 중'}
+                  </span>
+                  <h3>{question?.title ?? '사연 없이 들어온 신청'}</h3>
+                  <p>{findPatient(encounter.patientId)?.displayName ?? '환자'}가 신청했습니다.</p>
+                  <small>{new Date(encounter.createdAt).toLocaleString('ko-KR')}</small>
+                  {/*
+                    여는 사람이 의사다. 환자가 먼저 들어와 기다리고 의사가 부른다.
+                    상태를 먼저 바꿔야 환자 화면에도 열렸다는 것이 보인다.
+                  */}
+                  <button
+                    type="button"
+                    className="primary-cta"
+                    onClick={() => {
+                      setEncounterStatus(encounter.id, 'in-progress')
+                      navigate(`/doctor/visit/${encounter.id}`)
+                    }}
+                  >
+                    화상 진료방 열기
+                  </button>
+                  {question && (
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      onClick={() => navigate(`/doctor/questions/${question.id}`)}
+                    >
+                      사연 먼저 읽기 <span aria-hidden="true">›</span>
+                    </button>
+                  )}
+                </article>
+              )
+            })}
+          </div>
+        )}
       </section>
 
       <section aria-labelledby="visit-bookings-heading">

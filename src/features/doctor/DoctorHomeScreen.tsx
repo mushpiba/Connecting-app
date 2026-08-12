@@ -28,6 +28,9 @@ export function DoctorHomeScreen() {
     (question) => !answeredIds.has(question.id),
   )
   const schedule = clinic ? clinicScheduleOn(clinic, demoToday) : null
+  const pendingEncounters = state.encounters.filter(
+    (item) => item.doctorId === doctor.id && item.status === 'requested',
+  )
 
   return (
     <div className="screen">
@@ -55,6 +58,21 @@ export function DoctorHomeScreen() {
         <p className="gate-reason">
           면허 검증을 마쳐야 질문이 전달되고 답변을 쓸 수 있습니다.
         </p>
+      )}
+
+      {/*
+        진료 신청은 사연과 성격이 다르다. 저쪽에서 사람이 기다리고 있으므로
+        목록 안에 섞지 않고 맨 위에 세운다.
+      */}
+      {pendingEncounters.length > 0 && (
+        <button
+          type="button"
+          className="encounter-alert"
+          onClick={() => navigate('/doctor/visits')}
+        >
+          <strong>비대면 진료 신청 {pendingEncounters.length}건</strong>
+          <span>환자가 진료방을 기다리고 있습니다. 눌러서 여세요.</span>
+        </button>
       )}
 
       <div className="doctor-stats">
