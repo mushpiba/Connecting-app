@@ -26,6 +26,7 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
   const { state } = useCommunity()
   const [consented, setConsented] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [manual, setManual] = useState('')
 
   const room = useConsultRoom(roomId, role === 'doctor')
   const speech = useSpeechTranscript(role, room.publishLine)
@@ -134,6 +135,12 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
       </div>
 
       {speech.error && <p className="gate-reason">{speech.error}</p>}
+      {speech.listening && (
+        <p className="speech-state">
+          <span aria-hidden="true">●</span> 듣는 중
+          {speech.lastEvent && ` · ${speech.lastEvent}`}
+        </p>
+      )}
       {!speech.supported && (
         <p className="gate-reason">
           이 브라우저는 받아쓰기를 지원하지 않습니다. Chrome에서 열어 주세요.
@@ -157,6 +164,29 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
           </ol>
         )}
         {speech.interim && <p className="transcript-interim">{speech.interim}…</p>}
+
+        {/* 받아쓰기가 막혀도 흐름은 보여야 한다. 손으로도 한 줄 넣을 수 있게 둔다. */}
+        <form
+          className="manual-line"
+          onSubmit={(event) => {
+            event.preventDefault()
+            speech.addManualLine(manual)
+            setManual('')
+          }}
+        >
+          <label className="visually-hidden" htmlFor="manual-line-input">
+            받아쓰기 대신 직접 입력
+          </label>
+          <input
+            id="manual-line-input"
+            value={manual}
+            placeholder="받아쓰기가 안 되면 여기에 직접 적어 보내세요"
+            onChange={(event) => setManual(event.target.value)}
+          />
+          <button type="submit" className="secondary-button" disabled={manual.trim() === ''}>
+            보내기
+          </button>
+        </form>
       </section>
 
       {/* 진료 중 정리는 의사에게만 보인다. 환자 화면에 키워드를 띄우면 진단으로 읽힌다. */}
