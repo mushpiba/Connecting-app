@@ -1,3 +1,4 @@
+import { AppIcon } from './AppIcon'
 import { nowIso, todayIso } from '../data/appClock'
 import { useNavigate } from 'react-router-dom'
 import { symptomDurationDays } from '../domain/intake'
@@ -42,7 +43,7 @@ export function QuestionCard({
     <article className={`question-card ${isHot ? 'is-hot' : ''}`} data-testid="question-card">
       {isHot && (
         <span className="hot-badge">
-          <span aria-hidden="true">✦</span> 이번 주 많이 공감한 글
+          <AppIcon name="trend" inline /> 이번 주 많이 공감한 글
         </span>
       )}
       <button
@@ -69,7 +70,7 @@ export function QuestionCard({
       </div>
       <div className="question-footer">
         <span className="answer-count">
-          <span aria-hidden="true">💬</span> 답변 {answerCount}
+          <AppIcon name="answer" inline /> 답변 {answerCount}
         </span>
         {onToggleEmpathy && (
           <button
@@ -79,7 +80,7 @@ export function QuestionCard({
             aria-label={`${question.title} 공감`}
             onClick={() => onToggleEmpathy(question.id)}
           >
-            <span aria-hidden="true">♥</span> 공감 {empathyCount}
+            <AppIcon name="empathy" inline /> 공감 {empathyCount}
           </button>
         )}
       </div>

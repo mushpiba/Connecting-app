@@ -47,8 +47,9 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: true,
     // 문진 흐름 테스트는 userEvent.type이 글자마다 전체 화면을 다시 그려서
-    // 기본 5초를 넘긴다. 느린 것이지 매달린 것이 아니다.
-    testTimeout: 20000,
+    // 기본 5초를 넘긴다. 느린 것이지 매달린 것이 아니다. 폼이 길어질수록
+    // 한 글자당 그리는 양이 늘어 여러 파일을 함께 돌릴 때 더 밀린다.
+    testTimeout: 40000,
     // 시드 SQL 생성기는 파일을 쓰는 도구라 기본 실행에서 뺀다.
     exclude: ['node_modules/**', 'scripts/**'],
   },

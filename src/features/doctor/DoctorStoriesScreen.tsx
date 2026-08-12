@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AppIcon } from '../../components/AppIcon'
 import { demoWeekEndingOn } from '../../data/demoCalendar'
 import { boardRuleSet } from '../../data/rules/boardRules'
 import { empathyCount, rankWeeklyHot } from '../../domain/board'
@@ -148,7 +149,8 @@ export function DoctorStoriesScreen() {
           {hot.map((question) => (
             <article key={question.id} className="question-card is-hot">
               <span className="hot-badge">
-                <span aria-hidden="true">✦</span> 공감 {empathyCount(state.empathies, question.id)}
+                <AppIcon name="empathy" inline /> 공감{' '}
+                {empathyCount(state.empathies, question.id)}
               </span>
               <button
                 type="button"

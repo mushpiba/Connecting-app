@@ -2,7 +2,7 @@ import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TriageSummary } from '../../components/TriageSummary'
-import { demoClassifier } from '../../data/classifier'
+import { appClassifier } from '../../data/classifier'
 import { demoClinics, demoRegions } from '../../data/demoClinics'
 import { triageRuleSet } from '../../data/rules/triageRules'
 import { triage } from '../../domain/triage'
@@ -158,12 +158,14 @@ export function AskScreen() {
 
   const submitVisibility = async (event: React.FormEvent) => {
     event.preventDefault()
-    const triage = await demoClassifier.classify({
-      text: `${form.title} ${form.body}`,
-      bodyAreas: form.bodyAreas,
-    })
-    setResult(triage)
+    // 분류를 기다리는 동안에도 화면은 넘어간다. 늦는 것이 막는 것이 되면 안 된다.
     setStep('result')
+    setResult(
+      await appClassifier.classify({
+        text: `${form.title} ${form.body}`,
+        bodyAreas: form.bodyAreas,
+      }),
+    )
   }
 
   const publish = async () => {
@@ -245,6 +247,16 @@ export function AskScreen() {
           />
 
           <label htmlFor="ask-body">증상을 자유롭게 적어주세요</label>
+          {/*
+            글이 어디로 가는지는 구현 세부가 아니라 동의를 받아야 하는 사실이다.
+            어느 과인지 고르려고 적은 글을 모델 제공자에게 보낸다.
+          */}
+          {isLiveMode && (
+            <p className="field-hint">
+              어느 과로 가면 좋을지 고르기 위해 적어 주신 글을 인공지능 분석에 보냅니다. 이
+              데모에는 실제 증상이나 개인정보를 적지 마세요.
+            </p>
+          )}
           <p className="field-hint" id="ask-body-hint">
             언제부터, 어떤 느낌인지, 무엇을 하면 심해지는지 적어 주시면 도움이 됩니다.
           </p>
@@ -301,9 +313,7 @@ export function AskScreen() {
           {chipGroupsFor(activeAreas).map((group) => (
             <fieldset key={group.area} className="symptom-chip-group">
               <legend>{group.label} 증상</legend>
-              <p className="tip-line">
-                <span aria-hidden="true">💡</span> TIP {group.tip}
-              </p>
+              <p className="tip-line">TIP {group.tip}</p>
               <div className="symptom-chips">
                 {group.chips.map((chip) => {
                   const on = form.selectedSymptoms.includes(chip.keyword)
@@ -589,6 +599,10 @@ export function AskScreen() {
             정리해서 보기
           </button>
         </form>
+      )}
+
+      {step === 'result' && !result && (
+        <p className="empty-note">적어 주신 내용을 정리하는 중입니다…</p>
       )}
 
       {step === 'result' && result && (
