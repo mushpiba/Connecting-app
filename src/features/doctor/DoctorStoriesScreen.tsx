@@ -30,9 +30,12 @@ export function DoctorStoriesScreen() {
   )
 
   const ranks = rankWeeklyHot(state.questions, state.empathies, boardRuleSet, demoWeekEndingOn)
-  const hot = state.questions.filter((question) =>
-    ranks.some((rank) => rank.questionId === question.id && rank.isHot),
-  )
+  const hot = state.questions
+    .filter((question) => ranks.some((rank) => rank.questionId === question.id && rank.isHot))
+    .sort(
+      (left, right) =>
+        right.createdAt.localeCompare(left.createdAt) || left.id.localeCompare(right.id),
+    )
 
   return (
     <div className="screen">

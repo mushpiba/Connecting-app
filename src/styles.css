@@ -950,6 +950,39 @@ figcaption {
   color: var(--ink-700);
 }
 
+/* 진료과 고르기 — 열 개를 늘 펼쳐 두면 필터가 목록보다 길어진다. */
+
+.specialty-picker {
+  margin-bottom: 14px;
+}
+
+.specialty-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.specialty-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px;
+  margin-top: 8px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
 /* 화상 진료방 */
 
 .consent-card {

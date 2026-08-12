@@ -7,12 +7,35 @@ describe('board empathy flow', () => {
     window.location.hash = '#/board'
   })
 
-  it('주간 공감이 많은 글을 상단에 고정한다', () => {
+  it('전체 탭은 최신순으로 늘어놓는다', () => {
     render(<App />)
 
     const cards = screen.getAllByTestId('question-card')
-    expect(within(cards[0]).getByText('이번 주 많이 공감한 글')).toBeInTheDocument()
-    expect(within(cards[0]).getByText(/두드러기 원인을 못 찾았어요/)).toBeInTheDocument()
+    expect(within(cards[0]).getByText(/가슴통증이 있었는데/)).toBeInTheDocument()
+  })
+
+  it('HOT 탭에서만 공감이 많은 글을 모아 본다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('tab', { name: 'HOT' }))
+
+    const cards = screen.getAllByTestId('question-card')
+    expect(cards.length).toBeGreaterThan(0)
+    cards.forEach((card) => {
+      expect(within(card).getByText('이번 주 많이 공감한 글')).toBeInTheDocument()
+    })
+  })
+
+  it('진료과를 골라 그 과의 사연만 본다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /전체 진료과/ }))
+    await user.click(screen.getByRole('button', { name: '피부과' }))
+
+    expect(screen.getByText(/두드러기 원인을 못 찾았어요/)).toBeInTheDocument()
+    expect(screen.queryByText('두 달째 잠이 안 옵니다')).not.toBeInTheDocument()
   })
 
   it('공감을 누르면 수가 오르고 다시 누르면 내려간다', async () => {
