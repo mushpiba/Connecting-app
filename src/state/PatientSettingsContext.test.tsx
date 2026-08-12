@@ -21,14 +21,18 @@ describe('PatientSettingsContext', () => {
     act(() => {
       result.current.updateSettings(
         {
-          address: { region: '서울 성동구', detail: '회사' },
+          address: { region: '서울 성동구', detail: '회사', savedAt: '2026-08-09T10:00:00.000Z' },
           paymentMethodId: 'demo-hana',
         },
         '진료 준비 설정을 저장했습니다.',
       )
     })
 
-    expect(result.current.settings.address).toEqual({ region: '서울 성동구', detail: '회사' })
+    expect(result.current.settings.address).toEqual({
+      region: '서울 성동구',
+      detail: '회사',
+      savedAt: '2026-08-09T10:00:00.000Z',
+    })
     expect(result.current.settings.paymentMethodId).toBe('demo-hana')
     expect(result.current.notice).toBe('진료 준비 설정을 저장했습니다.')
     expect(window.localStorage).toHaveLength(0)

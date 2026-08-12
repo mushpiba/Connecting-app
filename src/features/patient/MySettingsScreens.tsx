@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { demoNowIso } from '../../data/demoCalendar'
+import { demoRegions } from '../../data/demoClinics'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
@@ -32,7 +34,7 @@ export function AddressSettingsScreen() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    updateSettings({ address: { region, detail } }, '주소를 저장했습니다.')
+    updateSettings({ address: { region, detail, savedAt: demoNowIso } }, '주소를 저장했습니다.')
     setSaved(true)
   }
 
@@ -43,13 +45,15 @@ export function AddressSettingsScreen() {
         <label>
           기본 지역
           <select value={region} onChange={(event) => setRegion(event.target.value)}>
-            <option>인천 미추홀구</option>
-            <option>서울 성동구</option>
-            <option>서울 마포구</option>
+            {demoRegions.map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
           </select>
         </label>
         <label>
-          상세 주소 별칭
+          상세 주소 별칭 (선택)
           <input
             value={detail}
             placeholder="예: 집, 회사"
@@ -57,7 +61,8 @@ export function AddressSettingsScreen() {
           />
         </label>
         <p className="settings-note">
-          주소 확인과 병원 전송은 아직 연결되지 않은 데모입니다. 실제 상세 주소는 저장하지 마세요.
+          지역만 고르고 저장해도 됩니다. 별칭은 여러 곳을 구분할 때만 씁니다. 주소 확인과 병원
+          전송은 아직 연결되지 않은 데모이니 실제 상세 주소는 적지 마세요.
         </p>
         <button type="submit" className="primary-cta">주소 저장</button>
         {saved && <SavedNotice>주소를 저장했습니다.</SavedNotice>}

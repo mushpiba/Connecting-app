@@ -10,10 +10,24 @@ describe('MY settings demo flows', () => {
 
     await user.click(screen.getByRole('button', { name: '주소 설정' }))
     await user.selectOptions(screen.getByLabelText('기본 지역'), '서울 성동구')
-    await user.type(screen.getByLabelText('상세 주소 별칭'), '회사')
+    await user.type(screen.getByLabelText('상세 주소 별칭 (선택)'), '회사')
     await user.click(screen.getByRole('button', { name: '주소 저장' }))
 
     expect(screen.getByRole('status')).toHaveTextContent('주소를 저장했습니다.')
+  })
+
+  it('별칭 없이 지역만 골라도 진료 준비가 채워진다', async () => {
+    const user = userEvent.setup()
+    window.location.hash = '#/me'
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: '주소 설정' }))
+    await user.selectOptions(screen.getByLabelText('기본 지역'), '서울 성동구')
+    await user.click(screen.getByRole('button', { name: '주소 저장' }))
+    await user.click(screen.getByRole('button', { name: '← MY로 돌아가기' }))
+
+    expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '25')
+    expect(screen.getByText('주소 설정', { selector: 'li' })).toHaveClass('is-done')
   })
 
   it('마스킹된 데모 결제수단을 선택한다', async () => {

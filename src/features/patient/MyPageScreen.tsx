@@ -15,7 +15,7 @@ export function MyPageScreen() {
   const mineIds = new Set(mine.map((question) => question.id))
   const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
   const precheckComplete = isPrecheckComplete(state.precheck)
-  const prep = carePrepProgress(state.precheck, settings.address.detail.trim() !== '')
+  const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
   const paymentLabel = settings.paymentMethodId === 'none' ? '등록된 수단 없음' : '데모 수단 선택됨'
   const resetAll = () => {
     resetDemo()

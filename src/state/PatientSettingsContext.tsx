@@ -8,6 +8,11 @@ export interface PatientSettings {
   address: {
     region: string
     detail: string
+    /**
+     * 사용자가 확인해서 저장한 시각. 별칭은 비워 둘 수 있어 완료 여부를 가릴 수
+     * 없다. 지역에는 기본값이 있어 값만 보고는 확인했는지 알 수 없다.
+     */
+    savedAt: string | null
   }
   paymentMethodId: DemoPaymentMethodId
   notifications: {
@@ -30,6 +35,7 @@ export const initialPatientSettings: PatientSettings = {
   address: {
     region: '인천 미추홀구',
     detail: '',
+    savedAt: null,
   },
   paymentMethodId: 'none',
   notifications: {

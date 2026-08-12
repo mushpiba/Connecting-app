@@ -27,7 +27,7 @@ export function HomeScreen() {
     state.patientId,
     demoToday,
   )
-  const prep = carePrepProgress(state.precheck, settings.address.detail.trim() !== '')
+  const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
   const activity = groupMyActivity(state.questions, state.answers, state.patientId).slice(0, 3)
 
   return (
