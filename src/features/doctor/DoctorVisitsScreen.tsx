@@ -85,14 +85,37 @@ export function DoctorVisitsScreen() {
                     ? `서류 ${booking.documentTypes.map(documentLabel).join(', ')}`
                     : '요청한 서류 없음'}
                 </small>
+                <button
+                  type="button"
+                  className="primary-cta"
+                  onClick={() => navigate(`/doctor/visit/${booking.id}`)}
+                >
+                  화상 진료방 열기
+                </button>
               </article>
             ))}
           </div>
         )}
       </section>
 
+      <section className="prep-progress" aria-labelledby="visit-room-heading">
+        <div className="prep-progress-head">
+          <h2 id="visit-room-heading">진료방 바로 열기</h2>
+        </div>
+        <p className="field-hint">
+          예약 없이 시연할 때 씁니다. 같은 방 이름을 환자에게 알려주면 두 사람이 만납니다.
+        </p>
+        <button
+          type="button"
+          className="secondary-button"
+          onClick={() => navigate(`/doctor/visit/demo-${doctor.id}`)}
+        >
+          demo-{doctor.id} 방 열기
+        </button>
+      </section>
+
       <p className="clinical-caveat">
-        시연용 화면입니다. 실제 예약 확정과 화상 진료는 아직 연결되어 있지 않습니다.
+        시연용 화면입니다. 예약 확정은 병원이 하며 이 화면에서 이루어지지 않습니다.
       </p>
     </div>
   )

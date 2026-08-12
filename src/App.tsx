@@ -37,6 +37,7 @@ import {
   DoctorTelemedicineSettingsScreen,
 } from './features/doctor/DoctorSettingsScreens'
 import { DoctorInboxScreen } from './features/doctor/DoctorInboxScreen'
+import { ConsultScreen } from './features/consult/ConsultScreen'
 import { JoinScreen } from './features/patient/JoinScreen'
 import { CommunityProvider } from './state/CommunityContext'
 import { DoctorSettingsProvider } from './state/DoctorSettingsContext'
@@ -90,7 +91,9 @@ function AppRoutes() {
     location.pathname === '/ask' ||
     location.pathname === '/expert' ||
     location.pathname.startsWith('/me/') ||
-    location.pathname.startsWith('/doctor/me/')
+    location.pathname.startsWith('/doctor/me/') ||
+    location.pathname.startsWith('/visit/') ||
+    location.pathname.startsWith('/doctor/visit/')
 
   return (
     <div className={`app-stage is-${previewMode}-preview`}>
@@ -112,6 +115,7 @@ function AppRoutes() {
             <Route path="/questions/:questionId" element={<QuestionDetailScreen />} />
             <Route path="/doctors/:doctorId" element={<DoctorProfileScreen />} />
             <Route path="/booking/:doctorId" element={<BookingScreen />} />
+            <Route path="/visit/:roomId" element={<ConsultScreen role="patient" />} />
             <Route path="/me" element={<MyPageScreen />} />
             <Route path="/me/precheck" element={<PrecheckScreen />} />
             <Route path="/me/address" element={<AddressSettingsScreen />} />
@@ -123,6 +127,7 @@ function AppRoutes() {
             <Route path="/doctor/inbox" element={<DoctorInboxScreen />} />
             <Route path="/doctor/stories" element={<DoctorStoriesScreen />} />
             <Route path="/doctor/visits" element={<DoctorVisitsScreen />} />
+            <Route path="/doctor/visit/:roomId" element={<ConsultScreen role="doctor" />} />
             <Route path="/doctor/me" element={<DoctorMyScreen />} />
             <Route path="/doctor/me/profile" element={<DoctorProfileSettingsScreen />} />
             <Route path="/doctor/me/keywords" element={<DoctorKeywordSettingsScreen />} />

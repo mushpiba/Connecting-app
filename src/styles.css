@@ -950,6 +950,176 @@ figcaption {
   color: var(--ink-700);
 }
 
+/* 화상 진료방 */
+
+.consent-card {
+  padding: 18px 18px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.consent-card h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.consent-card ul {
+  padding-left: 18px;
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink-700);
+}
+
+.consult-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.consult-status {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-700);
+  background: var(--surface-muted);
+  border-radius: 999px;
+}
+
+.consult-status.is-connected {
+  color: #0d6a68;
+  background: var(--cyan-100);
+}
+
+.consult-status.is-ended,
+.consult-status.is-unsupported {
+  color: #7c2d33;
+  background: #fdeef0;
+}
+
+.video-stage {
+  position: relative;
+  margin: 12px 0;
+  overflow: hidden;
+  background: var(--navy-950);
+  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+}
+
+.video-remote {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-local {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 27%;
+  max-width: 140px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 10px;
+}
+
+.video-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  font-size: 13.5px;
+  color: #b9d3e6;
+  text-align: center;
+  transform: translateY(-50%);
+}
+
+.consult-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.transcript-panel,
+.consult-keywords {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.transcript-panel h2,
+.consult-keywords h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.transcript-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.transcript-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.65;
+}
+
+.transcript-speaker {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+.transcript-list li.is-patient .transcript-speaker {
+  color: var(--blue-700);
+  background: var(--blue-100);
+}
+
+.transcript-list li.is-doctor .transcript-speaker {
+  color: #0d6a68;
+  background: var(--cyan-100);
+}
+
+.transcript-text {
+  color: var(--ink-900);
+  word-break: keep-all;
+}
+
+.transcript-interim {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ink-500);
+}
+
+.record-draft {
+  padding: 12px 14px;
+  margin: 0 0 10px;
+  overflow-x: auto;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-700);
+  white-space: pre-wrap;
+  background: var(--surface-muted);
+  border-radius: 10px;
+}
+
 /* 참여 화면 */
 
 .join-screen {
