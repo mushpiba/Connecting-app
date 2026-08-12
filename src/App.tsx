@@ -39,7 +39,7 @@ import {
 import { DoctorInboxScreen } from './features/doctor/DoctorInboxScreen'
 import { ConsultScreen } from './features/consult/ConsultScreen'
 import { JoinScreen } from './features/patient/JoinScreen'
-import { CommunityProvider } from './state/CommunityContext'
+import { CommunityProvider, useCommunity } from './state/CommunityContext'
 import { DoctorSettingsProvider } from './state/DoctorSettingsContext'
 import { SessionProvider, useSession } from './state/SessionContext'
 import { PatientSettingsProvider } from './state/PatientSettingsContext'
@@ -57,6 +57,23 @@ function SessionGate({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>
+}
+
+/**
+ * 무슨 일이 있었는지 알리는 한 자리.
+ *
+ * 이 글은 헤더 안에만 있었고 그마저 화면에서 안 보이는 상자였다. 사연 작성처럼
+ * 헤더를 감추는 화면에서는 등록이 실패해도 아무 일도 안 일어난 것처럼 보였다.
+ * 헤더 밖으로 꺼내 모든 화면에 둔다.
+ */
+function AppNotice() {
+  const { statusNotice, statusTone } = useCommunity()
+
+  return (
+    <p className={`app-notice is-${statusTone}`} role="status" aria-live="polite">
+      {statusNotice}
+    </p>
+  )
 }
 
 function AppRoutes() {
@@ -101,6 +118,7 @@ function AppRoutes() {
       <div className="app-viewport" data-testid="app-viewport" data-preview-mode={previewMode}>
         <div className={`app-root ${focused ? 'is-focused' : ''}`}>
           {!focused && <AppHeader />}
+          <AppNotice />
           <div className="app-body">
             {!focused && <BottomNav />}
             <main className="app-main">

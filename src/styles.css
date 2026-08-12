@@ -2208,6 +2208,34 @@ figcaption {
   color: var(--blue-700);
 }
 
+/* 알림 한 줄 — 실패가 조용히 지나가지 않게 */
+
+.app-notice {
+  margin: 0;
+  padding: 0 16px;
+  max-height: 0;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: max-height 160ms ease, padding 160ms ease;
+}
+
+.app-notice:not(:empty) {
+  padding: 10px 16px;
+  max-height: 120px;
+}
+
+.app-notice.is-info:not(:empty) {
+  color: var(--blue-700);
+  background: var(--blue-50, #eef5fc);
+}
+
+.app-notice.is-error:not(:empty) {
+  font-weight: 700;
+  color: #8c1d18;
+  background: #fdecea;
+}
+
 /* 진료 신청 알림 — 사람이 기다리는 일이라 목록보다 위에 선다 */
 
 .encounter-alert {

@@ -1,9 +1,9 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AnswerCard } from '../../components/AnswerCard'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
-import { demoToday } from '../../data/demoCalendar'
 import { findQuestion } from '../../data/demoQuestions'
 import { symptomDurationDays } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
@@ -30,7 +30,7 @@ export function QuestionDetailScreen() {
   }
 
   const answers = state.answers.filter((answer) => answer.questionId === question.id)
-  const days = symptomDurationDays(question.onsetDate, demoToday)
+  const days = symptomDurationDays(question.onsetDate, todayIso())
   const author = findPatient(question.patientId)
   const isAuthor = question.patientId === state.patientId
   const notes = state.notes.filter((note) => note.questionId === question.id)

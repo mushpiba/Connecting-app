@@ -175,6 +175,8 @@ export function communityReducer(
 interface CommunityContextValue {
   state: CommunityState
   statusNotice: string
+  /** 실패인지 알림인지. 화면이 색과 강조를 다르게 준다. */
+  statusTone: StatusTone
   switchRole: (role: AppRole) => void
   switchDoctor: (doctorId: string) => void
   publishQuestion: (question: Question) => Promise<Question>
@@ -196,11 +198,30 @@ interface CommunityContextValue {
   live: LiveSnapshot | null
 }
 
+export type StatusTone = 'info' | 'error'
+
+/**
+ * 실패를 사람 말로 바꾼다.
+ *
+ * 데이터베이스가 뱉은 원문을 그대로 띄우면 읽는 사람은 무엇을 해야 할지 모르고,
+ * 테이블과 열 이름까지 같이 나간다. 원문은 콘솔로 보낸다.
+ */
+function failureNotice(what: string, error: unknown): string {
+  if (error instanceof Error) console.error(`[MediVU] ${what} 실패`, error)
+  return `${what} 실패했습니다. 잠시 뒤 다시 시도해 주세요. 적은 내용은 그대로 있습니다.`
+}
+
 const CommunityContext = createContext<CommunityContextValue | null>(null)
 
 export function CommunityProvider({ children }: PropsWithChildren) {
   const [state, dispatch] = useReducer(communityReducer, initialCommunityState)
-  const [statusNotice, setStatusNotice] = useState('')
+  const [statusNotice, setNotice] = useState('')
+  const [statusTone, setStatusTone] = useState<StatusTone>('info')
+
+  const setStatusNotice = useCallback((message: string, tone: StatusTone = 'info') => {
+    setNotice(message)
+    setStatusTone(tone)
+  }, [])
   const [live, setLive] = useState<LiveSnapshot | null>(null)
   const { status, profile } = useSession()
   const ready = isLiveMode && status === 'ready' && profile !== null
@@ -217,7 +238,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         role: profile.role,
       })
     } catch (error) {
-      setStatusNotice(error instanceof Error ? error.message : '불러오지 못했습니다.')
+      setStatusNotice(failureNotice('불러오지', error), 'error')
     }
   }, [profile])
 
@@ -233,6 +254,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
     () => ({
       state,
       statusNotice,
+      statusTone,
       switchRole: (role) => {
         dispatch({ type: 'switch-role', role })
         setStatusNotice(role === 'doctor' ? '의사 화면으로 전환했습니다.' : '환자 화면으로 전환했습니다.')
@@ -250,7 +272,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
             setStatusNotice('사연을 올렸습니다.')
             return saved
           } catch (error) {
-            setStatusNotice(error instanceof Error ? error.message : '올리지 못했습니다.')
+            setStatusNotice(failureNotice('사연을 올리지', error), 'error')
             throw error
           }
         }
@@ -262,7 +284,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         if (ready && profile) {
           void insertAnswer(answer.questionId, profile.id, answer.body)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('답변을 등록하지', error), 'error'))
           setStatusNotice('답변을 등록했습니다.')
           return
         }
@@ -274,7 +296,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
           const on = !hasEmpathized(state.empathies, questionId, profile.id)
           void setEmpathy(questionId, profile.id, on)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('공감을 전하지', error), 'error'))
           return
         }
         dispatch({ type: 'toggle-empathy', questionId })
@@ -292,7 +314,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
             setStatusNotice('진료를 신청했습니다. 의사가 열면 진료방으로 들어갑니다.')
             return encounter
           } catch (error) {
-            setStatusNotice(error instanceof Error ? error.message : '신청하지 못했습니다.')
+            setStatusNotice(failureNotice('진료를 신청하지', error), 'error')
             return null
           }
         }
@@ -303,14 +325,14 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         if (ready && profile) {
           void updateEncounterStatus(encounterId, status)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('진료 상태를 바꾸지', error), 'error'))
         }
       },
       requestBooking: (booking) => {
         if (ready && profile) {
           void insertBooking(booking, profile.id)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('희망 시간을 전달하지', error), 'error'))
           setStatusNotice('희망 시간을 전달했습니다. 실제 예약은 병원이 확인해야 확정됩니다.')
           return
         }
@@ -321,7 +343,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         if (ready && profile) {
           void deleteQuestion(questionId)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('사연을 지우지', error), 'error'))
         } else {
           dispatch({ type: 'remove-question', questionId })
         }
@@ -331,7 +353,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
         if (ready && profile) {
           void insertNote(questionId, profile.id, body)
             .then(reload)
-            .catch((error: Error) => setStatusNotice(error.message))
+            .catch((error: Error) => setStatusNotice(failureNotice('덧붙이지', error), 'error'))
         } else {
           dispatch({
             type: 'add-note',
@@ -352,7 +374,7 @@ export function CommunityProvider({ children }: PropsWithChildren) {
       },
       live,
     }),
-    [state, statusNotice, live, ready, profile, reload],
+    [state, statusNotice, statusTone, setStatusNotice, live, ready, profile, reload],
   )
 
   return <CommunityContext.Provider value={value}>{children}</CommunityContext.Provider>

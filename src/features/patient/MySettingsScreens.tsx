@@ -1,7 +1,7 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { demoNowIso } from '../../data/demoCalendar'
 import { demoRegions } from '../../data/demoClinics'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
@@ -34,7 +34,7 @@ export function AddressSettingsScreen() {
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    updateSettings({ address: { region, detail, savedAt: demoNowIso } }, '주소를 저장했습니다.')
+    updateSettings({ address: { region, detail, savedAt: nowIso() } }, '주소를 저장했습니다.')
     setSaved(true)
   }
 

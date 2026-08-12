@@ -1,6 +1,6 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useNavigate } from 'react-router-dom'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
-import { demoToday } from '../../data/demoCalendar'
 import { clinicScheduleOn, weekdayLabels } from '../../domain/clinicHours'
 import { directRequests, keywordFeed, notificationDigest } from '../../domain/doctorFeed'
 import { useCommunity } from '../../state/CommunityContext'
@@ -27,7 +27,7 @@ export function DoctorHomeScreen() {
   const waiting = [...direct.questions, ...feed.map((item) => item.question)].filter(
     (question) => !answeredIds.has(question.id),
   )
-  const schedule = clinic ? clinicScheduleOn(clinic, demoToday) : null
+  const schedule = clinic ? clinicScheduleOn(clinic, todayIso()) : null
   const pendingEncounters = state.encounters.filter(
     (item) => item.doctorId === doctor.id && item.status === 'requested',
   )

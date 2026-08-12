@@ -3,7 +3,7 @@ import { useCommunity } from '../state/CommunityContext'
 import { AppIcon } from './AppIcon'
 
 export function AppHeader() {
-  const { state, statusNotice, switchRole } = useCommunity()
+  const { state, switchRole } = useCommunity()
   const navigate = useNavigate()
 
   const goPatient = () => {
@@ -48,9 +48,6 @@ export function AppHeader() {
           )}
         </div>
       </div>
-      <span className="visually-hidden" role="status">
-        {statusNotice}
-      </span>
     </header>
   )
 }

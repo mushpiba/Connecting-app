@@ -1,5 +1,5 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useNavigate } from 'react-router-dom'
-import { demoToday } from '../../data/demoCalendar'
 import { isLiveMode } from '../../data/supabaseClient'
 import { directRequests } from '../../domain/doctorFeed'
 import { documentLabel } from '../../domain/documents'
@@ -82,7 +82,7 @@ export function DoctorInboxScreen() {
               <div className="question-actions">
                 <span className="specialty-chip">우리 의료기관 진료 이력</span>
                 <span className="question-meta">
-                  증상 {symptomDurationDays(question.onsetDate, demoToday)}일째
+                  증상 {symptomDurationDays(question.onsetDate, todayIso())}일째
                 </span>
               </div>
             </article>

@@ -1,9 +1,9 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ClinicMap } from '../../components/ClinicMap'
 import { ClinicSchedule } from '../../components/ClinicSchedule'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
-import { demoToday } from '../../data/demoCalendar'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
 import { buildReferralNotice } from '../../domain/notice'
 import { evaluateTelemedicineGate } from '../../domain/telemedicine'
@@ -40,7 +40,7 @@ export function DoctorProfileScreen() {
     question,
     clinic,
     eligibilityRuleSet,
-    demoToday,
+    todayIso(),
   )
   /* 서버에 남은 신청이 있으면 그것을 쓴다. 없으면 이번 화면에서 낸 신청을 쓴다. */
   const savedEncounter = state.encounters.find(
@@ -92,7 +92,7 @@ export function DoctorProfileScreen() {
 
       <section className="clinic-panel" aria-labelledby="clinic-heading">
         <h2 id="clinic-heading">{clinic.name}</h2>
-        <ClinicSchedule clinic={clinic} today={demoToday} />
+        <ClinicSchedule clinic={clinic} today={todayIso()} />
         <ClinicMap clinic={clinic} />
       </section>
 

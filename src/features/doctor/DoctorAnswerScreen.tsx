@@ -1,8 +1,8 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
-import { demoNowIso, demoToday } from '../../data/demoCalendar'
 import { templatesFor } from '../../data/rules/answerTemplates'
 import { buildEmrExport } from '../../domain/emrExport'
 import { findQuestion } from '../../data/demoQuestions'
@@ -48,11 +48,11 @@ export function DoctorAnswerScreen() {
     const payload = buildEmrExport(
       question,
       notes,
-      myAnswer ?? (body.trim() ? { id: 'draft', questionId: question.id, doctorId: doctor.id, body, createdAt: demoNowIso } : null),
+      myAnswer ?? (body.trim() ? { id: 'draft', questionId: question.id, doctorId: doctor.id, body, createdAt: nowIso() } : null),
       doctor,
       findClinic(doctor.clinicId),
-      demoToday,
-      demoNowIso,
+      todayIso(),
+      nowIso(),
     )
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -70,7 +70,7 @@ export function DoctorAnswerScreen() {
       questionId: question.id,
       doctorId: doctor.id,
       body,
-      createdAt: demoNowIso,
+      createdAt: nowIso(),
     })
     setBody('')
     navigate('/doctor/inbox')
@@ -83,7 +83,7 @@ export function DoctorAnswerScreen() {
         <p className="question-body">{question.body}</p>
         <IntakeSummary
           question={question}
-          durationDays={symptomDurationDays(question.onsetDate, demoToday)}
+          durationDays={symptomDurationDays(question.onsetDate, todayIso())}
         />
         {question.priorVisit && canSeePriorVisit(doctor, question) && (
           <p className="prior-visit-note">

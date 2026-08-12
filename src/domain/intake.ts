@@ -53,10 +53,20 @@ const specialtyAreas: Record<Specialty, BodyArea> = {
   urology: 'urinary',
 }
 
+/**
+ * 추론으로는 절대 열지 않는 범주.
+ *
+ * 키워드 한 번 스친 것으로 마지막 생리 시작일을 묻게 되면, 그건 잘못 물은 게
+ * 아니라 물어서는 안 될 것을 물은 것이다. 분류기는 언제든 틀리므로 틀렸을 때
+ * 무엇이 새는지로 경계를 정한다. 환자가 직접 고른 경우에만 연다.
+ */
+const neverInferred: BodyArea[] = ['womens']
+
 export function inferAreas(selected: BodyArea[], triage: TriageResult): BodyArea[] {
   const picked = selected.filter((area) => area !== 'unsure')
   const top = triage.suggestions[0]
-  const inferred = top ? [specialtyAreas[top.specialty]] : []
+  const guessed = top ? specialtyAreas[top.specialty] : null
+  const inferred = guessed !== null && !neverInferred.includes(guessed) ? [guessed] : []
 
   return [...new Set([...picked, ...inferred])]
 }

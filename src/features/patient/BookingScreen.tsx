@@ -1,10 +1,11 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
-import { demoNowIso, demoToday } from '../../data/demoCalendar'
 import { bookingDays, firstOpenDay } from '../../domain/booking'
 import { weekdayLabels } from '../../domain/clinicHours'
 import { documentOptions, groupSlots } from '../../domain/documents'
+import { isLiveMode } from '../../data/supabaseClient'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 import type { DocumentType } from '../../domain/types'
@@ -28,7 +29,7 @@ export function BookingScreen() {
   const doctor = findDoctor(doctorId ?? '')
   const clinic = doctor ? findClinic(doctor.clinicId) : undefined
 
-  const days = clinic ? bookingDays(clinic, demoToday, DAY_COUNT) : []
+  const days = clinic ? bookingDays(clinic, todayIso(), DAY_COUNT, nowIso().slice(11, 16)) : []
   const [step, setStep] = useState<Step>('date')
   const [selectedDate, setSelectedDate] = useState(() => firstOpenDay(days)?.date ?? '')
   const [selectedTime, setSelectedTime] = useState('')
@@ -47,7 +48,15 @@ export function BookingScreen() {
 
   const selectedDay = days.find((day) => day.date === selectedDate)
   const bookingId = `${doctor.id}:${selectedDate}:${selectedTime}`
-  const confirmed = state.bookings.find((item) => item.id === bookingId)
+  /*
+   * id 로 찾지 않는다. 서버가 자기 id 를 만들기 때문에 화면이 지어낸 id 와는
+   * 영영 만나지 않고, 그러면 전달해 놓고도 전달했다는 화면이 안 뜬다.
+   * 의사·날짜·시간이 이 예약을 가리키는 진짜 열쇠다. 서버도 그 셋으로 중복을 막는다.
+   */
+  const confirmed = state.bookings.find(
+    (item) =>
+      item.doctorId === doctor.id && item.date === selectedDate && item.time === selectedTime,
+  )
 
   const submit = () => {
     requestBooking({
@@ -56,7 +65,7 @@ export function BookingScreen() {
       clinicId: clinic.id,
       date: selectedDate,
       time: selectedTime,
-      requestedAt: demoNowIso,
+      requestedAt: nowIso(),
       documentTypes: documents,
     })
   }
@@ -91,9 +100,11 @@ export function BookingScreen() {
                 <button
                   type="button"
                   className={`date-chip ${day.date === selectedDate ? 'is-active' : ''}`}
-                  disabled={!day.isOpen}
+                  disabled={!day.bookable}
                   aria-pressed={day.date === selectedDate}
-                  aria-label={`${day.date} ${weekdayLabels[day.weekday]}요일${day.isOpen ? '' : ' 휴진'}`}
+                  aria-label={`${day.date} ${weekdayLabels[day.weekday]}요일${
+                    day.bookable ? '' : day.isOpen ? ' 예약 마감' : ' 휴진'
+                  }`}
                   onClick={() => {
                     setSelectedDate(day.date)
                     setSelectedTime('')
@@ -101,7 +112,9 @@ export function BookingScreen() {
                 >
                   <span className="date-weekday">{weekdayLabels[day.weekday]}</span>
                   <span className="date-day">{Number(day.date.slice(8, 10))}</span>
-                  {!day.isOpen && <span className="date-closed">휴진</span>}
+                  {!day.bookable && (
+                    <span className="date-closed">{day.isOpen ? '마감' : '휴진'}</span>
+                  )}
                 </button>
               </li>
             ))}
@@ -110,7 +123,7 @@ export function BookingScreen() {
           <button
             type="button"
             className="primary-cta"
-            disabled={!selectedDay?.isOpen}
+            disabled={!selectedDay?.bookable}
             onClick={() => setStep('time')}
           >
             다음
@@ -223,9 +236,16 @@ export function BookingScreen() {
             </>
           )}
 
+          {/*
+            어디에 남는지를 사실대로 적는다. 실제로는 서버에 보내면서 화면으로는
+            브라우저에만 둔다고 말하고 있었다. 의료 서비스에서 이건 문구 오류가
+            아니라 동의를 잘못 받은 것이다.
+          */}
           <p className="clinical-caveat">
-            MediVU가 예약을 확정하지 않습니다. 희망 시간을 병원에 전달하는 시연이며 실제로 전송되지
-            않고 브라우저 메모리에만 저장됩니다.
+            MediVU가 예약을 확정하지 않습니다. 희망 시간을 병원에 전달하는 시연입니다.{' '}
+            {isLiveMode
+              ? '고른 날짜와 시간은 함께 테스트하는 서버에 저장되고 해당 의사 계정에서 볼 수 있습니다.'
+              : '이 브라우저에만 저장되며 어디로도 전송되지 않습니다.'}
           </p>
           <a className="secondary-button" href={clinic.bookingUrl}>
             병원 예약 페이지로 <span aria-hidden="true">›</span>

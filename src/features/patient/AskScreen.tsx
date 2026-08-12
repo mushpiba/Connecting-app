@@ -1,13 +1,14 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TriageSummary } from '../../components/TriageSummary'
 import { demoClassifier } from '../../data/classifier'
-import { demoNowIso, demoToday } from '../../data/demoCalendar'
 import { demoClinics, demoRegions } from '../../data/demoClinics'
 import { triageRuleSet } from '../../data/rules/triageRules'
 import { triage } from '../../domain/triage'
 import { chipGroupsFor } from '../../data/rules/symptomChips'
 import { questionsFor } from '../../data/rules/questionBank'
+import { isLiveMode } from '../../data/supabaseClient'
 import { canChoosePriorClinicOnly, inferAreas } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
 import type {
@@ -172,7 +173,7 @@ export function AskScreen() {
       patientId: state.patientId,
       title: form.title,
       body: form.body,
-      createdAt: demoNowIso,
+      createdAt: nowIso(),
       triage: result,
       priorVisit: form.priorVisit,
       sameSymptoms: form.sameSymptoms,
@@ -253,7 +254,7 @@ export function AskScreen() {
             id="ask-onset"
             type="date"
             required
-            max={demoToday}
+            max={todayIso()}
             value={form.onsetDate}
             onChange={(event) => update({ onsetDate: event.target.value })}
           />
@@ -499,7 +500,7 @@ export function AskScreen() {
                 id="ask-visited"
                 type="date"
                 required
-                max={demoToday}
+                max={todayIso()}
                 value={priorVisitedOn}
                 onChange={(event) => setPriorVisitedOn(event.target.value)}
               />
@@ -574,7 +575,12 @@ export function AskScreen() {
 
           {posted ? (
             <div className="posted-note">
-              <p role="status">질문을 등록했습니다. 브라우저 메모리에만 저장했습니다.</p>
+              <p role="status">
+                질문을 등록했습니다.{' '}
+                {isLiveMode
+                  ? '함께 테스트하는 서버에 저장했고, 고른 공개 범위 안의 사람들이 볼 수 있습니다.'
+                  : '이 브라우저에만 저장했습니다.'}
+              </p>
               <button
                 type="button"
                 className="primary-cta"

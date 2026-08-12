@@ -1,5 +1,5 @@
+import { nowIso, todayIso } from '../data/appClock'
 import { useNavigate } from 'react-router-dom'
-import { demoToday } from '../data/demoCalendar'
 import { symptomDurationDays } from '../domain/intake'
 import type { PostVisibility, Question, SymptomCourse } from '../domain/types'
 
@@ -36,7 +36,7 @@ export function QuestionCard({
   onToggleEmpathy,
 }: QuestionCardProps) {
   const navigate = useNavigate()
-  const days = symptomDurationDays(question.onsetDate, demoToday)
+  const days = symptomDurationDays(question.onsetDate, todayIso())
 
   return (
     <article className={`question-card ${isHot ? 'is-hot' : ''}`} data-testid="question-card">

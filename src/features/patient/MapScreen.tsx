@@ -1,7 +1,7 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { RegionMap } from '../../components/RegionMap'
-import { demoToday } from '../../data/demoCalendar'
 import { demoClinics, demoRegions } from '../../data/demoClinics'
 import { demoDoctors } from '../../data/demoDoctors'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
@@ -19,7 +19,7 @@ export function MapScreen() {
   const [region, setRegion] = useState(settings.address.region || state.precheck.region)
   const [filter, setFilter] = useState<MapFilter>('all')
 
-  const nearby = findNearbyClinics(demoClinics, region, eligibilityRuleSet, demoToday)
+  const nearby = findNearbyClinics(demoClinics, region, eligibilityRuleSet, todayIso())
   const visible = nearby.filter((item) => {
     if (filter === 'telemedicine') return item.firstVisitTelemedicine === 'allowed'
     if (filter === 'open') return item.openToday

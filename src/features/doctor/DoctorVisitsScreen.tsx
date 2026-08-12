@@ -1,5 +1,5 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useNavigate } from 'react-router-dom'
-import { demoToday } from '../../data/demoCalendar'
 import { clinicScheduleOn, weekdayLabels } from '../../domain/clinicHours'
 import { bandLabels } from '../../domain/documents'
 import { directRequests } from '../../domain/doctorFeed'
@@ -18,7 +18,7 @@ export function DoctorVisitsScreen() {
   const clinic = findClinic(doctor.clinicId)
   const settings = settingsOf(doctor.id, doctor.templateId)
   const bookings = directRequests(doctor, state.questions, state.bookings).bookings
-  const schedule = clinic ? clinicScheduleOn(clinic, demoToday) : null
+  const schedule = clinic ? clinicScheduleOn(clinic, todayIso()) : null
   /* 나에게 온 신청만. 끝난 진료는 목록에서 뺀다. */
   const encounters = state.encounters.filter(
     (item) => item.doctorId === doctor.id && item.status !== 'completed' && item.status !== 'declined',

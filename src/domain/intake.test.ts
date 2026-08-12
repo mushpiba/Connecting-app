@@ -130,6 +130,22 @@ describe('inferAreas', () => {
     expect(inferAreas(['unsure'], result)).toEqual([])
   })
 
+  /**
+   * '질' 한 글자가 키워드였을 때 "질문"에 걸려 산부인과가 1순위로 올라왔고,
+   * 코·목 증상을 적은 사람에게 마지막 생리 시작일을 묻게 됐다.
+   */
+  it('민감한 범주는 추론으로 열지 않는다', () => {
+    const result = triage('질문드립니다. 목이 아파요', triageRuleSet)
+
+    expect(inferAreas([], result)).not.toContain('womens')
+  })
+
+  it('민감한 범주도 직접 고르면 연다', () => {
+    const result = triage('콧물이 납니다', triageRuleSet)
+
+    expect(inferAreas(['womens'], result)).toContain('womens')
+  })
+
   it('같은 범주가 두 번 들어가지 않는다', () => {
     const result = triage('콧물 코막힘 기침', triageRuleSet)
 

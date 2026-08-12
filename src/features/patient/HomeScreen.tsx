@@ -1,7 +1,7 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useNavigate } from 'react-router-dom'
 import { AppIcon } from '../../components/AppIcon'
 import { InstallCard } from '../../components/InstallCard'
-import { demoToday } from '../../data/demoCalendar'
 import { carePrepProgress } from '../../domain/carePrep'
 import { useCommunity } from '../../state/CommunityContext'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
@@ -25,7 +25,7 @@ export function HomeScreen() {
     state.answers,
     state.bookings,
     state.patientId,
-    demoToday,
+    todayIso(),
   )
   const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
   const activity = groupMyActivity(state.questions, state.answers, state.patientId).slice(0, 3)

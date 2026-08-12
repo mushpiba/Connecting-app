@@ -222,6 +222,7 @@ export async function insertBooking(
         clinic_id: booking.clinicId,
         visit_date: booking.date,
         visit_time: booking.time,
+        document_types: booking.documentTypes,
       },
       { onConflict: 'patient_id,doctor_id,visit_date,visit_time' },
     )

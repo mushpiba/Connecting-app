@@ -45,6 +45,14 @@ export function useConsultRoom(roomId: string, isCaller: boolean): UseConsultRoo
   const peerRef = useRef<RTCPeerConnection | null>(null)
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
   const dataRef = useRef<RTCDataChannel | null>(null)
+  /**
+   * 원격 설명보다 먼저 도착한 ICE 후보를 담아 둔다.
+   *
+   * 시그널링은 순서를 지켜 주지 않는다. 후보가 offer/answer 보다 먼저 오면
+   * addIceCandidate 가 던지는데, 그걸 그냥 삼키고 있었다. 후보 하나를 잃으면
+   * 회선에 따라 연결이 되기도 하고 안 되기도 한다. 원인을 못 찾는 종류의 실패다.
+   */
+  const pendingIceRef = useRef<RTCIceCandidateInit[]>([])
 
   const attachDataChannel = useCallback((channel: RTCDataChannel) => {
     dataRef.current = channel
@@ -62,6 +70,7 @@ export function useConsultRoom(roomId: string, isCaller: boolean): UseConsultRoo
     peerRef.current?.close()
     peerRef.current = null
     dataRef.current = null
+    pendingIceRef.current = []
     if (channelRef.current && supabase) void supabase.removeChannel(channelRef.current)
     channelRef.current = null
     setLocalStream((stream) => {
@@ -127,6 +136,7 @@ export function useConsultRoom(roomId: string, isCaller: boolean): UseConsultRoo
     channel.on('broadcast', { event: 'offer' }, async ({ payload }) => {
       if (isCaller) return
       await peer.setRemoteDescription(new RTCSessionDescription(payload.sdp))
+      await drainIce()
       const answer = await peer.createAnswer()
       await peer.setLocalDescription(answer)
       void channel.send({ type: 'broadcast', event: 'answer', payload: { sdp: answer } })
@@ -136,13 +146,30 @@ export function useConsultRoom(roomId: string, isCaller: boolean): UseConsultRoo
       if (!isCaller) return
       if (peer.currentRemoteDescription) return
       await peer.setRemoteDescription(new RTCSessionDescription(payload.sdp))
+      await drainIce()
     })
 
+    const drainIce = async () => {
+      const queued = pendingIceRef.current
+      pendingIceRef.current = []
+      for (const candidate of queued) {
+        try {
+          await peer.addIceCandidate(new RTCIceCandidate(candidate))
+        } catch {
+          // 이미 연결됐거나 쓸모없어진 후보다. 여기서 실패해도 통화는 유지된다.
+        }
+      }
+    }
+
     channel.on('broadcast', { event: 'ice' }, async ({ payload }) => {
+      if (!peer.remoteDescription) {
+        pendingIceRef.current.push(payload.candidate)
+        return
+      }
       try {
         await peer.addIceCandidate(new RTCIceCandidate(payload.candidate))
       } catch {
-        // 원격 설명이 아직 없으면 무시한다. 재협상 때 다시 온다.
+        // 중복 후보는 버려도 된다.
       }
     })
 

@@ -9,6 +9,8 @@ export const triageRuleSet: TriageRuleSet = {
   asOf: '2026-08-09',
   maxSuggestions: 3,
   relativeScoreFloor: 0.5,
+  // 한 글자 키워드를 두지 않는다. 부분 문자열로 맞추기 때문에 '약'은 '예약'에,
+  // '질'은 '질문'에, '잠'은 '잠깐'에 걸린다. 이 앱이 제일 많이 쓰는 말들이다.
   specialties: [
     {
       specialty: 'internal-medicine',
@@ -18,7 +20,7 @@ export const triageRuleSet: TriageRuleSet = {
     {
       specialty: 'family-medicine',
       label: '가정의학과',
-      keywords: ['감기', '몸살', '미열', '건강검진', '예방접종', '만성', '재처방', '약'],
+      keywords: ['감기', '몸살', '미열', '건강검진', '예방접종', '만성', '재처방', '약을 먹', '약 처방'],
     },
     {
       specialty: 'otolaryngology',
@@ -38,17 +40,17 @@ export const triageRuleSet: TriageRuleSet = {
     {
       specialty: 'psychiatry',
       label: '정신건강의학과',
-      keywords: ['불면', '잠', '불안', '우울', '공황', '집중', '스트레스'],
+      keywords: ['불면', '잠이 안', '잠을 못', '잠들기', '불안', '우울', '공황', '집중', '스트레스'],
     },
     {
       specialty: 'ophthalmology',
       label: '안과',
-      keywords: ['눈', '시야', '충혈', '눈부심', '눈물', '결막'],
+      keywords: ['눈이', '눈을', '눈에', '눈꺼풀', '시야', '충혈', '눈부심', '눈물', '결막'],
     },
     {
       specialty: 'obgyn',
       label: '산부인과',
-      keywords: ['생리', '월경', '질', '임신', '분비물'],
+      keywords: ['생리', '월경', '임신', '자궁', '질염', '분비물'],
     },
     {
       specialty: 'pediatrics',

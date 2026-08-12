@@ -1,6 +1,6 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { demoNowIso } from '../../data/demoCalendar'
 import { demoRegions } from '../../data/demoClinics'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
 import { carePrepProgress } from '../../domain/carePrep'
@@ -34,7 +34,7 @@ export function PrecheckScreen() {
   const submit = (event: React.FormEvent) => {
     event.preventDefault()
     completePrecheck({
-      completedAt: demoNowIso,
+      completedAt: nowIso(),
       identityVerified,
       region,
       monthlyTelemedicineCount: count,

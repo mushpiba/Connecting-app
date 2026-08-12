@@ -1,10 +1,10 @@
+import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppIcon } from '../../components/AppIcon'
 import { ClinicMap } from '../../components/ClinicMap'
 import { ClinicSchedule } from '../../components/ClinicSchedule'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
-import { demoToday } from '../../data/demoCalendar'
 import { bandLabels } from '../../domain/documents'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
@@ -144,7 +144,7 @@ export function DoctorProfileSettingsScreen() {
       {clinic && (
         <section className="clinic-panel" aria-labelledby="setting-clinic">
           <h2 id="setting-clinic">{clinic.name}</h2>
-          <ClinicSchedule clinic={clinic} today={demoToday} />
+          <ClinicSchedule clinic={clinic} today={todayIso()} />
           <ClinicMap clinic={clinic} />
         </section>
       )}

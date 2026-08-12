@@ -42,6 +42,14 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
     if (remoteRef.current) remoteRef.current.srcObject = room.remoteStream
   }, [room.remoteStream])
 
+  /*
+   * 상대가 끊거나 연결이 실패해도 마이크는 닫혀야 한다. 종료 버튼에만 걸어 두면
+   * 내가 누르지 않은 종료에서 계속 듣고 있게 된다.
+   */
+  useEffect(() => {
+    if (room.status === 'ended') speech.stop()
+  }, [room.status, speech])
+
   const keywords = extractConsultKeywords(room.transcript, triageRuleSet)
   const redFlags = consultRedFlags(room.transcript, triageRuleSet)
 
@@ -113,7 +121,16 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
             진료방 들어가기
           </button>
         ) : (
-          <button type="button" className="danger-button" onClick={room.leave}>
+          <button
+            type="button"
+            className="danger-button"
+            onClick={() => {
+              // 통화가 끝났는데 마이크가 계속 열려 있었다. 의료 상담에서 이건
+              // 기능 문제가 아니라 사람이 모르는 채로 녹음되는 문제다.
+              speech.stop()
+              room.leave()
+            }}
+          >
             통화 종료
           </button>
         )}

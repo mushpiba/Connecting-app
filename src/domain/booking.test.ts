@@ -79,6 +79,31 @@ describe('firstOpenDay', () => {
   })
 
   it('전부 휴진이면 없다', () => {
-    expect(firstOpenDay([{ date: '2026-08-09', weekday: 'sun', isOpen: false, slots: [] }])).toBeNull()
+    expect(
+      firstOpenDay([
+        { date: '2026-08-09', weekday: 'sun', isOpen: false, bookable: false, slots: [] },
+      ]),
+    ).toBeNull()
+  })
+
+  /* 오늘 진료는 하지만 시간이 다 지났으면 그 날은 고를 수 없다. */
+  it('오늘 지나간 시간대는 빼고 센다', () => {
+    const [today] = bookingDays(han, '2026-08-10', 1, '18:30')
+
+    expect(today.isOpen).toBe(true)
+    expect(today.bookable).toBe(false)
+    expect(today.slots).toEqual([])
+  })
+
+  it('오늘 남은 시간만 남긴다', () => {
+    const [today] = bookingDays(han, '2026-08-10', 1, '15:00')
+
+    expect(today.slots[0]).toBe('15:30')
+  })
+
+  it('내일부터는 시각과 무관하게 다 연다', () => {
+    const days = bookingDays(han, '2026-08-10', 2, '18:30')
+
+    expect(days[1].slots[0]).toBe('09:00')
   })
 })

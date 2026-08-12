@@ -4,7 +4,10 @@ import type { Clinic, ClinicHours, Weekday } from './types'
 export interface BookingDay {
   date: string
   weekday: Weekday
+  /** 그 요일에 문을 여는가. */
   isOpen: boolean
+  /** 지금 잡을 수 있는 시간이 남았는가. 오늘은 이미 지난 시간을 빼고 센다. */
+  bookable: boolean
   slots: string[]
 }
 
@@ -58,21 +61,39 @@ export function slotsFor(hours: ClinicHours, lunchBreak: string | null): string[
  * 기준일부터 dayCount일치 예약 달력. 기준일은 항상 인자다.
  * 휴진일도 빠뜨리지 않고 담는다. 화면에서 왜 못 고르는지 보여야 한다.
  */
-export function bookingDays(clinic: Clinic, fromDate: string, dayCount: number): BookingDay[] {
+/**
+ * 오늘부터 며칠치 예약 후보.
+ *
+ * fromTime 을 주면 오늘 이미 지나간 시간대는 뺀다. 지난 시간을 고를 수 있으면
+ * 예약을 끝까지 마치고도 병원에서 연락이 오지 않고, 그때는 무엇이 잘못됐는지
+ * 환자가 알 방법이 없다.
+ */
+export function bookingDays(
+  clinic: Clinic,
+  fromDate: string,
+  dayCount: number,
+  fromTime?: string,
+): BookingDay[] {
   return Array.from({ length: dayCount }, (_, offset) => {
     const date = addDays(fromDate, offset)
     const weekday = weekdayOf(date)
     const hours = clinic.hours.find((item) => item.weekday === weekday)
 
     if (!hours || hours.open === null) {
-      return { date, weekday, isOpen: false, slots: [] }
+      return { date, weekday, isOpen: false, bookable: false, slots: [] }
     }
 
-    return { date, weekday, isOpen: true, slots: slotsFor(hours, clinic.lunchBreak) }
+    const all = slotsFor(hours, clinic.lunchBreak)
+    const slots =
+      offset === 0 && fromTime !== undefined ? all.filter((slot) => slot > fromTime) : all
+
+    // 문을 여는 날인 것과 아직 잡을 시간이 남은 것은 다르다. 오늘 진료가 끝난
+    // 것을 휴진이라고 적으면 그것도 틀린 말이다.
+    return { date, weekday, isOpen: true, bookable: slots.length > 0, slots }
   })
 }
 
 /** 예약 화면이 처음 열릴 때 고를 날. 진료하는 가장 빠른 날이다. */
 export function firstOpenDay(days: BookingDay[]): BookingDay | null {
-  return days.find((day) => day.isOpen) ?? null
+  return days.find((day) => day.bookable) ?? null
 }

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App } from '../../App'
 
@@ -13,7 +13,7 @@ describe('MY settings demo flows', () => {
     await user.type(screen.getByLabelText('상세 주소 별칭 (선택)'), '회사')
     await user.click(screen.getByRole('button', { name: '주소 저장' }))
 
-    expect(screen.getByRole('status')).toHaveTextContent('주소를 저장했습니다.')
+    expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('주소를 저장했습니다.')
   })
 
   it('별칭 없이 지역만 골라도 진료 준비가 채워진다', async () => {
@@ -39,7 +39,7 @@ describe('MY settings demo flows', () => {
     await user.click(screen.getByRole('radio', { name: '하나카드 •••• 0616' }))
     await user.click(screen.getByRole('button', { name: '결제수단 저장' }))
 
-    expect(screen.getByRole('status')).toHaveTextContent('결제수단을 저장했습니다.')
+    expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('결제수단을 저장했습니다.')
   })
 
   it('답변과 예약 알림을 각각 설정한다', async () => {
@@ -51,7 +51,7 @@ describe('MY settings demo flows', () => {
     await user.click(screen.getByRole('checkbox', { name: '답변 도착 알림' }))
     await user.click(screen.getByRole('button', { name: '알림 설정 저장' }))
 
-    expect(screen.getByRole('status')).toHaveTextContent('알림 설정을 저장했습니다.')
+    expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('알림 설정을 저장했습니다.')
   })
 
   it('질문 공개 범위와 프로필 표시를 설정한다', async () => {
@@ -64,7 +64,7 @@ describe('MY settings demo flows', () => {
     await user.click(screen.getByRole('checkbox', { name: '프로필 이름 표시' }))
     await user.click(screen.getByRole('button', { name: '개인정보 설정 저장' }))
 
-    expect(screen.getByRole('status')).toHaveTextContent('개인정보 설정을 저장했습니다.')
+    expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('개인정보 설정을 저장했습니다.')
   })
 
   it('아직 전달한 예약 희망 시간이 없으면 빈 상태를 보여준다', async () => {
