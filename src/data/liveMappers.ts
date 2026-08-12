@@ -187,10 +187,18 @@ export function toPatient(row: ProfileRow): Patient {
  * 계정에는 자기소개나 약력이 없다. 준비된 프로필을 골라 들어왔으면 그 내용을
  * 채워 넣고, 아니면 빈 자리로 둔다.
  */
+/**
+ * 계정 하나가 의사 자리에 앉을 때, 화면에 서는 이름은 고른 의사 페르소나의
+ * 이름이다.
+ *
+ * 계정 이름을 그대로 쓰고 있어서 한빛이비인후과 의사가 환자로 참여할 때 적은
+ * 이름으로 보였다. 환자는 그 이름을 보고 누구에게 묻는지를 판단한다.
+ * display_name 은 건드리지 않는다. 환자 화면으로 돌아갈 때 잃을 이름이다.
+ */
 export function toDoctor(row: ProfileRow, template?: Doctor): Doctor {
   return {
     id: row.id,
-    name: row.display_name,
+    name: template?.name ?? row.display_name,
     clinicId: row.clinic_id ?? template?.clinicId ?? '',
     specialty: (row.specialty ?? template?.specialty ?? 'family-medicine') as Specialty,
     licenseNumber: '',

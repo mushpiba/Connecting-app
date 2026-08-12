@@ -9,7 +9,7 @@ import { triage } from '../../domain/triage'
 import { chipGroupsFor } from '../../data/rules/symptomChips'
 import { questionsFor } from '../../data/rules/questionBank'
 import { isLiveMode } from '../../data/supabaseClient'
-import { canChoosePriorClinicOnly, inferAreas } from '../../domain/intake'
+import { canChoosePriorClinicOnly, inferAreas, symptomDurationDays } from '../../domain/intake'
 import { useCommunity } from '../../state/CommunityContext'
 import type {
   BodyArea,
@@ -224,6 +224,15 @@ export function AskScreen() {
 
       {step === 'symptom' && (
         <form className="intake-form" onSubmit={submitSymptom}>
+          {/*
+            고칠 수 없다는 것은 다 쓰고 나서 알려 줄 일이 아니다. 그때 알면 이미
+            늦었고, 되돌리려면 처음부터 다시 써야 한다.
+          */}
+          <p className="publish-warning">
+            <strong>올린 뒤에는 고칠 수 없습니다.</strong> 답변이 무엇을 보고 쓴 것인지 남아야
+            하기 때문입니다. 빠뜨린 내용은 나중에 덧붙일 수 있습니다.
+          </p>
+
           <label htmlFor="ask-title">질문 제목</label>
           <input
             id="ask-title"
@@ -315,6 +324,17 @@ export function AskScreen() {
               </div>
             </fieldset>
           ))}
+
+          {/*
+            여기부터는 없어도 글이 올라간다. 아픈 사람이 스물여섯 칸을 다 보고
+            시작하면 거기서 그만둔다. 꼭 필요한 것만 펼쳐 두고 나머지는 접는다.
+            지우지는 않는다. 적어 준 만큼 답변이 정확해지는 것도 사실이다.
+          */}
+          <details className="optional-block">
+            <summary>
+              <strong>더 적으면 답변이 정확해져요</strong>
+              <span>아픈 정도, 추가 문진, 일상 지장, 해본 것 · 안 적어도 올라갑니다</span>
+            </summary>
 
           <fieldset className="pain-scale">
             <legend>아픈 정도를 골라주세요 (선택)</legend>
@@ -433,6 +453,8 @@ export function AskScreen() {
               </label>
             ))}
           </fieldset>
+
+          </details>
 
           <button type="submit" className="primary-cta">
             다음
@@ -591,6 +613,50 @@ export function AskScreen() {
             </div>
           ) : (
             <div className="result-actions">
+              {/*
+                고칠 수 없다면서 무엇을 올리는지는 안 보여 주고 있었다. 확인 화면에
+                진료과 판단만 있었다. 올릴 내용을 그대로 세우고, 고칠 자리를 준다.
+              */}
+              <section className="publish-review" aria-labelledby="publish-review-heading">
+                <h2 id="publish-review-heading">이대로 올립니다</h2>
+                <dl>
+                  <div>
+                    <dt>제목</dt>
+                    <dd>{form.title}</dd>
+                  </div>
+                  <div>
+                    <dt>증상</dt>
+                    <dd className="review-body">{form.body}</dd>
+                  </div>
+                  <div>
+                    <dt>시작한 날</dt>
+                    <dd>
+                      {form.onsetDate} · {symptomDurationDays(form.onsetDate, todayIso())}일째
+                    </dd>
+                  </div>
+                  {form.painLevel !== null && (
+                    <div>
+                      <dt>아픈 정도</dt>
+                      <dd>10점 중 {form.painLevel}점</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt>공개 범위</dt>
+                    <dd>
+                      {visibilityOptions.find((option) => option.value === form.visibility)?.label}
+                    </dd>
+                  </div>
+                </dl>
+                <div className="review-edits">
+                  <button type="button" className="text-action" onClick={() => setStep('symptom')}>
+                    증상 고치기
+                  </button>
+                  <button type="button" className="text-action" onClick={() => setStep('visibility')}>
+                    공개 범위 고치기
+                  </button>
+                </div>
+              </section>
+
               <p className="publish-warning">
                 <strong>올린 뒤에는 고칠 수 없습니다.</strong> 지나간 증상 설명이 바뀌면 그 위에
                 달린 답변이 무엇을 보고 쓴 것인지 알 수 없어집니다. 빠뜨린 내용은 사연 화면에서

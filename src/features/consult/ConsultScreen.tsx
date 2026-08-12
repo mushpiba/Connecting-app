@@ -6,6 +6,7 @@ import {
   extractConsultKeywords,
   transcriptToRecordDraft,
 } from '../../domain/consultation'
+import { isLiveMode } from '../../data/supabaseClient'
 import { useCommunity } from '../../state/CommunityContext'
 import { useConsultRoom } from './useConsultRoom'
 import { useSpeechTranscript } from './useSpeechTranscript'
@@ -23,10 +24,25 @@ interface ConsultScreenProps {
 export function ConsultScreen({ role }: ConsultScreenProps) {
   const { roomId = '' } = useParams()
   const navigate = useNavigate()
-  const { state } = useCommunity()
+  const { state, live } = useCommunity()
   const [consented, setConsented] = useState(false)
   const [copied, setCopied] = useState(false)
   const [manual, setManual] = useState('')
+
+  /*
+   * 이 방에 들어갈 자격.
+   *
+   * 방 주소만 알면 아무나 들어올 수 있었다. 진료 통화에서는 그게 그냥 도청이다.
+   * encounters 는 RLS 가 당사자에게만 보여주므로, 내 목록에 그 방이 없다는 것은
+   * 내가 당사자가 아니라는 뜻이다. 화면에서 가리는 것이 아니라 서버가 판단한다.
+   *
+   * demo- 로 시작하는 방은 신청 없이 여는 시연용이라 그대로 연다.
+   */
+  const isDemoRoom = roomId.startsWith('demo-')
+  const encounter = state.encounters.find((item) => item.id === roomId)
+  // 아직 서버에서 읽기 전이면 아직 모르는 것이다. 모르는 것을 거절로 바꾸지 않는다.
+  const checking = isLiveMode && live === null
+  const allowed = isDemoRoom || encounter !== undefined
 
   const room = useConsultRoom(roomId, role === 'doctor')
   const speech = useSpeechTranscript(role, room.publishLine)
@@ -60,6 +76,29 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
     connected: '연결됨',
     ended: '통화가 끝났습니다',
     unsupported: '이 브라우저에서는 화상 진료를 열 수 없습니다',
+  }
+
+  if (checking) {
+    return (
+      <div className="screen">
+        <p className="empty-note">진료방을 확인하는 중입니다…</p>
+      </div>
+    )
+  }
+
+  if (!allowed) {
+    return (
+      <div className="screen">
+        <h1>이 진료방에 들어갈 수 없습니다</h1>
+        <p className="gate-reason">
+          이 방은 신청한 환자와 담당 의사만 들어갈 수 있습니다. 주소를 받았더라도 당사자가
+          아니면 열리지 않습니다.
+        </p>
+        <button type="button" className="secondary-button" onClick={() => navigate(-1)}>
+          돌아가기
+        </button>
+      </div>
+    )
   }
 
   /* 녹음과 전사는 동의를 받고 시작한다. 동의 없이 받아 적으면 안 된다. */
@@ -264,7 +303,10 @@ export function ConsultScreen({ role }: ConsultScreenProps) {
       )}
 
       <p className="clinical-caveat">
-        진료방 주소 <code>{roomId}</code> · 참여자 {state.role === 'doctor' ? '의사' : '환자'} ·
+        참여자 {state.role === 'doctor' ? '의사' : '환자'} ·{' '}
+        {isDemoRoom
+          ? '신청 없이 여는 시연용 방입니다. 주소를 아는 사람은 누구나 들어올 수 있습니다.'
+          : '신청한 환자와 담당 의사만 들어올 수 있는 방입니다.'}{' '}
         가상 데이터로 만든 시연입니다.
       </p>
     </div>

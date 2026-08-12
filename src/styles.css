@@ -2208,6 +2208,140 @@ figcaption {
   color: var(--blue-700);
 }
 
+/* 선택 항목 접기 — 필수만 보이게 */
+
+.optional-block {
+  margin: 4px 0 8px;
+  border: 1px solid var(--line-200);
+  border-radius: 14px;
+  background: var(--surface-50);
+}
+
+.optional-block > summary {
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.optional-block > summary::-webkit-details-marker {
+  display: none;
+}
+
+.optional-block > summary strong {
+  font-size: 14px;
+}
+
+.optional-block > summary span {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.optional-block[open] > summary {
+  border-bottom: 1px solid var(--line-200);
+}
+
+.optional-block > *:not(summary) {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+/* 게시 전 확인 — 고칠 수 없다면 무엇을 올리는지는 보여야 한다 */
+
+.publish-review {
+  margin-bottom: 14px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line-200);
+  background: var(--surface-50);
+}
+
+.publish-review h2 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.publish-review dl {
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.publish-review dt {
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
+.publish-review dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.publish-review .review-body {
+  white-space: pre-wrap;
+}
+
+.review-edits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+/* 신청 추적 — 어디까지 왔는지와 다음에 무엇이 일어나는지 */
+
+.encounter-track {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line-200);
+  background: var(--surface-50);
+}
+
+.encounter-track.is-open {
+  border-color: var(--blue-700);
+  background: var(--blue-50, #eef5fc);
+}
+
+.encounter-track h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.encounter-track-detail {
+  margin: 4px 0 12px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-700);
+}
+
+.encounter-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  color: var(--ink-500);
+}
+
+.encounter-steps .is-done {
+  color: var(--blue-700);
+}
+
+.encounter-steps .is-current {
+  font-weight: 700;
+}
+
+.persona-note {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--ink-500);
+}
+
 /* 알림 한 줄 — 실패가 조용히 지나가지 않게 */
 
 .app-notice {

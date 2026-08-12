@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { AppIcon } from '../../components/AppIcon'
 import { InstallCard } from '../../components/InstallCard'
 import { carePrepProgress } from '../../domain/carePrep'
+import { activeEncounter, encounterTrack } from '../../domain/encounterTrack'
 import { useCommunity } from '../../state/CommunityContext'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
+import { useDirectory } from '../../state/directory'
 import { groupMyActivity } from './activity'
 import { resolveNextStep } from './nextStep'
 
@@ -19,6 +21,7 @@ export function HomeScreen() {
   const { state } = useCommunity()
   const { settings } = usePatientSettings()
   const navigate = useNavigate()
+  const { findDoctor } = useDirectory()
 
   const step = resolveNextStep(
     state.questions,
@@ -28,6 +31,10 @@ export function HomeScreen() {
     todayIso(),
   )
   const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
+  const pending = activeEncounter(state.encounters, state.patientId)
+  const track = pending
+    ? encounterTrack(pending, findDoctor(pending.doctorId)?.name ?? '의사')
+    : null
   const activity = groupMyActivity(state.questions, state.answers, state.patientId).slice(0, 3)
 
   return (
@@ -45,6 +52,36 @@ export function HomeScreen() {
           {step.actionLabel} <span aria-hidden="true">›</span>
         </button>
       </section>
+
+      {/*
+        신청한 사람에게는 지금 어디까지 왔는지가 제일 먼저다. 진료방이 열렸는데
+        그걸 모르면 저쪽에서 의사가 빈 방을 보고 있게 된다.
+      */}
+      {track && (
+        <section className={`encounter-track ${track.roomOpen ? 'is-open' : ''}`}>
+          <h2>{track.headline}</h2>
+          <p className="encounter-track-detail">{track.detail}</p>
+          <ol className="encounter-steps">
+            {track.steps.map((step) => (
+              <li
+                key={step.id}
+                className={`${step.done ? 'is-done' : ''} ${step.current ? 'is-current' : ''}`}
+              >
+                <span aria-hidden="true">{step.done ? '●' : '○'}</span> {step.label}
+              </li>
+            ))}
+          </ol>
+          {track.roomOpen && (
+            <button
+              type="button"
+              className="primary-cta"
+              onClick={() => navigate(`/visit/${track.encounterId}`)}
+            >
+              진료방 들어가기 <span aria-hidden="true">›</span>
+            </button>
+          )}
+        </section>
+      )}
 
       {!prep.complete && (
         <button

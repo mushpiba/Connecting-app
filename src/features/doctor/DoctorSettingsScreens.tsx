@@ -1,3 +1,4 @@
+import { specialtyLabels } from '../../data/specialtyLabels'
 import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +37,7 @@ function useCurrentDoctor() {
 export function DoctorMyScreen() {
   const { doctor, clinic } = useCurrentDoctor()
   const { settingsOf, notice } = useDoctorSettings()
-  const { becomePatient } = useSession()
+  const { becomePatient, profile } = useSession()
   const { switchRole } = useCommunity()
   const navigate = useNavigate()
   const settings = settingsOf(doctor.id, doctor.templateId)
@@ -56,6 +57,16 @@ export function DoctorMyScreen() {
         <div>
           <strong>{doctor.name}</strong>
           <p>{clinic?.name}</p>
+          {/*
+            한 계정이 두 자리에 앉는다. 그걸 숨기면 지금 누구로 접속해 있는지
+            헷갈리고, 의료 화면에서 그 헷갈림은 다른 신뢰까지 같이 무너뜨린다.
+            숨기지 말고 적는다.
+          */}
+          {profile && profile.display_name !== doctor.name && (
+            <p className="persona-note">
+              {profile.display_name} 계정이 {doctor.name}으로 보는 중입니다
+            </p>
+          )}
         </div>
       </section>
 
@@ -115,7 +126,7 @@ export function DoctorProfileSettingsScreen() {
           <div className="profile-identity">
             <h2>{doctor.name}</h2>
             <p className="doctor-clinic">{clinic?.name}</p>
-            <span className="specialty-chip">{doctor.specialty}</span>
+            <span className="specialty-chip">{specialtyLabels[doctor.specialty]}</span>
           </div>
         </header>
 

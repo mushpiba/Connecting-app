@@ -2,22 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { demoClinics } from '../../data/demoClinics'
 import { demoDoctors } from '../../data/demoDoctors'
+import { specialtyLabels } from '../../data/specialtyLabels'
 import { isLiveMode } from '../../data/supabaseClient'
 import { useCommunity } from '../../state/CommunityContext'
 import { useSession } from '../../state/SessionContext'
-
-const specialtyLabels: Record<string, string> = {
-  'internal-medicine': '내과',
-  'family-medicine': '가정의학과',
-  otolaryngology: '이비인후과',
-  dermatology: '피부과',
-  orthopedics: '정형외과',
-  psychiatry: '정신건강의학과',
-  ophthalmology: '안과',
-  obgyn: '산부인과',
-  pediatrics: '소아청소년과',
-  urology: '비뇨의학과',
-}
 
 export function ExpertGateScreen() {
   const navigate = useNavigate()
