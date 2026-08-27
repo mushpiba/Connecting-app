@@ -80,9 +80,13 @@
 
 근거와 기각한 대안: `05-decisions.md` D-1.
 
-### D-2. 정본 저장소 — **미결**
+### D-2. 정본 저장소 — **닫힘** · 2026-08-27
 
-`origin`은 `skycastle0616/medi-commu`, `mushpiba`는 개인 저장소다. `vite.config.ts`의 `base: '/medi-commu/'`와 manifest `id`/`start_url`이 앞쪽에 맞춰져 있어서, 개인 저장소에서 Pages로 배포하면 경로가 어긋나 404가 난다. 팀 합류 전에 정해야 한다.
+**`mushpiba/Connecting-app`이 정본이다.** `skycastle0616/medi-commu`와 `mushpiba/MediVU-community`는 데모로 남긴다 — 지우지 않는다.
+
+`vite.config.ts`의 `base: '/medi-commu/'`와 manifest `id`는 아직 데모 쪽에 맞춰져 있다. 정본에서 Pages를 켜기 전까지는 그대로 둔다. 그때까지 Pages 배포는 `deploy-pages.yml`의 수동 실행 전용이고, 푸시마다 도는 것은 `ci.yml`(테스트·빌드)이다.
+
+근거: `05-decisions.md` D-2.
 
 ### D-3. PWA 유지 여부 — **결정 트리거만 정함**
 
@@ -100,7 +104,7 @@
 
 `15-information-architecture.md`의 Q-1~Q-4도 같은 날 닫혔다 — 탭 재편 채택 · `/care`로 예약 통합 · 상한 5회 · 재진은 앱 이력과 직접 등록 두 출처.
 
-**화면설계서를 막는 미결은 남아 있지 않다.** 남은 것은 D-2(정본 저장소)와, 화면설계서·데이터베이스 설계서가 스스로 정할 Q-5·Q-6뿐이다.
+**화면설계서를 막는 미결은 남아 있지 않다.** Q-5(비공개 덧붙임의 수치)는 `30-feature-spec.md`가 정했고, 남은 것은 `40-data-model.md`가 정할 Q-6(환자 직접 등록 의료기관과 `clinics` 연결)뿐이다.
 
 ## 회의록 결론 중 아직 코드에 없는 것
 

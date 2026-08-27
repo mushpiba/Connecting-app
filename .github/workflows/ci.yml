@@ -1,0 +1,40 @@
+# 배포 게이트. 60-roadmap.md가 테스트를 게이트로 잡아 뒀으므로
+# 이 워크플로가 빨간불이면 그건 진짜 실패여야 한다.
+# Pages 배포는 deploy-pages.yml로 분리했다 — 저장소마다 Pages 설정이
+# 달라서 배포 실패가 테스트 실패처럼 보이는 일을 막는다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm run test:run
+
+      - name: Build
+        run: npm run build
