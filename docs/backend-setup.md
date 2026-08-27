@@ -22,7 +22,13 @@ Supabase를 쓴다. 정적 사이트가 직접 붙으므로 서버를 따로 돌
 3. `supabase/migration-002.sql` — 통증 척도, 문진 답, 덧붙임, 서류
 4. `supabase/migration-003.sql` — 002에서 빠뜨린 컬럼
 5. `supabase/migration-004.sql` — 준비된 의사 프로필 선택
-6. `supabase/seed-demo.sql` — 소개용 사연과 답변
+6. `supabase/migration-005.sql` — 예약에 요청 서류를 담을 자리
+7. `supabase/migration-006.sql` — 비공개 덧붙임, 표현 필터 로그, 직접 등록한 의료기관
+8. `supabase/seed-demo.sql` — 소개용 사연과 답변
+
+**번호 순서를 지킨다.** 006 §1이 `bookings.document_types`의 갈린 타입 셋을 `text[]` 하나로 모으는데, 어느 순서로 왔는지에 따라 하는 일이 달라진다.
+
+⚠️ **006 §2는 `encounters`의 컬럼 다섯을 지운다. 되돌릴 수 없다.** 붙여넣기 전에 [`docs/product/40-data-model.md`](product/40-data-model.md) §F-2를 읽는다. 빈 프로젝트가 아니라면 더욱 그렇다.
 
 전부 여러 번 실행해도 같은 결과가 되도록 두었다. `already exists` 나
 `duplicate key` 오류가 뜨면 그 부분은 이미 적용됐다는 뜻이고 그냥 넘어가도 된다.
