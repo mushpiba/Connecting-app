@@ -2,7 +2,8 @@
 
 새 세션에 이 파일을 통째로 주고 실행시킨다.
 
-> **선행 조건** — I0(M0) 완료. `git status`가 깨끗해야 한다.
+> **선행 조건** — I0의 코드 작업(M0-2·M0-4·M0-7) 완료. `git status`가 깨끗해야 한다.
+> **M0-5(`migration-006.sql` 적용)를 기다리지 않는다.** 이 구간은 DB를 읽지 않는다 — 탭·라우트·리다이렉트·삭제뿐이다. 006은 I2의 재진 두 출처(G-3)와 I5(G-5·G-8)가 기다린다.
 > **읽는 순서** — `docs/product/15-information-architecture.md` §2·§3 · `docs/product/30-feature-spec.md` §라우트 인벤토리 · `docs/product/60-roadmap.md` §M1-0
 
 ---
