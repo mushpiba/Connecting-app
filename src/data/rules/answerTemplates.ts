@@ -8,6 +8,13 @@ export interface AnswerTemplate {
   specialties: Specialty[]
 }
 
+export interface AnswerTemplateRuleSet {
+  name: string
+  source: string
+  asOf: string
+  templates: AnswerTemplate[]
+}
+
 /**
  * 자주 쓰는 답변 문구.
  *
@@ -67,8 +74,20 @@ export const answerTemplates: AnswerTemplate[] = [
   },
 ]
 
+/**
+ * 답변 문구도 운영 기준이다. 나머지 규칙셋 일곱은 전부 기준일을 달고 있는데
+ * 여기만 없었다(40-data-model.md F-5). 문구가 어느 시점의 기준으로 쓰인 것인지
+ * 모르면, 경계가 움직였을 때 무엇을 다시 봐야 하는지도 알 수 없다.
+ */
+export const answerTemplateRuleSet: AnswerTemplateRuleSet = {
+  name: '답변 문구 시연 규칙셋',
+  source: '의료법 제27조(무면허 의료행위) · 제57조3항 · 디지털의료제품법 경계 (C-3 · C-4 · C-5)',
+  asOf: '2026-08-27',
+  templates: answerTemplates,
+}
+
 export function templatesFor(specialty: Specialty): AnswerTemplate[] {
-  return answerTemplates.filter(
+  return answerTemplateRuleSet.templates.filter(
     (template) => template.specialties.length === 0 || template.specialties.includes(specialty),
   )
 }
