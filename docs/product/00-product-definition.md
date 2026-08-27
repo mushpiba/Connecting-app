@@ -88,9 +88,15 @@
 
 근거: `05-decisions.md` D-2.
 
-### D-3. PWA 유지 여부 — **결정 트리거만 정함**
+### D-3. PWA 유지 여부 — **닫힘** · 2026-08-27
 
-`adr/0001-pwa-vs-native-shell.md` 참조. 지금은 결정하지 않는다.
+**Capacitor 쉘을 씌운다. Flutter / React Native 재작성은 하지 않는다. 실행은 M3.**
+
+`adr/0001-pwa-vs-native-shell.md`의 트리거 넷 중 셋이 참이 됐다 — 푸시 알림 · 앱스토어 배포 · iOS 사용자. 재작성은 코드 17,382줄과 테스트 257개를 버리는 데 비해 Capacitor가 같은 트리거를 전부 덮는다. **그리고 브라우저로 확인하는 개발 루프가 유지된다.**
+
+따라온 것 — `SpeechRecognition`이 iOS WKWebView에 없어 **R-4가 백로그에서 차단 항목으로 올라갔다.**
+
+근거: `05-decisions.md` D-3 · `adr/0001-pwa-vs-native-shell.md` §2026-08-27 재검토.
 
 ### 함께 닫힌 것 — 2026-08-27
 
