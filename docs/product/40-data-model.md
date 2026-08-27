@@ -26,7 +26,7 @@
 
 **움직이는 값은 스키마에 두지 않는다.** 법령·운영 기준으로 움직이는 수치는 `src/data/rules/*`에 `asOf`와 함께 둔다(원칙 7). 스키마가 강제하는 것은 움직이지 않는 것 — **누가 · 어느 순서로 · 어느 방향으로** — 뿐이다. §규칙은 DB에 두지 않는다.
 
-**SQL 파일은 여러 번 실행해도 같은 결과가 되게 둔다.** 어디까지 적용됐는지 헷갈릴 때 처음부터 다시 붙여넣을 수 있어야 한다. (002가 이 원칙을 지키지 않는다 — F-8)
+**SQL 파일은 여러 번 실행해도 같은 결과가 되게 둔다.** 어디까지 적용됐는지 헷갈릴 때 처음부터 다시 붙여넣을 수 있어야 한다. (002가 이 원칙을 지키지 않았고 M0-7이 고쳤다 — F-8)
 
 ---
 
@@ -671,11 +671,15 @@ Q-6이 물은 것 넷에 대한 답이다.
 
 ### F-8 · `migration-002.sql`은 다시 붙여넣을 수 없다
 
-`create table question_notes` · `create index question_notes_question_idx` · `create policy …` · `alter publication … add table question_notes` 넷 다 **`if not exists`도 `drop … if exists`도 없다.** 002를 이미 돌린 프로젝트에 다시 붙여넣으면 첫 `create table`에서 멈춘다.
+`create table question_notes` · `create index question_notes_question_idx` · `create policy …` · `alter publication … add table question_notes` 넷 다 **`if not exists`도 `drop … if exists`도 없었다.** 002를 이미 돌린 프로젝트에 다시 붙여넣으면 첫 `create table`에서 멈췄다.
 
-이 문서와 `schema.sql`이 「여러 번 실행해도 같은 결과」를 원칙으로 내걸고 있는데 002가 그것을 지키지 않는다. **어디까지 적용됐는지 헷갈릴 때 처음부터 다시 붙여넣는 것이 이 저장소의 복구 절차인데, 그 절차가 002에서 멈춘다.**
+이 문서와 `schema.sql`이 「여러 번 실행해도 같은 결과」를 원칙으로 내걸고 있는데 002가 그것을 지키지 않았다. **어디까지 적용됐는지 헷갈릴 때 처음부터 다시 붙여넣는 것이 이 저장소의 복구 절차인데, 그 절차가 002에서 멈췄다.**
 
-**고치지 않았다** — 「기존 마이그레이션을 수정하지 않는다」가 이 작업의 전제다. **그러나 M0의 F-1 항목 옆에 함께 적어야 한다**(`60-roadmap.md`). 고치는 방법은 두 가지다. ① 002에 `if not exists`·`drop policy if exists`를 더한다(전제를 깨는 대신 원칙을 회복한다) ② 007을 새로 만들어 `question_notes`를 멱등하게 다시 선언한다. **둘 중 어느 쪽인지는 저장소 소유자가 정한다.**
+**고쳤다 — ①이다.** `60-roadmap.md` §M0-7이 두 안 중 ①(002를 멱등하게 고친다)을 골랐고 근거 넷을 적었다. 다섯 문장에 `if not exists` 둘 · `drop policy if exists` 둘 · 발행에 `duplicate_object` 가드를 더했다. **컬럼·타입·정책 의미는 바뀌지 않았다** — `schema.sql`이 이미 하고 있는 모양을 그대로 베꼈다.
+
+「기존 마이그레이션을 수정하지 않는다」는 버리지 않았다. **모양을 바꾸지 않는 멱등화에만 예외를 준다** — 타입·데이터·정책 의미가 바뀌는 것은 여전히 새 파일에서 한다(F-1이 그 사례이고 006 §1이 옳게 그렇게 했다).
+
+**아직 실행으로 확인하지 않았다.** 빈 프로젝트에 `schema.sql → 002`를 올리고 002를 한 번 더 붙여넣어 오류 없이 끝나는지가 이 항목의 검증이며, 그것을 마치면 F-8이 닫힌다.
 
 ### F-9 · `questions.prior_clinic_id`에 외래키가 없다
 
@@ -699,7 +703,7 @@ Q-6이 물은 것 넷에 대한 답이다.
 
 ## 스키마를 고칠 때
 
-1. `supabase/schema.sql`은 **처음부터 다시 붙여넣을 수 있는 상태**를 유지한다(`if not exists`, `drop policy if exists`). **마이그레이션도 마찬가지다** — 002가 그 반례다(F-8)
+1. `supabase/schema.sql`은 **처음부터 다시 붙여넣을 수 있는 상태**를 유지한다(`if not exists`, `drop policy if exists`). **마이그레이션도 마찬가지다** — 002가 반례였고 M0-7이 고쳤다(F-8)
 2. 이미 배포된 프로젝트를 위해 `migration-00N.sql`을 따로 추가한다. **같은 컬럼을 두 마이그레이션에서 다른 타입으로 만들지 않는다**(F-1이 그 사례다)
 3. 열람 범위를 바꿨다면 `src/domain/visibility.ts`와 SQL 정책을 **함께** 고친다. 어느 한쪽만 고치면 화면과 서버의 판정이 갈라진다
 4. 타입은 `src/domain/types.ts` → 행 타입은 `src/data/liveMappers.ts` → 조회 컬럼 목록은 `liveRepository.ts`. **셋 중 하나만 빠뜨려도 조회 전체가 실패한다**(migration-003이 그 사례다)

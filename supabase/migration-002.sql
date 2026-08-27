@@ -18,7 +18,7 @@ alter table questions add column if not exists intake_answers jsonb not null def
 -- 사연은 등록하면 고칠 수 없다. 지나간 증상 설명이 조용히 바뀌면 그 위에
 -- 달린 답변이 무엇을 보고 쓴 것인지 알 수 없어진다. 대신 덧붙일 수 있다.
 
-create table question_notes (
+create table if not exists question_notes (
   id uuid primary key default gen_random_uuid(),
   question_id uuid not null references questions on delete cascade,
   author_id uuid not null references profiles on delete cascade,
@@ -28,14 +28,16 @@ create table question_notes (
 
 alter table question_notes enable row level security;
 
-create index question_notes_question_idx on question_notes (question_id, created_at);
+create index if not exists question_notes_question_idx on question_notes (question_id, created_at);
 
+drop policy if exists "보이는 사연의 덧붙임만 읽는다" on question_notes;
 create policy "보이는 사연의 덧붙임만 읽는다"
   on question_notes for select using (
     exists (select 1 from questions q where q.id = question_notes.question_id)
   );
 
 -- 덧붙임은 글쓴이만 쓴다. 의사는 답변으로 말한다.
+drop policy if exists "내 사연에만 덧붙인다" on question_notes;
 create policy "내 사연에만 덧붙인다"
   on question_notes for insert with check (
     author_id = auth.uid()
@@ -52,4 +54,7 @@ create policy "내 사연에만 덧붙인다"
 
 alter table bookings add column if not exists document_types text[] not null default '{}';
 
-alter publication supabase_realtime add table question_notes;
+do $$ begin
+  alter publication supabase_realtime add table question_notes;
+exception when duplicate_object then null;
+end $$;
