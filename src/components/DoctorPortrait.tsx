@@ -54,7 +54,7 @@ export function DoctorPortrait({ doctor, size }: DoctorPortraitProps) {
           strokeLinecap="round"
         />
         <path d="M32 44l-5 20h10z" fill="#ffffff" opacity="0.85" />
-        <circle cx="32" cy="53" r="1.8" fill="#2373aa" />
+        <circle cx="32" cy="53" r="1.8" fill="#0f5c58" />
       </g>
     </svg>
   )

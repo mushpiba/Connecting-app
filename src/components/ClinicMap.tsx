@@ -17,21 +17,21 @@ export function ClinicMap({ clinic }: ClinicMapProps) {
         aria-label={`${clinic.name} 위치 약도`}
         className="clinic-map-canvas"
       >
-        <rect width="320" height="180" fill="#eef3f7" />
-        <path d="M0 134h320" stroke="#d9e3ea" strokeWidth="16" />
-        <path d="M232 0v180" stroke="#d9e3ea" strokeWidth="13" />
+        <rect width="320" height="180" fill="#edf2f1" />
+        <path d="M0 134h320" stroke="#d8e2e0" strokeWidth="16" />
+        <path d="M232 0v180" stroke="#d8e2e0" strokeWidth="13" />
         <path d="M0 134h320" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 9" />
         <path d="M232 0v180" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 9" />
 
-        <rect x="18" y="16" width="88" height="52" rx="5" fill="#dfe8ee" />
-        <rect x="252" y="20" width="56" height="48" rx="5" fill="#dfe8ee" />
-        <rect x="22" y="152" width="76" height="20" rx="5" fill="#dfe8ee" />
-        <rect x="256" y="150" width="52" height="22" rx="5" fill="#dfe8ee" />
+        <rect x="18" y="16" width="88" height="52" rx="5" fill="#dde7e5" />
+        <rect x="252" y="20" width="56" height="48" rx="5" fill="#dde7e5" />
+        <rect x="22" y="152" width="76" height="20" rx="5" fill="#dde7e5" />
+        <rect x="256" y="150" width="52" height="22" rx="5" fill="#dde7e5" />
 
         <g transform="translate(134 24)">
           <path
             d="M14 0A14 14 0 0 0 0 14c0 9.6 14 24 14 24s14-14.4 14-24A14 14 0 0 0 14 0z"
-            fill="#1b5f91"
+            fill="#0f5c58"
           />
           <circle cx="14" cy="14" r="5.4" fill="#ffffff" />
         </g>
@@ -44,14 +44,14 @@ export function ClinicMap({ clinic }: ClinicMapProps) {
             height="22"
             rx="11"
             fill="#ffffff"
-            stroke="#c9d7e1"
+            stroke="#c8d8d5"
           />
-          <text x="0" y="4" textAnchor="middle" fontSize="9.5" fill="#142537">
+          <text x="0" y="4" textAnchor="middle" fontSize="9.5" fill="#14201f">
             {clinic.name.replace(/^가상\s*/, '')}
           </text>
         </g>
 
-        <text x="300" y="172" textAnchor="end" fontSize="7.5" fill="#8fa2b1">
+        <text x="300" y="172" textAnchor="end" fontSize="7.5" fill="#8a9c99">
           가상 약도
         </text>
       </svg>

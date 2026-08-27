@@ -24,10 +24,10 @@ export function RegionMap({ region, clinics }: RegionMapProps) {
         aria-label={`${region} 주변 의료기관 약도`}
         className="clinic-map-canvas"
       >
-        <rect width="320" height="180" fill="#eef3f7" />
-        <path d="M0 128h320" stroke="#d9e3ea" strokeWidth="16" />
-        <path d="M0 62h320" stroke="#e3ebf1" strokeWidth="11" />
-        <path d="M168 0v180" stroke="#d9e3ea" strokeWidth="13" />
+        <rect width="320" height="180" fill="#edf2f1" />
+        <path d="M0 128h320" stroke="#d8e2e0" strokeWidth="16" />
+        <path d="M0 62h320" stroke="#e2ebe9" strokeWidth="11" />
+        <path d="M168 0v180" stroke="#d8e2e0" strokeWidth="13" />
         <path d="M0 128h320" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 9" />
         <path d="M168 0v180" stroke="#ffffff" strokeWidth="1.5" strokeDasharray="8 9" />
 
@@ -38,14 +38,14 @@ export function RegionMap({ region, clinics }: RegionMapProps) {
             <g key={item.clinic.id} transform={`translate(${spot.x} ${spot.y})`}>
               <path
                 d="M10 0A10 10 0 0 0 0 10c0 6.8 10 17 10 17s10-10.2 10-17A10 10 0 0 0 10 0z"
-                fill={open ? '#27b3b1' : '#8fa2b1'}
+                fill={open ? '#0f5c58' : '#8a9c99'}
               />
               <circle cx="10" cy="10" r="3.8" fill="#ffffff" />
             </g>
           )
         })}
 
-        <text x="300" y="172" textAnchor="end" fontSize="7.5" fill="#8fa2b1">
+        <text x="300" y="172" textAnchor="end" fontSize="7.5" fill="#8a9c99">
           가상 약도
         </text>
       </svg>

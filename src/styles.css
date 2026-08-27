@@ -1,19 +1,23 @@
 :root {
-  --navy-950: #081d31;
-  --navy-900: #0b2944;
-  --navy-800: #123c62;
-  --blue-700: #1b5f91;
-  --blue-600: #2373aa;
-  --blue-100: #e4f1fa;
-  --cyan-500: #27b3b1;
-  --cyan-100: #ddf6f4;
-  --ink-900: #142537;
-  --ink-700: #44566a;
-  --ink-500: #718196;
-  --line: #dce5eb;
+  /*
+   * 강조색은 짙은 청록 하나뿐이다. 예전에는 네이비가 행동, 민트가 브랜드로 갈려
+   * 둘이 화면에서 서로 당겼다. 상태를 뜻하는 warning·danger 말고 다른 유채색을
+   * 새로 들이지 말 것.
+   */
+  --teal-950: #071a19;
+  --teal-900: #0d2b29;
+  --teal-800: #123f3c;
+  --accent: #0f5c58;
+  --accent-600: #14706b;
+  --accent-tint: #e0eceb;
+  --accent-soft: #dceceb;
+  --ink-900: #14201f;
+  --ink-700: #3f4a48;
+  --ink-500: #5e6965;
+  --line: #dce3e2;
   --surface: #ffffff;
-  --surface-muted: #f7f9fb;
-  --warning: #b66518;
+  --surface-muted: #f5f8f7;
+  --warning: #a95c13;
   --danger: #bc4453;
 
   /*
@@ -26,10 +30,10 @@
   --r-lg: 24px;
   --r-pill: 999px;
 
-  /* 그림자는 광원 하나(위에서 아래)로 통일하고 검정 대신 네이비로 물들인다. */
-  --shadow-sm: 0 1px 2px rgba(11, 41, 68, 0.05), 0 2px 6px rgba(11, 41, 68, 0.04);
-  --shadow-md: 0 2px 4px rgba(11, 41, 68, 0.05), 0 8px 20px rgba(11, 41, 68, 0.06);
-  --shadow-lg: 0 4px 8px rgba(11, 41, 68, 0.05), 0 16px 36px rgba(11, 41, 68, 0.08);
+  /* 그림자는 광원 하나(위에서 아래)로 통일하고 검정 대신 바탕색으로 물들인다. */
+  --shadow-sm: 0 1px 2px rgba(13, 43, 41, 0.05), 0 2px 6px rgba(13, 43, 41, 0.04);
+  --shadow-md: 0 2px 4px rgba(13, 43, 41, 0.05), 0 8px 20px rgba(13, 43, 41, 0.06);
+  --shadow-lg: 0 4px 8px rgba(13, 43, 41, 0.05), 0 16px 36px rgba(13, 43, 41, 0.08);
   --shadow: var(--shadow-md);
 
   --ease: cubic-bezier(0.2, 0, 0, 1);
@@ -38,7 +42,7 @@
   font-family: 'Pretendard Variable', Pretendard, 'Noto Sans KR', -apple-system,
     BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--ink-900);
-  background: #eef2f5;
+  background: #eef1f1;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -57,7 +61,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   overflow-x: hidden;
-  background: #eef2f5;
+  background: #eef1f1;
 }
 
 button,
@@ -68,7 +72,7 @@ select {
 }
 
 :focus-visible {
-  outline: 3px solid rgba(35, 115, 170, 0.35);
+  outline: 3px solid rgba(15, 92, 88, 0.35);
   outline-offset: 2px;
 }
 
@@ -163,7 +167,7 @@ li {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: #f4f7f9;
+  background: #f2f5f4;
   position: relative;
   overflow-x: hidden;
 }
@@ -180,9 +184,9 @@ li {
   top: 0;
   z-index: 6;
   padding: max(12px, env(safe-area-inset-top)) 18px 10px;
-  color: var(--navy-900);
+  color: var(--teal-900);
   background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1px solid rgba(220, 229, 235, 0.85);
+  border-bottom: 1px solid rgba(220, 227, 226, 0.85);
   backdrop-filter: blur(14px);
 }
 
@@ -217,7 +221,7 @@ li {
 
 .brand-tagline {
   font-size: 11px;
-  color: #9dbdd6;
+  color: #96b8b4;
 }
 
 .header-controls {
@@ -236,7 +240,7 @@ li {
 
 .role-switch button {
   padding: 5px 14px;
-  color: #cfe2f0;
+  color: #c4dbd8;
   cursor: pointer;
   background: transparent;
   border: 0;
@@ -244,7 +248,7 @@ li {
 }
 
 .role-switch button.is-active {
-  color: var(--navy-900);
+  color: var(--teal-900);
   background: #ffffff;
   font-weight: 700;
 }
@@ -252,7 +256,7 @@ li {
 .reset-button {
   padding: 5px 10px;
   font-size: 12px;
-  color: #cfe2f0;
+  color: #c4dbd8;
   cursor: pointer;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -264,7 +268,7 @@ li {
   margin: 6px auto 0;
   font-size: 11px;
   line-height: 1.5;
-  color: #a9c6dc;
+  color: #9dc0bc;
 }
 
 .app-main {
@@ -306,7 +310,7 @@ li {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.14em;
-  color: var(--cyan-500);
+  color: var(--accent);
   text-transform: uppercase;
 }
 
@@ -340,7 +344,7 @@ li {
   align-items: flex-end;
   min-height: calc(72px + env(safe-area-inset-bottom));
   padding: 5px 4px env(safe-area-inset-bottom);
-  box-shadow: 0 -8px 28px rgba(11, 41, 68, 0.07);
+  box-shadow: 0 -8px 28px rgba(13, 43, 41, 0.07);
 }
 
 .bottom-nav button {
@@ -364,7 +368,7 @@ li {
 }
 
 .bottom-nav button.is-active {
-  color: var(--blue-700);
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -379,7 +383,7 @@ li {
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
-  background: var(--blue-700);
+  background: var(--accent);
   border: 0;
   border-radius: var(--r-sm);
 }
@@ -387,7 +391,7 @@ li {
 .primary-cta:disabled {
   color: var(--ink-500);
   cursor: not-allowed;
-  background: #dfe7ee;
+  background: #dee7e5;
 }
 
 .secondary-button {
@@ -397,11 +401,11 @@ li {
   justify-content: center;
   padding: 11px 18px;
   font-weight: 600;
-  color: var(--blue-700);
+  color: var(--accent);
   text-decoration: none;
   cursor: pointer;
   background: var(--surface);
-  border: 1px solid var(--blue-700);
+  border: 1px solid var(--accent);
   border-radius: var(--r-sm);
 }
 
@@ -428,7 +432,7 @@ li {
 }
 
 .question-card.is-hot {
-  border-color: rgba(39, 179, 177, 0.5);
+  border-color: rgba(15, 92, 88, 0.4);
   box-shadow: var(--shadow-md);
 }
 
@@ -440,8 +444,8 @@ li {
   margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
   border-radius: var(--r-pill);
 }
 
@@ -509,14 +513,14 @@ li {
 .specialty-chip {
   padding: 3px 9px;
   font-size: 12px;
-  color: var(--blue-700);
-  background: var(--blue-100);
+  color: var(--accent);
+  background: var(--accent-tint);
   border-radius: var(--r-pill);
 }
 
 .specialty-chip.is-muted {
   color: var(--ink-500);
-  background: #eef2f6;
+  background: #eef1f1;
 }
 
 .empathy-button {
@@ -562,7 +566,7 @@ li {
   font-weight: 700;
   color: #ffffff;
   cursor: pointer;
-  background: var(--blue-700);
+  background: var(--accent);
   border: 0;
   border-radius: 50%;
 }
@@ -606,8 +610,8 @@ li {
 
 .symptom-chip.is-active {
   color: #ffffff;
-  background: var(--blue-700);
-  border-color: var(--blue-700);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* 슬라이더는 모바일에서 정확히 못 집는다. 일자 버튼으로 둔다. */
@@ -645,8 +649,8 @@ li {
 
 .pain-button.is-active {
   color: #ffffff;
-  background: var(--blue-700);
-  border-color: var(--blue-700);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .pain-legend {
@@ -705,8 +709,8 @@ li {
   padding: 8px 10px;
   margin: 0 0 8px;
   font-size: 12px;
-  color: var(--blue-700);
-  background: var(--blue-100);
+  color: var(--accent);
+  background: var(--accent-tint);
   border-radius: var(--r-xs);
 }
 
@@ -761,14 +765,14 @@ li {
 .note-list article {
   padding: 10px 12px;
   background: var(--surface-muted);
-  border-left: 3px solid var(--blue-600);
+  border-left: 3px solid var(--accent-600);
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
 }
 
 .note-tag {
   font-size: 11px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .note-list p {
@@ -886,7 +890,7 @@ li {
   align-items: center;
   padding: 18px 16px;
   margin-bottom: 12px;
-  background: var(--blue-100);
+  background: var(--accent-tint);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
 }
@@ -926,7 +930,7 @@ li {
 
 .doctor-stats strong {
   font-size: 20px;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .doctor-stats span {
@@ -1105,8 +1109,8 @@ li {
 }
 
 .consult-status.is-connected {
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
 }
 
 .consult-status.is-ended,
@@ -1119,7 +1123,7 @@ li {
   position: relative;
   margin: 12px 0;
   overflow: hidden;
-  background: var(--navy-950);
+  background: var(--teal-950);
   border-radius: var(--r-md);
   aspect-ratio: 4 / 3;
 }
@@ -1147,7 +1151,7 @@ li {
   width: 100%;
   margin: 0;
   font-size: 14px;
-  color: #b9d3e6;
+  color: #aecac7;
   text-align: center;
   transform: translateY(-50%);
 }
@@ -1202,13 +1206,13 @@ li {
 }
 
 .transcript-list li.is-patient .transcript-speaker {
-  color: var(--blue-700);
-  background: var(--blue-100);
+  color: var(--accent);
+  background: var(--accent-tint);
 }
 
 .transcript-list li.is-doctor .transcript-speaker {
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
 }
 
 .transcript-text {
@@ -1220,7 +1224,7 @@ li {
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
-  color: #0d6a68;
+  color: #0f5c58;
 }
 
 .manual-line {
@@ -1300,17 +1304,17 @@ li {
 .next-step {
   padding: 22px 20px;
   margin-bottom: 12px;
-  background: var(--cyan-100);
+  background: var(--accent-soft);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
 }
 
 .next-step.is-answered {
-  background: #dff0ff;
+  background: #d6e8e6;
 }
 
 .next-step.is-booked {
-  background: #e6f4ee;
+  background: #dfece4;
 }
 
 .next-step h1 {
@@ -1387,7 +1391,7 @@ li {
 .list-row .app-icon {
   width: 20px;
   height: 20px;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .row-tag {
@@ -1395,14 +1399,14 @@ li {
   padding: 3px 9px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--blue-700);
-  background: var(--blue-100);
+  color: var(--accent);
+  background: var(--accent-tint);
   border-radius: var(--r-pill);
 }
 
 .row-tag.is-answer {
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
 }
 
 .row-title {
@@ -1453,11 +1457,11 @@ li {
 }
 
 .legend-dot.is-open {
-  background: var(--cyan-500);
+  background: var(--accent);
 }
 
 .legend-dot.is-closed {
-  background: #8fa2b1;
+  background: #8a9c99;
 }
 
 .clinic-result {
@@ -1495,7 +1499,7 @@ li {
   padding: 0;
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
   cursor: pointer;
   background: transparent;
   border: 0;
@@ -1549,7 +1553,7 @@ li {
 .my-shortcuts .app-icon {
   width: 22px;
   height: 22px;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .prep-progress {
@@ -1575,21 +1579,21 @@ li {
 .prep-progress-head span {
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .prep-bar {
   height: 8px;
   margin: 10px 0;
   overflow: hidden;
-  background: #e7edf2;
+  background: #e5ecea;
   border-radius: var(--r-pill);
 }
 
 .prep-bar span {
   display: block;
   height: 100%;
-  background: var(--cyan-500);
+  background: var(--accent);
   border-radius: var(--r-pill);
 }
 
@@ -1611,7 +1615,7 @@ li {
 }
 
 .prep-steps li.is-done {
-  color: #0d6a68;
+  color: #0f5c58;
 }
 
 /* 빈 화면. 다음에 할 일을 두 갈래로 준다. */
@@ -1670,7 +1674,7 @@ li {
 
 .segment-tabs button.is-active {
   color: var(--ink-900);
-  border-bottom-color: var(--navy-900);
+  border-bottom-color: var(--teal-900);
 }
 
 .back-link {
@@ -1688,7 +1692,7 @@ li {
 }
 
 .back-link:hover {
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .question-detail .question-body {
@@ -1771,7 +1775,7 @@ li {
 
 .post-avatar {
   color: var(--ink-700);
-  background: #e7edf2;
+  background: #e5ecea;
 }
 
 .post-author {
@@ -1783,7 +1787,7 @@ li {
   padding-bottom: 8px;
   margin: 0 0 12px;
   font-size: 15px;
-  border-bottom: 2px solid var(--navy-900);
+  border-bottom: 2px solid var(--teal-900);
 }
 
 .thread-list {
@@ -1813,7 +1817,7 @@ li {
 
 .portrait-button:hover .doctor-portrait,
 .portrait-button:focus-visible .doctor-portrait {
-  box-shadow: 0 0 0 3px var(--blue-100);
+  box-shadow: 0 0 0 3px var(--accent-tint);
 }
 
 .doctor-portrait {
@@ -1834,7 +1838,7 @@ li {
 }
 
 .answer-name:hover {
-  color: var(--blue-700);
+  color: var(--accent);
   text-decoration: underline;
 }
 
@@ -1872,7 +1876,7 @@ li {
   margin-top: 10px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
   cursor: pointer;
   background: transparent;
   border: 0;
@@ -1902,8 +1906,8 @@ li {
   padding: 3px 9px;
   font-size: 12px;
   font-weight: 700;
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
   border-radius: var(--r-pill);
 }
 
@@ -1911,7 +1915,7 @@ li {
   padding: 6px 12px;
   margin-left: auto;
   font-size: 13px;
-  color: var(--blue-700);
+  color: var(--accent);
   cursor: pointer;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -1965,8 +1969,8 @@ li {
 }
 
 .schedule-status.is-open {
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
 }
 
 .schedule-status.is-closed {
@@ -1997,7 +2001,7 @@ li {
 }
 
 .schedule-week li.is-today {
-  background: var(--blue-100);
+  background: var(--accent-tint);
 }
 
 .schedule-day {
@@ -2215,7 +2219,7 @@ li {
   margin: 0 0 4px;
   font-size: 12px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .condition-list {
@@ -2287,7 +2291,7 @@ li {
   margin: 10px 0 0;
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 /* 선택 항목 접기 — 필수만 보이게 */
@@ -2383,8 +2387,8 @@ li {
 }
 
 .encounter-track.is-open {
-  border-color: var(--blue-700);
-  background: var(--blue-50, #eef5fc);
+  border-color: var(--accent);
+  background: #e8f0ef;
 }
 
 .encounter-track h2 {
@@ -2411,7 +2415,7 @@ li {
 }
 
 .encounter-steps .is-done {
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .encounter-steps .is-current {
@@ -2442,8 +2446,8 @@ li {
 }
 
 .app-notice.is-info:not(:empty) {
-  color: var(--blue-700);
-  background: var(--blue-50, #eef5fc);
+  color: var(--accent);
+  background: #e8f0ef;
 }
 
 .app-notice.is-error:not(:empty) {
@@ -2464,7 +2468,7 @@ li {
   border: 0;
   border-radius: var(--r-md);
   color: #fff;
-  background: var(--blue-700);
+  background: var(--accent);
   cursor: pointer;
 }
 
@@ -2489,8 +2493,8 @@ li {
 }
 
 .precheck-done.is-complete {
-  border-color: var(--blue-300, #9dc3e6);
-  background: var(--blue-50, #eef5fc);
+  border-color: #8fb5b2;
+  background: #e8f0ef;
 }
 
 .precheck-done-mark {
@@ -2503,12 +2507,12 @@ li {
   font-weight: 800;
   color: var(--ink-500);
   border-radius: 50%;
-  background: var(--surface-100, #eceff3);
+  background: var(--surface-100, #eaefee);
 }
 
 .precheck-done.is-complete .precheck-done-mark {
   color: #fff;
-  background: var(--blue-700);
+  background: var(--accent);
 }
 
 .precheck-done h2 {
@@ -2520,7 +2524,7 @@ li {
   margin: 4px 0 12px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
 }
 
 .precheck-done .prep-steps {
@@ -2584,8 +2588,8 @@ li {
 
 .date-chip.is-active {
   color: #ffffff;
-  background: var(--blue-700);
-  border-color: var(--blue-700);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .date-weekday {
@@ -2623,8 +2627,8 @@ li {
 
 .slot-chip.is-active {
   color: #ffffff;
-  background: var(--blue-700);
-  border-color: var(--blue-700);
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 .booking-confirm {
@@ -2657,14 +2661,14 @@ li {
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
-  background: var(--cyan-100);
+  background: var(--accent-soft);
   border-radius: var(--r-sm);
 }
 
 .booking-receipt p {
   margin: 0;
   font-size: 14px;
-  color: #0d6a68;
+  color: #0f5c58;
 }
 
 /* 설치 안내 — Chrome이 설치 가능 판정을 내렸을 때만 뜬다. */
@@ -2677,8 +2681,8 @@ li {
   justify-content: space-between;
   padding: 14px 16px;
   margin-bottom: 12px;
-  color: #eaf3fa;
-  background: var(--navy-800);
+  color: #e4f0ef;
+  background: var(--teal-800);
   border-radius: var(--r-md);
   margin-top: 28px;
 }
@@ -2694,7 +2698,7 @@ li {
   margin: 0;
   font-size: 13px;
   line-height: 1.6;
-  color: #b9d3e6;
+  color: #aecac7;
 }
 
 .install-actions {
@@ -2705,14 +2709,14 @@ li {
 
 .install-actions .primary-cta {
   padding: 9px 18px;
-  color: var(--navy-900);
+  color: var(--teal-900);
   background: #ffffff;
 }
 
 .text-button {
   padding: 9px 10px;
   font-size: 13px;
-  color: #b9d3e6;
+  color: #aecac7;
   cursor: pointer;
   background: transparent;
   border: 0;
@@ -2763,7 +2767,7 @@ li {
   }
 
   .bottom-nav button.is-active {
-    background: var(--blue-100);
+    background: var(--accent-tint);
   }
 }
 
@@ -2810,8 +2814,8 @@ button {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.1em;
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
   border-radius: var(--r-pill);
 }
 
@@ -2820,10 +2824,10 @@ button {
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 750;
-  color: var(--blue-700);
+  color: var(--accent);
   cursor: pointer;
   background: #ffffff;
-  border: 1px solid #c8d9e6;
+  border: 1px solid #c2dbd8;
   border-radius: var(--r-pill);
 }
 
@@ -2834,7 +2838,7 @@ button {
   width: 150px;
   height: 150px;
   content: '';
-  background: rgba(39, 179, 177, 0.09);
+  background: rgba(15, 92, 88, 0.07);
   border-radius: 50%;
 }
 
@@ -2843,7 +2847,7 @@ button {
   z-index: 1;
   min-height: 48px;
   padding-inline: 22px;
-  background: var(--navy-900);
+  background: var(--teal-900);
 }
 
 .home-summary {
@@ -2882,7 +2886,7 @@ button {
   max-width: 9ch;
   font-size: 16px;
   line-height: 1.35;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .home-activity-card {
@@ -2905,15 +2909,15 @@ button {
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 800;
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
   border-radius: var(--r-pill);
 }
 
 .home-activity-card strong {
   font-size: 16px;
   line-height: 1.45;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .home-activity-card small {
@@ -2950,7 +2954,7 @@ button {
 
 .home-quick-menu strong {
   font-size: 14px;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .home-quick-menu span {
@@ -3008,7 +3012,7 @@ button {
 
 .question-card {
   padding: 17px 18px;
-  border-color: #e1e8ed;
+  border-color: #dfe7e5;
   border-radius: var(--r-md);
   box-shadow: var(--shadow-sm);
 }
@@ -3028,7 +3032,7 @@ button {
   left: 4px;
   width: 2px;
   content: '';
-  background: #d7e6ec;
+  background: #d3e5e3;
 }
 
 .activity-card {
@@ -3052,8 +3056,8 @@ button {
   width: 10px;
   height: 10px;
   content: '';
-  background: var(--cyan-500);
-  border: 3px solid #f4f7f9;
+  background: var(--accent);
+  border: 3px solid #f2f5f4;
   border-radius: 50%;
 }
 
@@ -3062,14 +3066,14 @@ button {
   padding: 3px 8px;
   font-size: 11px;
   font-weight: 800;
-  color: var(--blue-700);
-  background: var(--blue-100);
+  color: var(--accent);
+  background: var(--accent-tint);
   border-radius: var(--r-pill);
 }
 
 .activity-kind.is-answer {
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
 }
 
 .activity-card strong {
@@ -3106,10 +3110,10 @@ button {
   font-size: 22px;
   font-weight: 800;
   color: #ffffff;
-  background: var(--navy-800);
+  background: var(--teal-800);
   border: 5px solid #ffffff;
   border-radius: 50%;
-  box-shadow: 0 8px 22px rgba(11, 41, 68, 0.18);
+  box-shadow: 0 8px 22px rgba(13, 43, 41, 0.18);
   place-items: center;
 }
 
@@ -3149,7 +3153,7 @@ button {
 
 .my-stats strong {
   font-size: 22px;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .my-stats span {
@@ -3283,7 +3287,7 @@ button {
 .setting-option input {
   width: 18px;
   height: 18px;
-  accent-color: var(--cyan-500);
+  accent-color: var(--accent);
 }
 
 .standalone-option {
@@ -3302,8 +3306,8 @@ button {
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: #0d6a68;
-  background: var(--cyan-100);
+  color: #0f5c58;
+  background: var(--accent-soft);
   border-radius: var(--r-sm);
 }
 
@@ -3344,7 +3348,7 @@ button {
 .appointment-card p {
   margin: 0;
   font-weight: 800;
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .appointment-card small {
@@ -3360,7 +3364,7 @@ button {
   min-height: 44px;
   padding: 9px 14px;
   font-weight: 700;
-  color: var(--blue-700);
+  color: var(--accent);
   cursor: pointer;
   background: #ffffff;
   border: 1px solid var(--line);
@@ -3393,7 +3397,7 @@ button {
   padding: 0;
   font-size: 32px;
   line-height: 1;
-  color: var(--navy-900);
+  color: var(--teal-900);
   cursor: pointer;
   background: transparent;
   border: 0;
@@ -3403,7 +3407,7 @@ button {
   padding: 9px 12px;
   margin-bottom: 12px;
   text-align: center;
-  background: var(--blue-100);
+  background: var(--accent-tint);
   border-radius: var(--r-pill);
 }
 
@@ -3425,7 +3429,7 @@ button {
   font-size: 24px;
   font-weight: 800;
   color: #ffffff;
-  background: var(--blue-700);
+  background: var(--accent);
   border-radius: var(--r-lg);
   place-items: center;
 }
@@ -3459,7 +3463,7 @@ button {
 }
 
 .bottom-nav button.is-primary {
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 .bottom-nav button.is-primary .nav-icon-wrap {
@@ -3467,7 +3471,7 @@ button {
   height: 58px;
   margin-top: -25px;
   color: #ffffff;
-  background: var(--cyan-500);
+  background: var(--accent);
   border: 5px solid #ffffff;
   border-radius: 50%;
   box-shadow: var(--shadow-lg);
@@ -3480,7 +3484,7 @@ button {
 }
 
 .bottom-nav button.is-active:not(.is-primary) {
-  color: var(--navy-900);
+  color: var(--teal-900);
 }
 
 /* 온보딩은 완료 전 데이터 화면과 완전히 분리한다. */
@@ -3504,7 +3508,7 @@ button {
 
 .onboarding-topbar strong {
   font-size: 20px;
-  color: var(--navy-900);
+  color: var(--teal-900);
   letter-spacing: -0.055em;
 }
 
@@ -3533,9 +3537,9 @@ button {
   font-size: clamp(62px, 18vw, 88px);
   font-weight: 850;
   color: #ffffff;
-  background: var(--navy-900);
+  background: var(--teal-900);
   border-radius: 38%;
-  box-shadow: 0 24px 54px rgba(11, 41, 68, 0.2);
+  box-shadow: 0 24px 54px rgba(13, 43, 41, 0.2);
   place-items: center;
 }
 
@@ -3571,20 +3575,20 @@ button {
 .onboarding-dots span {
   width: 7px;
   height: 7px;
-  background: #d5dfe6;
+  background: #d4dedc;
   border-radius: var(--r-pill);
   transition: width 180ms ease, background 180ms ease;
 }
 
 .onboarding-dots span.is-active {
   width: 25px;
-  background: var(--cyan-500);
+  background: var(--accent);
 }
 
 .onboarding-footer .primary-cta {
   width: 100%;
   min-height: 52px;
-  background: var(--navy-900);
+  background: var(--teal-900);
 }
 
 .onboarding-footer > p {
@@ -3615,9 +3619,9 @@ button {
     padding: 5px 6px 5px 16px;
     color: var(--ink-700);
     background: rgba(255, 255, 255, 0.94);
-    border: 1px solid rgba(220, 229, 235, 0.9);
+    border: 1px solid rgba(220, 227, 226, 0.9);
     border-radius: var(--r-md);
-    box-shadow: 0 8px 28px rgba(11, 41, 68, 0.09);
+    box-shadow: 0 8px 28px rgba(13, 43, 41, 0.09);
     transform: translateX(-50%);
     backdrop-filter: blur(14px);
   }
@@ -3631,7 +3635,7 @@ button {
     display: flex;
     gap: 4px;
     padding: 3px;
-    background: #edf2f6;
+    background: #eef1f1;
     border-radius: var(--r-sm);
   }
 
@@ -3648,9 +3652,9 @@ button {
   }
 
   .preview-toolbar button.is-active {
-    color: var(--navy-900);
+    color: var(--teal-900);
     background: #ffffff;
-    box-shadow: 0 2px 7px rgba(11, 41, 68, 0.1);
+    box-shadow: 0 2px 7px rgba(13, 43, 41, 0.1);
   }
 
   .app-viewport {
@@ -3663,9 +3667,9 @@ button {
 
   .is-web-preview .app-root {
     min-height: calc(100vh - 104px);
-    border: 1px solid rgba(220, 229, 235, 0.9);
+    border: 1px solid rgba(220, 227, 226, 0.9);
     border-radius: var(--r-lg);
-    box-shadow: 0 18px 55px rgba(11, 41, 68, 0.08);
+    box-shadow: 0 18px 55px rgba(13, 43, 41, 0.08);
   }
 
   .is-web-preview .app-header {
@@ -3726,10 +3730,10 @@ button {
     height: min(900px, calc(100vh - 104px));
     min-height: 620px;
     overflow: hidden;
-    background: #f4f7f9;
-    border: 8px solid var(--navy-950);
+    background: #f2f5f4;
+    border: 8px solid var(--teal-950);
     border-radius: 38px;
-    box-shadow: 0 26px 72px rgba(8, 29, 49, 0.28);
+    box-shadow: 0 26px 72px rgba(7, 26, 25, 0.28);
   }
 
   .is-app-preview .app-root {
@@ -3820,9 +3824,9 @@ button {
   .onboarding-screen {
     min-height: min(900px, calc(100vh - 48px));
     margin-block: 24px;
-    border: 8px solid var(--navy-950);
+    border: 8px solid var(--teal-950);
     border-radius: 38px;
-    box-shadow: 0 26px 72px rgba(8, 29, 49, 0.22);
+    box-shadow: 0 26px 72px rgba(7, 26, 25, 0.22);
   }
 }
 
