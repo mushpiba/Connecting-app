@@ -61,6 +61,8 @@ body {
   min-height: 100dvh;
   margin: 0;
   overflow-x: hidden;
+  /* 당겨서 새로고침과 러버밴드를 끈다. 설치형에서 스크롤이 브라우저처럼 느껴지는 원인. */
+  overscroll-behavior-y: none;
   background: #eef1f1;
 }
 
@@ -82,8 +84,12 @@ html {
 
 /*
  * 누를 수 있는 것은 눌리는 티가 나야 한다. 색은 각 컴포넌트가 정하고
- * 여기서는 반응(전환·눌림·호버)만 공통으로 깐다.
+ * 여기서는 반응(전환·눌림·호버)과 터치 기본동작 억제만 공통으로 깐다.
  * prefers-reduced-motion 전역 규칙이 아래에서 transition을 끈다.
+ *
+ * 브라우저 기본값 셋이 설치형에서 웹처럼 보이게 만든다 — 탭할 때 뜨는 회색
+ * 사각형, 더블탭 줌을 기다리느라 생기는 지연, 롱프레스로 뜨는 OS 선택 핸들.
+ * 셋 다 누를 수 있는 것에만 끈다. 본문 텍스트는 그대로 선택된다.
  */
 button,
 a,
@@ -92,6 +98,10 @@ summary,
   transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease),
     color var(--dur) var(--ease), box-shadow var(--dur) var(--ease),
     transform var(--dur) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 button:not(:disabled):active,
@@ -240,6 +250,11 @@ li {
 
 .role-switch button {
   padding: 5px 14px;
+  /*
+   * 굵기는 활성 여부와 무관하게 여기서 고정한다. 활성일 때만 굵게 하면
+   * 라벨 폭이 바뀌어 전환할 때마다 글자가 덜컹인다. 구분은 색이 한다.
+   */
+  font-weight: 700;
   color: #c4dbd8;
   cursor: pointer;
   background: transparent;
@@ -250,7 +265,6 @@ li {
 .role-switch button.is-active {
   color: var(--teal-900);
   background: #ffffff;
-  font-weight: 700;
 }
 
 .reset-button {
@@ -355,6 +369,8 @@ li {
   align-items: center;
   padding: 5px 2px 7px;
   font-size: 11px;
+  /* .role-switch와 같은 이유로 굵기를 고정한다. 활성 표시는 색이 한다. */
+  font-weight: 700;
   color: var(--ink-500);
   cursor: pointer;
   background: transparent;
@@ -369,7 +385,6 @@ li {
 
 .bottom-nav button.is-active {
   color: var(--accent);
-  font-weight: 700;
 }
 
 /* 버튼 */
@@ -1696,8 +1711,10 @@ li {
   border: 0;
 }
 
-.back-link:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .back-link:hover {
+    color: var(--accent);
+  }
 }
 
 .question-detail .question-body {
@@ -1820,9 +1837,15 @@ li {
   border-radius: 50%;
 }
 
-.portrait-button:hover .doctor-portrait,
+/* :focus-visible은 게이팅하지 않는다 — 터치 기기에서도 키보드는 붙을 수 있다. */
 .portrait-button:focus-visible .doctor-portrait {
   box-shadow: 0 0 0 3px var(--accent-tint);
+}
+
+@media (hover: hover) {
+  .portrait-button:hover .doctor-portrait {
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
 }
 
 .doctor-portrait {
@@ -1842,9 +1865,11 @@ li {
   border: 0;
 }
 
-.answer-name:hover {
-  color: var(--accent);
-  text-decoration: underline;
+@media (hover: hover) {
+  .answer-name:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
 }
 
 .answer-main {

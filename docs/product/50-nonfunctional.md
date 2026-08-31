@@ -78,36 +78,21 @@ R-2 · R-3 · R-4 · **R-6 · R-7**은 **실제 환자를 태우기 전에 반�
 
 **배경.** 설치형 PWA로 써 보면 "앱 같지 않다"는 지적이 나온다. 원인을 추적한 결과 **플랫폼 한계가 아니라 아직 안 쓴 CSS**였다. `src/styles.css`에 `@keyframes`가 **0개**다. 앱 전체에서 스스로 움직이는 것이 하나도 없다.
 
-기반은 이미 깔려 있다 — 모션 토큰(`styles.css:39-40`), tappable 전역 transition(`:88`), `@media (hover: hover)` 게이팅(`:104`), `prefers-reduced-motion` 리셋(`:2785`), 44px 터치 타깃(`:2794`). **표현만 비어 있다.**
+기반은 이미 깔려 있다 — 모션 토큰(`styles.css:39-40`), tappable 전역 transition(`:94`), `@media (hover: hover)` 게이팅(`:114`), `prefers-reduced-motion` 리셋(`:2815`), 44px 터치 타깃(`:2825`). **표현만 비어 있다.**
 
-### P0 — 저위험, 즉시 체감
-
-| # | 항목 | 근거 |
-| --- | --- | --- |
-| I-1 | `index.html:5`에 `viewport-fit=cover` 추가 | **없어서 `env(safe-area-inset-*)` 7곳이 전부 `0px`로 죽어 있다** (`:186` `:282` `:345` `:346` `:3215` `:3378` `:3497`). 하단 내비가 제스처바에, 헤더가 상태바에 먹힌다 |
-| I-2 | `theme_color` 통일 | `vite.config.ts:17` `#0b2944`(네이비) vs `index.html:6` `#0d2b29`(청록). 설치된 앱의 타이틀바가 **디자인 시스템에 없는 색**을 쓴다 |
-| I-3 | `background_color` 통일 | `vite.config.ts:18` `#edf2f6` vs `body` `#eef1f1`. 스플래시→앱 전환에서 색이 튄다 |
-| I-4 | `-webkit-tap-highlight-color: transparent` | 전체 0회. 크롬 기본 회색 사각형이 모든 탭에서 뜬다 |
-| I-5 | `touch-action: manipulation` | 전체 0회. 더블탭 줌 대기 지연 |
-| I-6 | `user-select: none` (내비·라벨·카드) | 전체 0회. 롱프레스로 OS 선택 핸들이 뜬다 |
-| I-7 | `overscroll-behavior-y: none` on `body` | 유일한 선언이 `:3770`인데 **`@media (min-width: 768px)`(3602행부터) 안이라 실기기에서 안 걸린다.** 당겨서 새로고침·러버밴드가 살아 있다 |
-| I-8 | 활성 탭 `font-weight: 700` 제거 → 색·인디케이터로 | `:372`. `font-weight`는 애니메이션 불가이고 라벨 폭이 리플로우돼 **탭마다 글자가 덜컹인다.** 같은 패턴 `:253` `:311` `:383` |
-| I-9 | 미게이팅 hover 3곳을 `@media (hover: hover)`로 | `:1694` `:1818` `:1840`. 터치에서 탭 후 hover가 눌린 채 남는다 |
-| I-10 | `.segment-tabs { top: 66px }` → `calc(66px + env(safe-area-inset-top))` | `:1653`. **I-1을 넣는 순간 어긋난다.** 반드시 함께 |
-
-> I-1과 I-10은 **같은 커밋에 넣는다.** I-1만 넣으면 sticky 탭이 헤더 밑에서 어긋난다.
+**P0 10개(I-1~I-10)는 M1-B에서 닫혔고 이 목록에서 지웠다.** `viewport-fit=cover`로 죽어 있던 safe-area 7규칙을 켜고, 매니페스트 색을 코드 쪽 정본에 맞추고, 터치 기본동작 셋(탭 하이라이트·더블탭 줌·롱프레스 선택)을 누를 수 있는 것에서 끄고, `overscroll-behavior-y`를 `body`에 걸고, 활성 탭의 `font-weight` 전환을 없애고, 미게이팅 hover 3곳을 `@media (hover: hover)`로 묶었다. 남은 것은 아래 13개다.
 
 ### P1 — 체감의 대부분
 
 | # | 항목 | 근거 |
 | --- | --- | --- |
-| I-11 | 진짜 press 상태 (scale + 배경) | 지금은 `:101` `translateY(1px)`뿐. **리플이 아니라 scale로** — 리플은 안드로이드 관용구고 iOS에서는 이질적이다 |
+| I-11 | 진짜 press 상태 (scale + 배경) | 지금은 `:111` `translateY(1px)`뿐. **리플이 아니라 scale로** — 리플은 안드로이드 관용구고 iOS에서는 이질적이다 |
 | I-12 | 스켈레톤 + shimmer | `@keyframes` 0개. 로딩은 `App.tsx:52` `불러오는 중…` 텍스트뿐. `aria-busy`도 0회 |
-| I-13 | 토스트: `.app-notice`를 밀어내기 → 띄우기 | `styles.css:2433`. 지금은 `max-height: 0 → 120px` 인플로우 확장이라 **페이지가 아래로 밀린다.** 자동 소멸도 없다 |
+| I-13 | 토스트: `.app-notice`를 밀어내기 → 띄우기 | `styles.css:2463`. 지금은 `max-height: 0 → 120px` 인플로우 확장이라 **페이지가 아래로 밀린다.** 자동 소멸도 없다 |
 | I-14 | 라우트 전환 `document.startViewTransition` + reduced-motion 폴백 | `App.tsx:125` 순수 `<Routes>` 교체 |
 | I-15 | 라우트 변경 시 스크롤 최상단/복원 | 없다. 상세 화면에 중간부터 들어가는 일이 생긴다 |
-| I-16 | 가로 스트립 3곳에 `scroll-snap` + `overscroll-behavior-x: contain` + 스크롤바 숨김 | `:1253` `.record-draft` · `:1658` `.segment-tabs` · `:2565` `.date-strip`. 지금은 안드로이드 뒤로가기 제스처로 새어 나간다 |
-| I-17 | `.transcript-list`에 `overscroll-behavior: contain` | `:1188`. 스크롤이 페이지로 체이닝된다 |
+| I-16 | 가로 스트립 3곳에 `scroll-snap` + `overscroll-behavior-x: contain` + 스크롤바 숨김 | `:1265` `.record-draft` · `:1666` `.segment-tabs` · `:2590` `.date-strip`. 지금은 안드로이드 뒤로가기 제스처로 새어 나간다 |
+| I-17 | `.transcript-list`에 `overscroll-behavior: contain` | `:1196`. 스크롤이 페이지로 체이닝된다 |
 | I-18 | `DoctorInboxScreen.tsx:99`의 `<div>` → `<button>` | `cursor: pointer`만 붙고 누름 피드백도 키보드 접근도 없다. 다른 화면에서는 `<button>`이다 |
 
 ### P2
@@ -116,8 +101,8 @@ R-2 · R-3 · R-4 · **R-6 · R-7**은 **실제 환자를 태우기 전에 반�
 | --- | --- |
 | I-19 | `navigator.vibrate` 얇은 래퍼 (Android 동작, **iOS는 no-op**) |
 | I-20 | 바텀시트 컴포넌트. 현재 `<dialog>` 0개, `role="dialog"` 0개, 포커스 트랩 없음 |
-| I-21 | `<details>` 열림 높이 애니메이션 (`:2314`. 지금은 하드 스냅) |
-| I-22 | Pretendard 셀프호스팅 + workbox precache. 지금은 `cdn.jsdelivr.net` 외부 로드라 **오프라인 첫 실행에서 시스템 폴백 폰트로 뜬다** (`index.html:7-12`, `vite.config.ts:38`은 로컬 빌드 산출물만 프리캐시) |
+| I-21 | `<details>` 열림 높이 애니메이션 (`:2336`. 지금은 하드 스냅) |
+| I-22 | Pretendard 셀프호스팅 + workbox precache. 지금은 `cdn.jsdelivr.net` 외부 로드라 **오프라인 첫 실행에서 시스템 폴백 폰트로 뜬다** (`index.html:11-16`, `vite.config.ts:42`은 로컬 빌드 산출물만 프리캐시) |
 | I-23 | `apple-mobile-web-app-*` 메타와 `apple-touch-icon` (iOS 설치 대응) |
 
 ### PWA로는 못 하는 것 (네이티브 쉘이 필요한 지점)
@@ -128,13 +113,13 @@ R-2 · R-3 · R-4 · **R-6 · R-7**은 **실제 환자를 태우기 전에 반�
 - **통화 중 백그라운드 유지 / 수신 화면**
 - 백그라운드 실행, 정밀 위치
 
-**위 조작감 항목 23개 중 이 목록에 걸리는 것은 I-19 하나뿐이다.** 결정은 `adr/0001-pwa-vs-native-shell.md`로 미룬다.
+**위 조작감 항목 13개 중 이 목록에 걸리는 것은 I-19 하나뿐이다.** 결정은 `adr/0001-pwa-vs-native-shell.md`로 미룬다.
 
 ---
 
 ## 접근성
 
-**있는 것** — `:focus-visible` 3px 아웃라인(`:74`) · 44px 최소 터치 타깃(`:2794`) · `prefers-reduced-motion` 전역 리셋(`:2785`) · 네이티브 `<details>` · `accent-color`
+**있는 것** — `:focus-visible` 3px 아웃라인(`:76`) · 44px 최소 터치 타깃(`:2825`) · `prefers-reduced-motion` 전역 리셋(`:2815`) · 네이티브 `<details>` · `accent-color`
 
 **없는 것**
 
