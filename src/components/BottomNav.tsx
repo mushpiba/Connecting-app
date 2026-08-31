@@ -3,15 +3,16 @@ import { useCommunity } from '../state/CommunityContext'
 import { AppIcon } from './AppIcon'
 
 /**
- * 하단 탭은 넷 + 가운데 작성 버튼까지가 한계다. 지도를 넣으면서 내소식을 뺐다.
- * 홈이 답변 도착을 최상단에 띄우고 헤더 종 아이콘이 내소식으로 가므로
- * 들어갈 길은 그대로 둘 이상 남는다.
+ * 넷 + 가운데 작성 버튼까지가 한계다. `사연` 탭은 홈이 그 역할을 가져가면서 빠졌고,
+ * 그 자리에 `내 소식`이 헤더 종 아이콘에서 올라왔다 — 재방문의 이유가 「내 사연에
+ * 답이 달렸는가」 하나뿐인데 그것을 부속 아이콘에 둘 수 없다. `지도`는 주변과 재진을
+ * 함께 담는 `진료`로 넓어졌다.
  */
 const patientTabs = [
   { path: '/home', label: '홈', icon: 'home' },
-  { path: '/stories', label: '사연', icon: 'stories' },
+  { path: '/news', label: '내 소식', icon: 'news' },
   { path: '/ask', label: 'Q', icon: 'ask', primary: true },
-  { path: '/map', label: '지도', icon: 'map' },
+  { path: '/care', label: '진료', icon: 'map' },
   { path: '/me', label: 'MY', icon: 'me' },
 ] as const
 

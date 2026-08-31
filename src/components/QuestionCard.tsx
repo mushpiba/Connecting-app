@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { symptomDurationDays } from '../domain/intake'
 import type { PostVisibility, Question, SymptomCourse } from '../domain/types'
 
-const visibilityLabels: Record<PostVisibility, string> = {
+/** 공개 범위의 한국어 이름 한 자리. 목록과 소식이 같은 말을 쓴다. */
+export const visibilityLabels: Record<PostVisibility, string> = {
   public: '공개',
   'specialty-only': '관련 진료과만',
   'prior-clinic-only': '진료받은 의사만',

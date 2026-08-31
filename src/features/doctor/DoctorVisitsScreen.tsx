@@ -1,23 +1,48 @@
 import { nowIso, todayIso } from '../../data/appClock'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clinicScheduleOn, weekdayLabels } from '../../domain/clinicHours'
 import { bandLabels } from '../../domain/documents'
 import { directRequests } from '../../domain/doctorFeed'
 import { documentLabel } from '../../domain/documents'
+import { doctorActions } from '../../domain/encounterTrack'
+import type { EncounterAction } from '../../domain/encounterTrack'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 import { useDoctorSettings } from '../../state/DoctorSettingsContext'
+import type { EncounterRequest } from '../../domain/types'
+
+/** `accepted`가 빠져 있었다. 확인해 놓고도 화면에는 「신청 도착」으로 남았다. */
+const statusChips: Record<EncounterRequest['status'], string> = {
+  requested: '신청 도착',
+  accepted: '확인함',
+  'in-progress': '진행 중',
+  completed: '진료 마침',
+  declined: '받지 못함',
+}
 
 export function DoctorVisitsScreen() {
   const { state, setEncounterStatus } = useCommunity()
   const { doctors, findDoctor, findClinic, findPatient } = useDirectory()
   const { settingsOf } = useDoctorSettings()
   const navigate = useNavigate()
+  /** 거절은 되돌릴 수 없다. 누르면 바로 나가지 않고 한 번 되묻는다. */
+  const [confirmDeclineId, setConfirmDeclineId] = useState<string | null>(null)
 
   const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const clinic = findClinic(doctor.clinicId)
   const settings = settingsOf(doctor.id, doctor.templateId)
   const bookings = directRequests(doctor, state.questions, state.bookings).bookings
+
+  /**
+   * 상태를 먼저 바꾸고, 바뀐 뒤에만 진료방으로 넘어간다.
+   *
+   * 실패했는데 넘어가면 의사만 방에 있고 환자 화면에는 열렸다는 표시가 없다.
+   */
+  const run = async (encounterId: string, action: EncounterAction) => {
+    const changed = await setEncounterStatus(encounterId, action.to)
+    if (changed && action.to === 'in-progress') navigate(`/doctor/visit/${encounterId}`)
+  }
   const schedule = clinic ? clinicScheduleOn(clinic, todayIso()) : null
   /* 나에게 온 신청만. 끝난 진료는 목록에서 뺀다. */
   const encounters = state.encounters.filter(
@@ -81,26 +106,55 @@ export function DoctorVisitsScreen() {
               const question = state.questions.find((item) => item.id === encounter.questionId)
               return (
                 <article key={encounter.id} className="appointment-card">
-                  <span className="status-chip">
-                    {encounter.status === 'requested' ? '신청 도착' : '진행 중'}
-                  </span>
+                  <span className="status-chip">{statusChips[encounter.status]}</span>
                   <h3>{question?.title ?? '사연 없이 들어온 신청'}</h3>
                   <p>{findPatient(encounter.patientId)?.displayName ?? '환자'}가 신청했습니다.</p>
                   <small>{new Date(encounter.createdAt).toLocaleString('ko-KR')}</small>
                   {/*
-                    여는 사람이 의사다. 환자가 먼저 들어와 기다리고 의사가 부른다.
-                    상태를 먼저 바꿔야 환자 화면에도 열렸다는 것이 보인다.
+                    갈 수 있는 곳은 `doctorActions`가 정한다. 화면이 상태를 직접
+                    고르면 전이도에 없는 상태가 생긴다.
                   */}
-                  <button
-                    type="button"
-                    className="primary-cta"
-                    onClick={() => {
-                      setEncounterStatus(encounter.id, 'in-progress')
-                      navigate(`/doctor/visit/${encounter.id}`)
-                    }}
-                  >
-                    화상 진료방 열기
-                  </button>
+                  {doctorActions(encounter).map((action) => (
+                    <button
+                      key={action.id}
+                      type="button"
+                      className={action.id === 'open' ? 'primary-cta' : 'secondary-button'}
+                      onClick={() =>
+                        action.irreversible
+                          ? setConfirmDeclineId(encounter.id)
+                          : void run(encounter.id, action)
+                      }
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                  {confirmDeclineId === encounter.id && (
+                    <div className="delete-confirm" role="alert">
+                      <p>
+                        거절하면 되돌릴 수 없습니다. 환자에게는 대면 진료를 예약하거나 다른 의사에게
+                        물어보는 길을 안내합니다.
+                      </p>
+                      <div className="step-actions">
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          onClick={() => setConfirmDeclineId(null)}
+                        >
+                          그대로 두기
+                        </button>
+                        <button
+                          type="button"
+                          className="danger-button"
+                          onClick={() => {
+                            setConfirmDeclineId(null)
+                            void setEncounterStatus(encounter.id, 'declined')
+                          }}
+                        >
+                          거절하기
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {question && (
                     <button
                       type="button"

@@ -2,6 +2,7 @@ import { nowIso, todayIso } from '../../data/appClock'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AnswerCard } from '../../components/AnswerCard'
+import { PrivateThreadPanel } from './PrivateThreadPanel'
 import { IntakeSummary } from '../../components/IntakeSummary'
 import { TriageSummary } from '../../components/TriageSummary'
 import { findQuestion } from '../../data/demoQuestions'
@@ -163,12 +164,23 @@ export function QuestionDetailScreen() {
               const doctor = findDoctor(answer.doctorId)
               if (!doctor) return null
               return (
-                <AnswerCard
-                  key={answer.id}
-                  answer={answer}
-                  doctor={doctor}
-                  clinic={findClinic(doctor.clinicId)}
-                />
+                <div key={answer.id} className="answer-slot">
+                  <AnswerCard
+                    answer={answer}
+                    doctor={doctor}
+                    clinic={findClinic(doctor.clinicId)}
+                  />
+                  {/*
+                    비공개 덧붙임은 답변을 읽은 그 자리에서 열린다. 별도 화면으로
+                    빼면 환자는 「무엇을 보고 묻는지」를 잃고, 의사는 자기 공개
+                    답변을 떠난 채로 회신하게 된다. 공개 답변이 문맥으로 붙어
+                    있는 것 자체가 「일반 정보의 연장」이라는 방어의 일부다.
+
+                    글쓴이에게만 그려진다. 남의 사연에서는 대화의 존재 자체가
+                    보이지 않고, 서버 정책도 같다.
+                  */}
+                  {isAuthor && <PrivateThreadPanel answer={answer} doctor={doctor} />}
+                </div>
               )
             })}
           </div>

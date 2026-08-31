@@ -1,4 +1,4 @@
-import type { Answer, Question } from '../../domain/types'
+import type { Answer, PrivateMessage, PrivateThread, Question } from '../../domain/types'
 
 export interface QuestionActivity {
   kind: 'question'
@@ -15,15 +15,47 @@ export interface AnswerActivity {
   answer: Answer
 }
 
-export type MyActivityItem = QuestionActivity | AnswerActivity
+/**
+ * 비공개 회신이 도착한 것 (Q-7).
+ *
+ * **본문을 담지 않는다.** 비공개 대화는 민감정보(개인정보보호법 제23조)이고
+ * `/news`는 목록 화면이다. 카드에는 누가·어느 사연에·언제까지만 나오고 본문은
+ * `/questions/:questionId`에 들어가야 보인다.
+ */
+export interface PrivateReplyActivity {
+  kind: 'private-reply'
+  id: string
+  occurredAt: string
+  question: Question
+  doctorId: string
+}
 
+export type MyActivityItem = QuestionActivity | AnswerActivity | PrivateReplyActivity
+
+/**
+ * 내 소식을 낱개로 늘어놓는다.
+ *
+ * 비공개 회신이 여기 섞이는 것은 **회신이 답변의 연장**이기 때문이다(D-8이
+ * 상한을 셀 때 쓴 것과 같은 판단). 별도 화면으로 빼면 환자는 같은 사연의 소식을
+ * 두 곳에서 찾게 된다.
+ *
+ * **회신이라고 위로 올리지 않는다.** 정렬은 발생 시각 하나뿐이다 — 회신이
+ * 실시간으로 오지 않는다는 사실(Realtime 발행 안 함)을 순서로 덮지 않는다.
+ */
 export function buildMyActivity(
   questions: Question[],
   answers: Answer[],
+  privateThreads: PrivateThread[],
+  privateMessages: PrivateMessage[],
   patientId: string,
 ): MyActivityItem[] {
   const mine = questions.filter((question) => question.patientId === patientId)
   const mineById = new Map(mine.map((question) => [question.id, question]))
+  const myThreads = new Map(
+    privateThreads
+      .filter((thread) => thread.patientId === patientId)
+      .map((thread) => [thread.id, thread]),
+  )
 
   return [
     ...mine.map<QuestionActivity>((question) => ({
@@ -36,6 +68,23 @@ export function buildMyActivity(
       const question = mineById.get(answer.questionId)
       return question
         ? [{ kind: 'answer', id: answer.id, occurredAt: answer.createdAt, question, answer }]
+        : []
+    }),
+    // 내가 쓴 발화는 소식이 아니다. 도착한 것만 센다.
+    ...privateMessages.flatMap<PrivateReplyActivity>((message) => {
+      if (message.senderRole !== 'doctor') return []
+      const thread = myThreads.get(message.threadId)
+      const question = thread ? mineById.get(thread.questionId) : undefined
+      return thread && question
+        ? [
+            {
+              kind: 'private-reply',
+              id: message.id,
+              occurredAt: message.createdAt,
+              question,
+              doctorId: thread.doctorId,
+            },
+          ]
         : []
     }),
   ].sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))

@@ -15,14 +15,13 @@ describe('PatientSettingsContext', () => {
     window.localStorage.clear()
   })
 
-  it('주소와 결제 설정을 현재 세션에서 갱신한다', () => {
+  it('주소 설정을 현재 세션에서 갱신한다', () => {
     const { result } = renderHook(() => usePatientSettings(), { wrapper })
 
     act(() => {
       result.current.updateSettings(
         {
           address: { region: '서울 성동구', detail: '회사', savedAt: '2026-08-09T10:00:00.000Z' },
-          paymentMethodId: 'demo-hana',
         },
         '진료 준비 설정을 저장했습니다.',
       )
@@ -33,7 +32,6 @@ describe('PatientSettingsContext', () => {
       detail: '회사',
       savedAt: '2026-08-09T10:00:00.000Z',
     })
-    expect(result.current.settings.paymentMethodId).toBe('demo-hana')
     expect(result.current.notice).toBe('진료 준비 설정을 저장했습니다.')
   })
 

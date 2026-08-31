@@ -1,4 +1,5 @@
 import { symptomDurationDays } from '../../domain/intake'
+import type { EncounterTrack } from '../../domain/encounterTrack'
 import type { Answer, BookingRequest, Question } from '../../domain/types'
 
 export type NextStepKind = 'first-visit' | 'waiting' | 'answered' | 'booked'
@@ -40,7 +41,7 @@ export function resolveNextStep(
       title: '예약 희망 시간을 전달했어요',
       detail: `${latestBooking.date} ${latestBooking.time} · 병원 확인 후 확정됩니다.`,
       actionLabel: '예약 내역 보기',
-      actionPath: '/me/appointments',
+      actionPath: '/care',
       question: null,
       answerCount: 0,
       booking: latestBooking,
@@ -89,4 +90,66 @@ export function resolveNextStep(
     answerCount: 0,
     booking: null,
   }
+}
+
+export type ProgressStripKind = 'room-open' | 'booked' | 'answered' | 'waiting'
+
+export interface ProgressStrip {
+  kind: ProgressStripKind
+  label: string
+  path: string
+}
+
+/**
+ * 사연 피드 위에 붙는 한 줄.
+ *
+ * D-5가 홈을 사연 피드로 정하면서 갈 곳을 아는 환자에게 한 단계가 늘었다. 그
+ * 비용을 홈을 사람마다 다르게 만들어서 갚지 않는다 — 홈이 사람마다 다르면
+ * 설명도 테스트도 어려워진다. 대신 얇은 줄 하나를 고정한다.
+ *
+ * **새로 계산하는 것이 없다.** 우선순위 판단은 `resolveNextStep`에, 신청의
+ * 4단계는 `encounterTrack`에 이미 있다. 같은 함수가 더 얇은 자리에 붙는다.
+ * 진료방이 열린 것만 그 위에 온다 — 저쪽에서 사람이 기다리고 있다.
+ *
+ * 진행 중인 건이 없으면 null 이다. 화면은 자리도 만들지 않는다.
+ */
+export function progressStrip(
+  step: NextStep,
+  track: EncounterTrack | null,
+  today: string,
+): ProgressStrip | null {
+  if (track?.roomOpen) {
+    return {
+      kind: 'room-open',
+      label: '진료방이 열렸습니다 · 지금 들어가세요',
+      path: `/visit/${track.encounterId}`,
+    }
+  }
+
+  if (step.kind === 'booked' && step.booking) {
+    return {
+      kind: 'booked',
+      label: `예약 희망 시간을 전달했어요 · ${step.booking.date} ${step.booking.time}`,
+      path: '/care',
+    }
+  }
+
+  if (step.kind === 'answered' && step.question) {
+    return {
+      kind: 'answered',
+      label: `의사 ${step.answerCount}명이 답변했어요`,
+      path: `/questions/${step.question.id}`,
+    }
+  }
+
+  if (step.kind === 'waiting' && step.question) {
+    const days = symptomDurationDays(step.question.onsetDate, today)
+    return {
+      kind: 'waiting',
+      label: `답변을 기다리는 중 · 증상 ${days}일째`,
+      path: `/questions/${step.question.id}`,
+    }
+  }
+
+  return null
 }

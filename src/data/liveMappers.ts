@@ -184,10 +184,6 @@ export function toPatient(row: ProfileRow): Patient {
 }
 
 /**
- * 계정에는 자기소개나 약력이 없다. 준비된 프로필을 골라 들어왔으면 그 내용을
- * 채워 넣고, 아니면 빈 자리로 둔다.
- */
-/**
  * 계정 하나가 의사 자리에 앉을 때, 화면에 서는 이름은 고른 의사 페르소나의
  * 이름이다.
  *
@@ -205,9 +201,7 @@ export function toDoctor(row: ProfileRow, template?: Doctor): Doctor {
     licenseVerified: row.license_verified,
     keywords: template?.keywords ?? [],
     notificationsEnabled: true,
-    bio: template?.bio ?? '',
-    consultStyle: template?.consultStyle ?? '',
-    career: template?.career ?? [],
+    licenseType: template?.licenseType ?? '의사',
     templateId: row.template_id ?? undefined,
   }
 }

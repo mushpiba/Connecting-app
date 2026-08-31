@@ -1,6 +1,6 @@
 import { empathyCount } from '../domain/board'
 import { communityReducer, initialCommunityState, initialPrecheck } from './CommunityContext'
-import type { Answer, Question } from '../domain/types'
+import type { Answer, EncounterRequest, Question } from '../domain/types'
 
 const question = { ...initialCommunityState.questions[0], id: 'q-new' } as Question
 const answer: Answer = {
@@ -9,6 +9,15 @@ const answer: Answer = {
   doctorId: 'doc-han-ent',
   body: '답변 본문',
   createdAt: '2026-08-09T11:00:00.000Z',
+}
+const encounter: EncounterRequest = {
+  id: 'e-q-nose-doc-han-ent',
+  questionId: 'q-nose',
+  patientId: initialCommunityState.patientId,
+  doctorId: 'doc-han-ent',
+  clinicId: 'clinic-han',
+  status: 'requested',
+  createdAt: '2026-08-09T10:00:00.000Z',
 }
 
 describe('communityReducer', () => {
@@ -33,6 +42,9 @@ describe('communityReducer', () => {
       doctors: [],
       patients: [],
       encounters: [],
+      selfReportedClinics: [],
+      privateThreads: [],
+      privateMessages: [],
     }
 
     const switched = communityReducer(initialCommunityState, {
@@ -60,6 +72,9 @@ describe('communityReducer', () => {
       doctors: [],
       patients: [],
       encounters: [],
+      selfReportedClinics: [],
+      privateThreads: [],
+      privateMessages: [],
     }
 
     const next = communityReducer(initialCommunityState, {
@@ -112,16 +127,37 @@ describe('communityReducer', () => {
   it('같은 진료 신청을 두 번 담지 않는다', () => {
     const once = communityReducer(initialCommunityState, {
       type: 'request-encounter',
-      questionId: 'q-nose',
-      doctorId: 'doc-han-ent',
+      encounter,
     })
-    const twice = communityReducer(once, {
+    const twice = communityReducer(once, { type: 'request-encounter', encounter })
+
+    expect(twice.encounters).toHaveLength(1)
+  })
+
+  /** 거절은 끝난 이야기다. 같은 의사에게 다시 낼 수 있어야 한다. */
+  it('거절된 신청 자리에는 새 신청을 낼 수 있다', () => {
+    const declined = communityReducer(
+      communityReducer(initialCommunityState, { type: 'request-encounter', encounter }),
+      { type: 'set-encounter-status', encounterId: encounter.id, status: 'declined' },
+    )
+    const again = communityReducer(declined, { type: 'request-encounter', encounter })
+
+    expect(again.encounters).toHaveLength(1)
+    expect(again.encounters[0].status).toBe('requested')
+  })
+
+  it('의사가 상태를 바꾸면 그 신청만 바뀐다', () => {
+    const requested = communityReducer(initialCommunityState, {
       type: 'request-encounter',
-      questionId: 'q-nose',
-      doctorId: 'doc-han-ent',
+      encounter,
+    })
+    const done = communityReducer(requested, {
+      type: 'set-encounter-status',
+      encounterId: encounter.id,
+      status: 'completed',
     })
 
-    expect(twice.requestedEncounterIds).toEqual(['q-nose:doc-han-ent'])
+    expect(done.encounters[0].status).toBe('completed')
   })
 
   it('초기화하면 모든 필드가 처음 상태로 돌아간다', () => {
@@ -130,7 +166,7 @@ describe('communityReducer', () => {
       { type: 'publish-question', question } as const,
       { type: 'publish-answer', answer } as const,
       { type: 'toggle-empathy', questionId: 'q-nose' } as const,
-      { type: 'request-encounter', questionId: 'q-nose', doctorId: 'doc-han-ent' } as const,
+      { type: 'request-encounter', encounter } as const,
     ].reduce(communityReducer, initialCommunityState)
 
     expect(communityReducer(dirty, { type: 'reset' })).toEqual(initialCommunityState)

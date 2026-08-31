@@ -13,15 +13,20 @@ import {
 import type { ProfileRow } from './liveMappers'
 import type {
   Answer,
+  AppRole,
   BookingRequest,
   Clinic,
   Doctor,
   Empathy,
   EncounterRequest,
   EncounterRequestStatus,
+  ExpressionFilterHit,
   Patient,
+  PrivateMessage,
+  PrivateThread,
   Question,
   QuestionNote,
+  SelfReportedClinic,
 } from '../domain/types'
 
 export interface LiveSnapshot {
@@ -34,7 +39,13 @@ export interface LiveSnapshot {
   doctors: Doctor[]
   patients: Patient[]
   encounters: EncounterRequest[]
+  selfReportedClinics: SelfReportedClinic[]
+  /** 당사자 둘에게만 온다. RLS가 이미 걸러서 남의 대화는 여기 없다. */
+  privateThreads: PrivateThread[]
+  privateMessages: PrivateMessage[]
 }
+
+const PRIVATE_THREAD_COLUMNS = 'id, question_id, answer_id, patient_id, doctor_id, created_at'
 
 const QUESTION_COLUMNS =
   'id, author_id, title, body, visibility, onset_date, course, daily_impact, tried_remedies, body_areas, selected_symptoms, pain_level, intake_answers, triage, prior_clinic_id, prior_visited_on, same_symptoms, created_at'
@@ -48,8 +59,19 @@ const QUESTION_COLUMNS =
 export async function fetchSnapshot(): Promise<LiveSnapshot> {
   const client = requireSupabase()
 
-  const [questions, answers, empathies, bookings, clinics, notes, profiles, encounters] =
-    await Promise.all([
+  const [
+    questions,
+    answers,
+    empathies,
+    bookings,
+    clinics,
+    notes,
+    profiles,
+    encounters,
+    selfReported,
+    privateThreads,
+    privateMessages,
+  ] = await Promise.all([
     client.from('questions').select(QUESTION_COLUMNS).order('created_at', { ascending: false }),
     client.from('answers').select('*').order('created_at'),
     client.from('empathies').select('*'),
@@ -63,6 +85,15 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
       .from('encounters')
       .select('id, question_id, patient_id, doctor_id, clinic_id, status, created_at')
       .order('created_at', { ascending: false }),
+    client
+      .from('self_reported_clinics')
+      .select('id, patient_id, name, last_visited_on, trust, created_at')
+      .order('last_visited_on', { ascending: false }),
+    client.from('private_threads').select(PRIVATE_THREAD_COLUMNS).order('created_at'),
+    client
+      .from('private_messages')
+      .select('id, thread_id, sender_id, sender_role, body, created_at')
+      .order('created_at'),
   ])
 
   const failure = [
@@ -74,6 +105,9 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
     notes,
     profiles,
     encounters,
+    selfReported,
+    privateThreads,
+    privateMessages,
   ].find((result) => result.error)
   if (failure?.error) throw new Error(failure.error.message)
 
@@ -110,7 +144,78 @@ export async function fetchSnapshot(): Promise<LiveSnapshot> {
       status: row.status as EncounterRequestStatus,
       createdAt: row.created_at,
     })),
+    selfReportedClinics: (selfReported.data ?? []).map(toSelfReportedClinic),
+    privateThreads: (privateThreads.data ?? []).map(toPrivateThread),
+    privateMessages: (privateMessages.data ?? []).map((row) => ({
+      id: row.id,
+      threadId: row.thread_id,
+      senderId: row.sender_id,
+      senderRole: row.sender_role as AppRole,
+      body: row.body,
+      createdAt: row.created_at,
+    })),
   }
+}
+
+function toPrivateThread(row: {
+  id: string
+  question_id: string
+  answer_id: string
+  patient_id: string
+  doctor_id: string
+  created_at: string
+}): PrivateThread {
+  return {
+    id: row.id,
+    questionId: row.question_id,
+    answerId: row.answer_id,
+    patientId: row.patient_id,
+    doctorId: row.doctor_id,
+    createdAt: row.created_at,
+  }
+}
+
+function toSelfReportedClinic(row: {
+  id: string
+  patient_id: string
+  name: string
+  last_visited_on: string
+  trust: string
+  created_at: string
+}): SelfReportedClinic {
+  return {
+    id: row.id,
+    patientId: row.patient_id,
+    name: row.name,
+    lastVisitedOn: row.last_visited_on,
+    // 표의 check 제약이 값을 하나로 묶고 있다. 등급은 행에 실려 와야 화면이 두
+    // 출처를 구분할 수 있다.
+    trust: 'self-reported',
+    createdAt: row.created_at,
+  }
+}
+
+/** 환자가 적은 이름 그대로 넣는다. 지역·전화번호를 받지 않는다. */
+export async function insertSelfReportedClinic(
+  patientId: string,
+  name: string,
+  lastVisitedOn: string,
+): Promise<SelfReportedClinic> {
+  const client = requireSupabase()
+  const { data, error } = await client
+    .from('self_reported_clinics')
+    .insert({ patient_id: patientId, name, last_visited_on: lastVisitedOn })
+    .select('id, patient_id, name, last_visited_on, trust, created_at')
+    .single()
+
+  if (error) throw new Error(error.message)
+  return toSelfReportedClinic(data)
+}
+
+export async function deleteSelfReportedClinic(id: string): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client.from('self_reported_clinics').delete().eq('id', id)
+  if (error) throw new Error(error.message)
 }
 
 /**
@@ -253,6 +358,79 @@ export async function insertNote(
 }
 
 /**
+ * 비공개 덧붙임을 연다. **환자만 부른다.**
+ *
+ * 의사에게는 INSERT 정책이 아예 없으므로 의사 계정이 이 함수를 불러도 서버가
+ * 거부한다 — D-6 항목 1은 화면이 아니라 거기서 막힌다. 답변하지 않은 의사를
+ * 적어도 `answers`를 보는 정책이 거짓이 된다(항목 2).
+ */
+export async function insertPrivateThread(
+  questionId: string,
+  answerId: string,
+  patientId: string,
+  doctorId: string,
+): Promise<PrivateThread> {
+  const client = requireSupabase()
+  const { data, error } = await client
+    .from('private_threads')
+    .insert({
+      question_id: questionId,
+      answer_id: answerId,
+      patient_id: patientId,
+      doctor_id: doctorId,
+    })
+    .select(PRIVATE_THREAD_COLUMNS)
+    .single()
+
+  if (error) throw new Error(error.message)
+  return toPrivateThread(data)
+}
+
+/**
+ * 말풍선 하나를 남긴다. 보낸 뒤에는 고치거나 지울 수 없다 — 표에 UPDATE·DELETE
+ * 정책이 없는 것과 화면의 계약이 같다.
+ *
+ * **횟수·길이·표현은 여기서 확인하지 않는다.** 브라우저가 이미 판정했고, 서버가
+ * 강제하는 것은 순서와 방향뿐이다(R-6 · M3).
+ */
+export async function insertPrivateMessage(
+  threadId: string,
+  senderId: string,
+  senderRole: AppRole,
+  body: string,
+): Promise<void> {
+  const client = requireSupabase()
+  const { error } = await client
+    .from('private_messages')
+    .insert({ thread_id: threadId, sender_id: senderId, sender_role: senderRole, body })
+  if (error) throw new Error(error.message)
+}
+
+/**
+ * 걸린 사실을 남긴다. **읽는 함수를 만들지 않는다** — 표에 SELECT 정책이 없고,
+ * 화면이 읽지 않는 것이 요건이다. 뽑는 것은 운영자가 `service_role`로 한다.
+ */
+export async function insertExpressionFilterHits(
+  records: Omit<ExpressionFilterHit, 'id'>[],
+): Promise<void> {
+  if (records.length === 0) return
+
+  const client = requireSupabase()
+  const { error } = await client.from('expression_filter_hits').insert(
+    records.map((record) => ({
+      author_id: record.authorId,
+      surface: record.surface,
+      question_id: record.questionId,
+      thread_id: record.threadId,
+      rule_id: record.ruleId,
+      rule_set_as_of: record.ruleSetAsOf,
+      matched_span: record.matchedSpan,
+    })),
+  )
+  if (error) throw new Error(error.message)
+}
+
+/**
  * 답변이 달리면 환자 화면이 바로 바뀌어야 한다. 무엇이 바뀌었는지까지
  * 따지지 않고 전체를 다시 읽는다. 이 규모에서는 그게 더 단순하고 안전하다.
  */
@@ -268,6 +446,9 @@ export function subscribeToChanges(onChange: () => void): () => void {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'question_notes' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, onChange)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'encounters' }, onChange)
+    // private_threads·private_messages 는 여기 없다. 발행하지 않기로 했고, 발행
+    // 설정과 RLS 가 어긋났을 때 새는 방향이 최악이다. 비공개 회신이 도착한 것은
+    // 화면을 다시 열 때 알고, 알리는 자리는 /news 다(Q-7).
     .subscribe()
 
   return () => {

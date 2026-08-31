@@ -16,7 +16,6 @@ export function MyPageScreen() {
   const answerCount = state.answers.filter((answer) => mineIds.has(answer.questionId)).length
   const precheckComplete = isPrecheckComplete(state.precheck)
   const prep = carePrepProgress(state.precheck, settings.address.savedAt !== null)
-  const paymentLabel = settings.paymentMethodId === 'none' ? '등록된 수단 없음' : '데모 수단 선택됨'
   const resetAll = () => {
     resetDemo()
     resetSettings()
@@ -43,7 +42,7 @@ export function MyPageScreen() {
           <AppIcon name="news" />
           내소식
         </button>
-        <button type="button" onClick={() => navigate('/map')}>
+        <button type="button" onClick={() => navigate('/care')}>
           <AppIcon name="map" />
           내 주변 병원
         </button>
@@ -110,14 +109,7 @@ export function MyPageScreen() {
           </span>
           <span aria-hidden="true">›</span>
         </button>
-        <button type="button" aria-label="결제수단 설정" onClick={() => navigate('/me/payment')}>
-          <span>
-            <strong>결제수단 설정</strong>
-            <small>{paymentLabel}</small>
-          </span>
-          <span aria-hidden="true">›</span>
-        </button>
-        <button type="button" aria-label="예약 내역" onClick={() => navigate('/me/appointments')}>
+        <button type="button" aria-label="예약 내역" onClick={() => navigate('/care')}>
           <span>
             <strong>예약 내역</strong>
             <small>{state.bookings.length > 0 ? `전달한 희망 시간 ${state.bookings.length}건` : '전달한 희망 시간 없음'}</small>

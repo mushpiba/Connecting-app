@@ -891,13 +891,45 @@ li {
   color: var(--ink-500);
 }
 
-.expert-option-bio {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--ink-700);
+/* 의사 화면 */
+
+/*
+ * 하루 답변 상한. 스크롤해도 사라지지 않는다 — 상시 노출이 D-8의 요구다.
+ * 세그먼트 탭과 같은 자리에 붙는다(헤더 아래).
+ */
+.answer-allowance {
+  position: sticky;
+  top: calc(66px + max(0px, env(safe-area-inset-top) - 12px));
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+  background: var(--accent-tint);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
 }
 
-/* 의사 화면 */
+.answer-allowance strong {
+  font-size: 15px;
+}
+
+.answer-allowance span {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+/* 다 썼을 때. 붉게 칠하지 않는다 — 벌이 아니라 완결이다. */
+.answer-allowance.is-done {
+  background: var(--surface-muted);
+}
+
+.field-hint.is-blocked {
+  font-weight: 700;
+  color: var(--ink-700);
+}
 
 .doctor-hero {
   display: flex;
@@ -1952,11 +1984,26 @@ li {
   border-radius: var(--r-sm);
 }
 
-.doctor-profile ul {
-  padding-left: 18px;
-  margin: 6px 0 0;
+.profile-facts {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+
+.profile-facts > div {
+  display: flex;
+  gap: 10px;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.6;
+}
+
+.profile-facts dt {
+  flex: 0 0 72px;
+  color: var(--ink-500);
+}
+
+.profile-facts dd {
+  margin: 0;
   color: var(--ink-700);
 }
 
@@ -3106,6 +3153,14 @@ button {
   background: var(--accent-soft);
 }
 
+/* 비공개 회신(Q-7) — 답변과 구별되되 눈에 더 크게 잡히지 않는다. 회신이라고
+   위로 올리지 않기로 한 것과 같은 이유다. */
+.activity-kind.is-private-reply {
+  color: var(--teal-900);
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+}
+
 .activity-card strong {
   font-size: 14px;
 }
@@ -3858,6 +3913,339 @@ button {
     border-radius: 38px;
     box-shadow: 0 26px 72px rgba(7, 26, 25, 0.22);
   }
+}
+
+/* 진료 탭과 홈 스트립 — I2 (G-1 · G-3 · G-9) */
+
+/*
+ * 진행 상태 스트립.
+ *
+ * 피드 위 한 줄. 진행 중인 건이 없으면 화면이 아예 그리지 않으므로 여기에
+ * "비었을 때" 규칙이 없다.
+ */
+.progress-strip {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal-900);
+  text-align: left;
+  cursor: pointer;
+  background: var(--accent-tint);
+  border: 1px solid var(--accent-soft);
+  border-radius: var(--r-sm);
+}
+
+.progress-strip.is-room-open {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/*
+ * 정렬 기준 공개. C-2 파생 3이라 눈에 띄지 않아도 되지만 숨으면 안 된다.
+ */
+.sort-note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-500);
+}
+
+/* 검증 안 된 출처에 고정으로 붙는 줄. 회색으로 흘려보내지 않는다. */
+.trust-note {
+  padding: 10px 12px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--warning);
+  background: #fdf6ee;
+  border: 1px solid #f0e0cb;
+  border-radius: var(--r-sm);
+}
+
+.care-section {
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.care-section:first-of-type {
+  padding-top: 0;
+  margin-top: 16px;
+  border-top: 0;
+}
+
+.care-source-title {
+  margin: 16px 0 8px;
+  font-size: 14px;
+  color: var(--ink-700);
+}
+
+.care-section .empty-state h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+
+/* 구역별로 따로 실패한다. 한 구역이 죽어도 나머지는 그린다. */
+.section-error {
+  padding: 14px;
+  margin-bottom: 12px;
+  background: #fdf1f2;
+  border: 1px solid #f1d7da;
+  border-radius: var(--r-sm);
+}
+
+.section-error p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--danger);
+}
+
+/* 「불러오는 중」과 「비어 있음」은 다른 말이다. 골격이 그 차이를 보여 준다. */
+.card-skeleton {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.card-skeleton span {
+  display: block;
+  height: 12px;
+  background: var(--surface-muted);
+  border-radius: var(--r-xs);
+}
+
+.card-skeleton span:first-child {
+  width: 70%;
+  height: 16px;
+}
+
+.list-row.is-static {
+  cursor: default;
+}
+
+/* 공개 범위 칩이 카드 폭을 다 먹지 않게 한다. */
+.activity-card .specialty-chip {
+  justify-self: start;
+}
+
+/* ── 비공개 덧붙임 (D-6 · G-5) ─────────────────────────────────────
+   답변 카드 아래에 붙는다. 공개 답변과 눈에 띄게 다른 바탕을 쓴다 — 무엇이
+   모두에게 보이고 무엇이 두 사람에게만 보이는지가 색으로 갈려야 한다. */
+
+.answer-slot {
+  display: grid;
+  gap: 8px;
+}
+
+.private-thread {
+  padding: 14px 16px;
+  display: grid;
+  gap: 10px;
+  border: 1px dashed var(--accent);
+  border-radius: var(--r-md);
+  background: var(--surface-muted);
+}
+
+.private-thread h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.private-thread-lead,
+.private-thread-boundary {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.private-thread-boundary {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--accent-tint);
+  color: var(--teal-900);
+}
+
+.private-thread-limits {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.private-thread-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.private-bubble {
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  max-width: 90%;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.private-bubble.is-patient {
+  justify-self: end;
+  background: var(--accent-tint);
+  border-color: var(--accent-soft);
+}
+
+.private-bubble-who {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.private-bubble-body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+/* 고정 고지는 회신 말풍선 **안쪽**에 있다. 인용해도 따라가고, 밖으로 빼면
+   말풍선만 옮겨졌을 때 고지가 떨어진다. */
+.private-standing-notice {
+  margin: 0;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-500);
+}
+
+.private-bubble-time {
+  font-size: 11px;
+  color: var(--ink-500);
+}
+
+.private-thread-form {
+  display: grid;
+  gap: 6px;
+}
+
+.private-thread-form label {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.private-thread-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  resize: vertical;
+}
+
+.private-thread-closed-note {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink-700);
+}
+
+/* 대화 영역의 마지막 자리. 어느 상태에서도 사라지지 않고, 상한을 다 쓴 뒤에는
+   이것만 남는다 (D-6 항목 6).
+
+   **화면에 고정하지 않는다.** 처음에 sticky 로 두었는데 두 가지가 걸렸다 —
+   스크롤 컨테이너가 .app-root 라 그 스크롤포트 바닥이 화면 밖이어서 애초에
+   붙지 않고, 붙였더라도 한 사연에 대화가 여럿이라 화면에 고정된 버튼은 어느
+   대화의 것인지 말하지 못한다. 상시 노출은 「늘 거기 있다」이지 「화면에
+   박아 둔다」가 아니다. */
+.private-thread-escalate {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+
+/* 걸렸을 때 그 자리에 서는 글. 비활성 버튼이 아니라 이 상자가 이유를 말한다. */
+.filter-block {
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--danger);
+  border-radius: var(--r-sm);
+  background: #fdf3f4;
+}
+
+.filter-block-head {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+.filter-block ul {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.filter-rule-id {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--danger);
+}
+
+/* Q-9 — 진료 신청 알림 아래, 숫자 3개 위. 진료 신청보다 조용해야 한다. 저쪽에서
+   사람이 기다리는 정도가 다르다. */
+.private-waiting-line {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px 16px;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  border: 1px solid var(--accent);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--teal-900);
+  cursor: pointer;
+}
+
+.private-waiting-line strong {
+  font-size: 14px;
+}
+
+.private-waiting-line span {
+  font-size: 12px;
+  color: var(--ink-500);
 }
 
 @media (max-width: 380px) {

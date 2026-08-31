@@ -9,7 +9,7 @@ describe('onboarding flow', () => {
 
   it('첫 방문을 안내한 뒤 원래 열려던 화면으로 돌아간다', async () => {
     const user = userEvent.setup()
-    window.location.hash = '#/stories'
+    window.location.hash = '#/news'
     render(<App />)
 
     expect(screen.getByRole('heading', { name: '의료 고민을 사연으로 시작하세요' })).toBeInTheDocument()
@@ -17,7 +17,7 @@ describe('onboarding flow', () => {
     await user.click(screen.getByRole('button', { name: '건너뛰기' }))
 
     expect(localStorage.getItem('medivu.onboarding.complete.v1')).toBe('true')
-    expect(screen.getByRole('heading', { name: '사연' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '내소식' })).toBeInTheDocument()
   })
 
   it('완료한 기기에서는 홈을 바로 연다', () => {
@@ -26,7 +26,7 @@ describe('onboarding flow', () => {
 
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: '의사 2명이 답변했어요' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '사연', level: 1 })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '의료 고민을 사연으로 시작하세요' })).not.toBeInTheDocument()
   })
 
@@ -40,7 +40,7 @@ describe('onboarding flow', () => {
     await user.click(screen.getByRole('button', { name: 'MediVU 시작하기' }))
 
     expect(Object.keys(localStorage)).toEqual(['medivu.onboarding.complete.v1'])
-    expect(screen.getByRole('heading', { name: '의사 2명이 답변했어요' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '사연', level: 1 })).toBeInTheDocument()
   })
 
   it('MY에서 다시 보고 나면 MY로 돌아온다', async () => {

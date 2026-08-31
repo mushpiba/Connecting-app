@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom'
 import { useCommunity } from '../state/CommunityContext'
-import { AppIcon } from './AppIcon'
 
 export function AppHeader() {
   const { state, switchRole } = useCommunity()
@@ -19,16 +18,6 @@ export function AppHeader() {
           <span className="demo-badge">DEMO</span>
         </button>
         <div className="header-controls">
-          {state.role === 'patient' && (
-            <button
-              type="button"
-              className="header-icon-button"
-              aria-label="내소식"
-              onClick={() => navigate('/news')}
-            >
-              <AppIcon name="news" />
-            </button>
-          )}
           {state.role === 'patient' ? (
             <button
               type="button"

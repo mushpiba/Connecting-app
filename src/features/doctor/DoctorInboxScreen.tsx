@@ -1,6 +1,8 @@
 import { nowIso, todayIso } from '../../data/appClock'
 import { useNavigate } from 'react-router-dom'
+import { answerLimitRuleSet } from '../../data/rules/answerLimitRules'
 import { isLiveMode } from '../../data/supabaseClient'
+import { answerAllowance } from '../../domain/answerLimit'
 import { directRequests } from '../../domain/doctorFeed'
 import { documentLabel } from '../../domain/documents'
 import { symptomDurationDays } from '../../domain/intake'
@@ -21,10 +23,25 @@ export function DoctorInboxScreen() {
   const doctor = findDoctor(state.doctorId) ?? doctors[0]
   const clinic = findClinic(doctor.clinicId)
   const direct = directRequests(doctor, state.questions, state.bookings)
+  /* 로컬 계산이라 네트워크를 기다리지 않는다. 목록보다 먼저 그려진다. */
+  const allowance = answerAllowance(state.answers, doctor.id, todayIso(), answerLimitRuleSet)
 
   return (
     <div className="screen">
       <h1>직접 받은 질문</h1>
+
+      {/*
+        상한은 감추는 제약이 아니라 드러내는 자원이다. 숨기면 답변 품질만 남고
+        「오늘은 써야 한다」는 감각이 사라진다. 언제 다시 채워지는지를 같이 적는다 —
+        모르면 희소성이 아니라 그냥 막힘이다 (D-8).
+      */}
+      <div
+        className={`answer-allowance ${allowance.exhausted ? 'is-done' : ''}`}
+        role="status"
+      >
+        <strong>{allowance.headline}</strong>
+        <span>{allowance.detail}</span>
+      </div>
 
       {!isLiveMode && (
         <>
@@ -70,10 +87,12 @@ export function DoctorInboxScreen() {
         <div className="card-list">
           {direct.questions.map((question) => (
             <article key={question.id} className="question-card">
+              {/* 못 쓰는 것과 못 보는 것은 다르다. 목록은 계속 읽힌다. */}
               <button
                 type="button"
                 className="question-open"
                 aria-label={`${question.title} 답변하기`}
+                disabled={allowance.exhausted}
                 onClick={() => navigate(`/doctor/questions/${question.id}`)}
               >
                 <strong>{question.title}</strong>

@@ -13,29 +13,29 @@ describe('patient app shell', () => {
     const navigation = screen.getByRole('navigation', { name: '주요 화면' })
     expect(within(navigation).getAllByRole('button').map((button) => button.textContent)).toEqual([
       '홈',
-      '사연',
+      '내 소식',
       'Q',
-      '지도',
+      '진료',
       'MY',
     ])
   })
 
-  it('내소식은 헤더 아이콘으로 들어간다', async () => {
+  it('내 소식은 헤더 아이콘이 아니라 탭으로 들어간다', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '내소식' }))
+    await user.click(screen.getByRole('button', { name: '내 소식' }))
 
     expect(screen.getByRole('heading', { name: '내소식' })).toBeInTheDocument()
   })
 
-  it('지도 탭에서 내 주변 병원을 연다', async () => {
+  it('진료 탭에서 진료 화면을 연다', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: '지도' }))
+    await user.click(screen.getByRole('button', { name: '진료' }))
 
-    expect(screen.getByRole('heading', { name: '내 주변 병원' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '진료', level: 1 })).toBeInTheDocument()
   })
 
   it('데스크톱 보기 모드를 앱 미리보기로 전환한다', async () => {

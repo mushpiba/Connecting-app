@@ -246,10 +246,8 @@ export interface Doctor {
   /** 의사가 직접 등록한 관심 키워드. 유료 우선권 아님. */
   keywords: string[]
   notificationsEnabled: boolean
-  bio: string
-  /** 진료 방법. 어떻게 진료하는지 의사가 직접 쓴 한 문단. */
-  consultStyle: string
-  career: string[]
+  /** 면허 종류. 제57조3항 심의 예외 항목이라 프로필에 실을 수 있다. */
+  licenseType: LicenseType
   /** 준비된 프로필을 골라 들어왔으면 그 id. 설정 기본값을 여기서 찾는다. */
   templateId?: string
 }
@@ -477,4 +475,152 @@ export interface ReferralNotice {
   ruleSetName: string
   ruleSetAsOf: string
   evidenceUrl: string
+}
+
+/**
+ * 환자가 손으로 적은 의료기관.
+ *
+ * 앱 내 이력(`bookings` · `encounters`)과 **섞지 않는다.** 검증되지 않은 것이
+ * 검증된 것처럼 보이면 화면이 환자의 말을 대신 만들어 낸 것이 된다.
+ *
+ * 이 기록으로는 비대면 재진 자격이 열리지 않는다 — `eligibility` 판정의 입력에
+ * 넣지 않는다. 다시 찾아가기 위한 메모이지 자격 근거가 아니다.
+ */
+export interface SelfReportedClinic {
+  id: string
+  patientId: string
+  /** 환자가 적은 이름 그대로. 우리가 고치지 않는다. */
+  name: string
+  lastVisitedOn: string
+  trust: 'self-reported'
+  createdAt: string
+}
+
+/**
+ * 면허 종류. 의료법 제57조3항의 심의 예외 항목이다.
+ *
+ * 자유 문자열이 아니라 유니온으로 둔다. 프로필에서 자유 서술을 걷어낸 이유가
+ * 홍보 문구였는데, 여기를 `string`으로 열어 두면 그 문구가 이 칸으로 옮겨 온다.
+ * 「전문의 여부」를 적고 싶으면 진료과목(`specialty`)이 이미 그 자리다 (C-3).
+ */
+export type LicenseType = '의사' | '치과의사' | '한의사'
+
+/**
+ * 의사 하루 공개 답변 상한. D-8은 5회/일이고 초기화는 매일 자정(KST)이다.
+ *
+ * 값이 유권해석과 실측(H-3)으로 움직이므로 판정 코드에 박지 않는다 (원칙 7).
+ * 이 파일만 고치면 화면과 판정이 같이 따라온다.
+ */
+export interface AnswerLimitRuleSet {
+  name: string
+  asOf: string
+  /** 하루에 쓸 수 있는 공개 답변 수. 비공개 덧붙임 회신은 세지 않는다. */
+  dailyLimit: number
+  /** 다시 채워지는 시각(KST, 0~23). 0이면 자정이다. */
+  resetHourKst: number
+}
+
+/**
+ * 비공개 덧붙임 · 대화 하나. D-6이 정한 1:1 후속이다.
+ *
+ * 답변 카드 하나에 대화 하나다. `answerId`가 널을 허용하는 것은 표 쪽이고,
+ * 화면이 여는 대화에는 늘 답변이 있다 — 경계는 컬럼이 아니라 정책에 있다.
+ */
+export interface PrivateThread {
+  id: string
+  questionId: string
+  answerId: string
+  patientId: string
+  doctorId: string
+  createdAt: string
+}
+
+/** 대화 안의 말풍선 하나. 보낸 뒤에는 고치거나 지울 수 없다. */
+export interface PrivateMessage {
+  id: string
+  threadId: string
+  senderId: string
+  /** 말풍선 좌우와 고정 고지가 이 값으로 갈린다. */
+  senderRole: AppRole
+  body: string
+  createdAt: string
+}
+
+/** 표현 필터가 어디에서 걸렸나. 공개 답변과 비공개 회신 둘 다 있다 (C-3). */
+export type FilterSurface = 'public-answer' | 'private-message'
+
+/**
+ * 표현 필터에 걸려 **전송이 막힌 사실**. 양벌규정(제91조) 방어 자료다.
+ *
+ * **본문을 담지 않는다.** 필요한 것은 우리가 걸렀다는 사실이지 환자의 증상
+ * 원문이 아니다. 막으려고 만든 장치가 새 민감정보 보관소가 되면 안 된다.
+ * 그래서 남는 것은 규칙 ID · 규칙셋 기준일 · 걸린 조각 20자까지다.
+ */
+export interface ExpressionFilterHit {
+  id: string
+  authorId: string
+  surface: FilterSurface
+  /** 공개 답변이면 어느 사연에서. 비공개 회신이면 널이다. */
+  questionId: string | null
+  /** 비공개 회신이면 어느 대화에서. 공개 답변이면 널이다. */
+  threadId: string | null
+  ruleId: string
+  /**
+   * 그때 무슨 규칙셋이 판단했나.
+   *
+   * **규칙 파라미터가 아니라 지나간 사실이다.** 규칙 파일이 바뀌어도 이 값은
+   * 바뀌면 안 된다 — 방향이 반대다.
+   */
+  ruleSetAsOf: string
+  /** 걸린 조각. 20자를 넘기지 않는다. */
+  matchedSpan: string
+  createdAt: string
+}
+
+/**
+ * 표현 필터 규칙 하나. PT-1 ~ PT-5.
+ *
+ * **진단명 사전이 아니다.** 병명은 끝이 없어서 사전은 반드시 샌다. 대신 단정
+ * 어미와 지시 어미를 잡는다. 진단명을 말했는지가 아니라 **단정했는지**가
+ * 경계다 — 막는 것은 지시이지 지식이 아니다.
+ */
+export interface PrivateThreadRule {
+  /** `PT-1` ~ `PT-5`. 걸린 기록에 이 값이 남는다. */
+  id: string
+  /** 무엇을 잡나. 로그를 사람이 읽을 때 쓴다. */
+  label: string
+  /** 정규식 원문. 판정은 `i` 플래그로 한다. */
+  source: string
+  /**
+   * 걸렸을 때 화면에 나가는 글. `{}` 자리에 걸린 조각이 들어간다.
+   *
+   * 「부적절한 표현입니다」처럼 뭉뚱그리지 않는다 — 무엇을 고쳐야 하는지 알 수
+   * 없으면 고칠 수 없다.
+   */
+  message: string
+}
+
+/**
+ * 비공개 덧붙임의 경계값. D-6이 비워 둔 항목 3·5의 수치를 §Q-5가 채운 것이다.
+ *
+ * **경계의 위치 자체가 유권해석 대상이라 움직인다**(D-6 §남은 확인). 국민신문고
+ * 회신이 오면 이 규칙셋만 고친다 — 판정 코드와 스키마는 그대로다 (원칙 7).
+ */
+export interface PrivateThreadRuleSet {
+  name: string
+  source: string
+  asOf: string
+  limits: {
+    /** 한 왕복 = 환자 1 + 의사 1. 3이면 말풍선 최대 6개다. */
+    maxRounds: number
+    patientMaxChars: number
+    /**
+     * 의사 쪽이 짧은 것은 **의도한 비대칭**이다. 위법의 주체는 환자가 아니라
+     * 의료인이고 양벌규정이 향하는 곳도 우리다. 고정 고지는 여기 포함하지
+     * 않는다 — 지울 수 없는 글이 글자 수를 먹으면 고지가 벌칙이 된다.
+     */
+    doctorMaxChars: number
+  }
+  /** 적용 대상은 의사 쪽 글뿐이다. 환자 발화는 걸지 않는다. */
+  bannedPatterns: PrivateThreadRule[]
 }

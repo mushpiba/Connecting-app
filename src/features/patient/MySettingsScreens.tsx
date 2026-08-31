@@ -3,10 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { demoRegions } from '../../data/demoClinics'
-import { useCommunity } from '../../state/CommunityContext'
-import { useDirectory } from '../../state/directory'
 import { usePatientSettings } from '../../state/PatientSettingsContext'
-import type { DemoPaymentMethodId } from '../../state/PatientSettingsContext'
 import type { PostVisibility } from '../../domain/types'
 
 function SettingsHeader({ title }: { title: string }) {
@@ -66,52 +63,6 @@ export function AddressSettingsScreen() {
         </p>
         <button type="submit" className="primary-cta">주소 저장</button>
         {saved && <SavedNotice>주소를 저장했습니다.</SavedNotice>}
-      </form>
-    </div>
-  )
-}
-
-const paymentMethods: Array<{ id: DemoPaymentMethodId; label: string }> = [
-  { id: 'none', label: '등록하지 않음' },
-  { id: 'demo-hana', label: '하나카드 •••• 0616' },
-  { id: 'demo-kakao', label: '카카오페이 데모' },
-]
-
-export function PaymentSettingsScreen() {
-  const { settings, updateSettings } = usePatientSettings()
-  const [paymentMethodId, setPaymentMethodId] = useState(settings.paymentMethodId)
-  const [saved, setSaved] = useState(false)
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault()
-    updateSettings({ paymentMethodId }, '결제수단을 저장했습니다.')
-    setSaved(true)
-  }
-
-  return (
-    <div className="screen settings-screen">
-      <SettingsHeader title="결제수단 설정" />
-      <form className="settings-form" onSubmit={submit}>
-        <fieldset className="setting-options">
-          <legend>결제수단 선택</legend>
-          {paymentMethods.map((method) => (
-            <label className="setting-option" key={method.id}>
-              <input
-                type="radio"
-                name="payment-method"
-                value={method.id}
-                checked={paymentMethodId === method.id}
-                onChange={() => setPaymentMethodId(method.id)}
-              />
-              <span>{method.label}</span>
-            </label>
-          ))}
-        </fieldset>
-        <p className="settings-note">
-          표시된 수단은 시연용이며 실제 카드 번호·CVC를 입력하거나 결제하지 않습니다.
-        </p>
-        <button type="submit" className="primary-cta">결제수단 저장</button>
-        {saved && <SavedNotice>결제수단을 저장했습니다.</SavedNotice>}
       </form>
     </div>
   )
@@ -203,51 +154,6 @@ export function PrivacySettingsScreen() {
         <button type="submit" className="primary-cta">개인정보 설정 저장</button>
         {saved && <SavedNotice>개인정보 설정을 저장했습니다.</SavedNotice>}
       </form>
-    </div>
-  )
-}
-
-export function AppointmentsScreen() {
-  const { state } = useCommunity()
-  const { findDoctor, findClinic } = useDirectory()
-  const navigate = useNavigate()
-
-  return (
-    <div className="screen settings-screen">
-      <SettingsHeader title="예약 내역" />
-      {state.bookings.length === 0 ? (
-        <div className="empty-state">
-          <h2>전달한 희망 시간이 없어요</h2>
-          <p>사연에 답변한 의사 프로필에서 대면 진료 희망 시간을 고르면 여기에 쌓입니다.</p>
-          <div className="empty-state-actions">
-            <button type="button" className="primary-cta" onClick={() => navigate('/map')}>
-              내 주변 병원 보기
-            </button>
-            <button type="button" className="secondary-button" onClick={() => navigate('/stories')}>
-              사연 둘러보기
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="appointment-list">
-          {[...state.bookings].reverse().map((booking) => {
-            const doctor = findDoctor(booking.doctorId)
-            const clinic = findClinic(booking.clinicId)
-            return (
-              <article className="appointment-card" key={booking.id}>
-                <span className="status-chip">예약 확정 전</span>
-                <h2>{clinic?.name ?? '가상 병원'}</h2>
-                <p>{booking.date} · {booking.time}</p>
-                <small>{doctor?.name ?? '가상 의사'}에게 희망 시간을 전달했습니다.</small>
-                <button type="button" className="secondary-button" onClick={() => navigate(`/doctors/${booking.doctorId}`)}>
-                  의사 프로필 보기
-                </button>
-              </article>
-            )
-          })}
-        </div>
-      )}
-      <p className="settings-note">병원이 확인하기 전까지 예약은 확정되지 않습니다.</p>
     </div>
   )
 }

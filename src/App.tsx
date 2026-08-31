@@ -5,18 +5,15 @@ import { BottomNav } from './components/BottomNav'
 import { PreviewToolbar } from './components/PreviewToolbar'
 import type { PreviewMode } from './components/PreviewToolbar'
 import { AskScreen } from './features/patient/AskScreen'
-import { BoardScreen } from './features/patient/BoardScreen'
 import { BookingScreen } from './features/patient/BookingScreen'
+import { CareScreen } from './features/patient/CareScreen'
 import { DoctorProfileScreen } from './features/patient/DoctorProfileScreen'
 import { HomeScreen } from './features/patient/HomeScreen'
-import { MapScreen } from './features/patient/MapScreen'
 import { ExpertGateScreen } from './features/patient/ExpertGateScreen'
 import { MyPageScreen } from './features/patient/MyPageScreen'
 import {
   AddressSettingsScreen,
-  AppointmentsScreen,
   NotificationSettingsScreen,
-  PaymentSettingsScreen,
   PrivacySettingsScreen,
 } from './features/patient/MySettingsScreens'
 import { NewsScreen } from './features/patient/NewsScreen'
@@ -125,10 +122,11 @@ function AppRoutes() {
               <Routes>
             <Route path="/home" element={<HomeScreen />} />
             <Route path="/ask" element={<AskScreen />} />
-            <Route path="/stories" element={<BoardScreen />} />
-            <Route path="/board" element={<Navigate replace to="/stories" />} />
             <Route path="/news" element={<NewsScreen />} />
-            <Route path="/map" element={<MapScreen />} />
+            <Route path="/care" element={<CareScreen />} />
+            <Route path="/stories" element={<Navigate replace to="/home" />} />
+            <Route path="/board" element={<Navigate replace to="/home" />} />
+            <Route path="/map" element={<Navigate replace to="/care" />} />
             <Route path="/expert" element={<ExpertGateScreen />} />
             <Route path="/questions/:questionId" element={<QuestionDetailScreen />} />
             <Route path="/doctors/:doctorId" element={<DoctorProfileScreen />} />
@@ -137,10 +135,9 @@ function AppRoutes() {
             <Route path="/me" element={<MyPageScreen />} />
             <Route path="/me/precheck" element={<PrecheckScreen />} />
             <Route path="/me/address" element={<AddressSettingsScreen />} />
-            <Route path="/me/payment" element={<PaymentSettingsScreen />} />
             <Route path="/me/notifications" element={<NotificationSettingsScreen />} />
             <Route path="/me/privacy" element={<PrivacySettingsScreen />} />
-            <Route path="/me/appointments" element={<AppointmentsScreen />} />
+            <Route path="/me/appointments" element={<Navigate replace to="/care" />} />
             <Route path="/doctor/home" element={<DoctorHomeScreen />} />
             <Route path="/doctor/inbox" element={<DoctorInboxScreen />} />
             <Route path="/doctor/stories" element={<DoctorStoriesScreen />} />

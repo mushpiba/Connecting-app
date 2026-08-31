@@ -2,9 +2,13 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App } from '../../App'
 
-describe('board empathy flow', () => {
+/*
+ * G-1이 `BoardScreen`을 `/home`의 사연 피드로 옮겼다. 아래 단언은 그때 그대로
+ * 살아남은 것들이다 — 옮긴 코드가 같은 일을 하는지 보는 안전망이다.
+ */
+describe('home story feed', () => {
   beforeEach(() => {
-    window.location.hash = '#/board'
+    window.location.hash = '#/home'
   })
 
   it('전체 탭은 최신순으로 늘어놓는다', () => {
@@ -38,25 +42,42 @@ describe('board empathy flow', () => {
     expect(screen.queryByText('두 달째 잠이 안 옵니다')).not.toBeInTheDocument()
   })
 
+  // 자기 사연에는 공감이 안 뜨므로 남의 사연으로 겨눈다.
   it('공감을 누르면 수가 오르고 다시 누르면 내려간다', async () => {
     const user = userEvent.setup()
     render(<App />)
 
     const button = screen.getByRole('button', {
-      name: '2주째 콧물과 코막힘이 안 나아요 공감',
+      name: '세 과를 돌았는데 두드러기 원인을 못 찾았어요 공감',
     })
-    expect(button).toHaveTextContent('공감 3')
+    expect(button).toHaveTextContent('공감 9')
 
     await user.click(button)
-    expect(button).toHaveTextContent('공감 4')
+    expect(button).toHaveTextContent('공감 10')
     expect(button).toHaveAttribute('aria-pressed', 'true')
 
     await user.click(button)
-    expect(button).toHaveTextContent('공감 3')
+    expect(button).toHaveTextContent('공감 9')
     expect(button).toHaveAttribute('aria-pressed', 'false')
   })
 
-  it('비공개 글은 게시판에 올라오지 않는다', () => {
+  it('고른 진료과에 사연이 없으면 전체로 돌아갈 길을 준다', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    await user.click(screen.getByRole('button', { name: /전체 진료과/ }))
+    await user.click(screen.getByRole('button', { name: '비뇨의학과' }))
+
+    expect(
+      screen.getByRole('heading', { name: '이 진료과에는 아직 사연이 없어요' }),
+    ).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: '전체 보기' }))
+
+    expect(screen.getAllByTestId('question-card').length).toBeGreaterThan(0)
+  })
+
+  it('비공개 글은 홈에 올라오지 않는다', () => {
     render(<App />)
 
     expect(screen.queryByText('식후 속쓰림이 반복됩니다')).not.toBeInTheDocument()

@@ -13,9 +13,7 @@ function doctor(overrides: Partial<Doctor> = {}): Doctor {
     licenseVerified: true,
     keywords: [],
     notificationsEnabled: true,
-    bio: '',
-    consultStyle: '',
-    career: [],
+    licenseType: '의사',
     ...overrides,
   }
 }

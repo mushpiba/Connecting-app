@@ -1,10 +1,10 @@
 import { nowIso, todayIso } from '../../data/appClock'
-import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ClinicMap } from '../../components/ClinicMap'
 import { ClinicSchedule } from '../../components/ClinicSchedule'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { eligibilityRuleSet } from '../../data/rules/eligibilityRules'
+import { specialtyLabels } from '../../data/specialtyLabels'
 import { buildReferralNotice } from '../../domain/notice'
 import { evaluateTelemedicineGate } from '../../domain/telemedicine'
 import { useCommunity } from '../../state/CommunityContext'
@@ -15,7 +15,6 @@ export function DoctorProfileScreen() {
   const { state, requestEncounter } = useCommunity()
   const navigate = useNavigate()
   const { findDoctor, findClinic } = useDirectory()
-  const [roomId, setRoomId] = useState<string | null>(null)
 
   const doctor = findDoctor(doctorId ?? '')
   const clinic = doctor ? findClinic(doctor.clinicId) : undefined
@@ -42,14 +41,17 @@ export function DoctorProfileScreen() {
     eligibilityRuleSet,
     todayIso(),
   )
-  /* 서버에 남은 신청이 있으면 그것을 쓴다. 없으면 이번 화면에서 낸 신청을 쓴다. */
+  /*
+   * 살아 있는 신청만 버튼을 잠근다. 거절된 신청까지 세면 버튼이 「신청함」으로
+   * 굳어 다시 낼 수 없고, 환자는 막힌 이유도 못 본다. 거절은 끝난 이야기다.
+   */
   const savedEncounter = state.encounters.find(
-    (item) => item.doctorId === doctor.id && item.questionId === question.id,
+    (item) =>
+      item.doctorId === doctor.id &&
+      item.questionId === question.id &&
+      item.status !== 'declined',
   )
-  const requested =
-    savedEncounter !== undefined ||
-    state.requestedEncounterIds.includes(`${question.id}:${doctor.id}`)
-  const openableRoomId = savedEncounter?.id ?? roomId
+  const requested = savedEncounter !== undefined
   const notice = gate.result && !gate.enabled ? buildReferralNotice(gate.result, clinic) : null
 
   return (
@@ -70,24 +72,30 @@ export function DoctorProfileScreen() {
           </div>
         </header>
 
-        <section aria-labelledby="doctor-bio-heading">
-          <h2 id="doctor-bio-heading">자기소개</h2>
-          <p>{doctor.bio}</p>
-        </section>
-
-        <section aria-labelledby="doctor-style-heading">
-          <h2 id="doctor-style-heading">진료 방법</h2>
-          <p>{doctor.consultStyle}</p>
-        </section>
-
-        <section aria-labelledby="doctor-career-heading">
-          <h2 id="doctor-career-heading">약력</h2>
-          <ul>
-            {doctor.career.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
-        </section>
+        {/*
+          필드를 늘리지 않고 줄인다. 제57조3항의 심의 예외 항목으로만 두면 이
+          화면이 의료광고로 평가되더라도 심의 예외로 편입된다. 자기소개·진료
+          방법·약력은 예외 목록 밖이라 지웠다 (C-3). 빈 자리로 두지 않고 섹션째
+          없앤다 — 빈 칸은 「아직 안 썼다」로 읽혀 채우라는 압력이 된다.
+        */}
+        <dl className="profile-facts">
+          <div>
+            <dt>진료과목</dt>
+            <dd>{specialtyLabels[doctor.specialty]}</dd>
+          </div>
+          <div>
+            <dt>면허종류</dt>
+            <dd>{doctor.licenseType}</dd>
+          </div>
+          <div>
+            <dt>소재지</dt>
+            <dd>{clinic.address}</dd>
+          </div>
+        </dl>
+        <p className="clinical-caveat">
+          의료기관 명칭·소재지·연락처·진료과목·의료인 성명과 면허종류만 표시합니다. 후기와 평점은
+          두지 않습니다.
+        </p>
       </article>
 
       <section className="clinic-panel" aria-labelledby="clinic-heading">
@@ -104,11 +112,7 @@ export function DoctorProfileScreen() {
           className="primary-cta"
           disabled={!gate.enabled || requested}
           aria-describedby={gate.enabled ? undefined : 'gate-reason'}
-          onClick={() => {
-            void requestEncounter(question.id, doctor.id, clinic.id).then((encounter) => {
-              if (encounter) setRoomId(encounter.id)
-            })
-          }}
+          onClick={() => void requestEncounter(question.id, doctor.id, clinic.id)}
         >
           {requested ? '비대면 진료 신청함' : '비대면 진료 신청'}
         </button>
@@ -122,12 +126,12 @@ export function DoctorProfileScreen() {
           신청하고 나면 갈 곳이 있어야 한다. 신청만 하고 화면이 그대로면 다음에
           무엇을 해야 하는지 알 수 없다. 의사가 먼저 열어야 붙으므로 그렇게 적는다.
         */}
-        {requested && openableRoomId && (
+        {savedEncounter && (
           <>
             <button
               type="button"
               className="secondary-button"
-              onClick={() => navigate(`/visit/${openableRoomId}`)}
+              onClick={() => navigate(`/visit/${savedEncounter.id}`)}
             >
               진료방 들어가기 <span aria-hidden="true">›</span>
             </button>

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { DoctorPortrait } from '../../components/DoctorPortrait'
 import { clinicScheduleOn, weekdayLabels } from '../../domain/clinicHours'
 import { directRequests, keywordFeed, notificationDigest } from '../../domain/doctorFeed'
+import { privateThreadRuleSet } from '../../data/rules/privateThreadRules'
+import { awaitingDoctorReply } from '../../domain/privateThread'
 import { useCommunity } from '../../state/CommunityContext'
 import { useDirectory } from '../../state/directory'
 import { useDoctorSettings } from '../../state/DoctorSettingsContext'
@@ -30,6 +32,20 @@ export function DoctorHomeScreen() {
   const schedule = clinic ? clinicScheduleOn(clinic, todayIso()) : null
   const pendingEncounters = state.encounters.filter(
     (item) => item.doctorId === doctor.id && item.status === 'requested',
+  )
+  /*
+    Q-9 — 「환자가 이미 연 대화 중 내 회신 차례인 것」만 센다. 상한을 다 쓴
+    대화는 세지 않는다.
+
+    **이 줄을 「말 걸 수 있는 환자 목록」으로 자라게 하지 않는다.** 그 순간 의사
+    쪽 영업 경로가 되고 D-6 항목 1이 구조에서 문구로 내려앉는다. 대화를
+    시작하는 버튼은 여기에도, 의사 화면 어디에도 없다.
+  */
+  const awaiting = awaitingDoctorReply(
+    state.privateThreads,
+    state.privateMessages,
+    doctor.id,
+    privateThreadRuleSet,
   )
 
   return (
@@ -72,6 +88,25 @@ export function DoctorHomeScreen() {
         >
           <strong>비대면 진료 신청 {pendingEncounters.length}건</strong>
           <span>환자가 진료방을 기다리고 있습니다. 눌러서 여세요.</span>
+        </button>
+      )}
+
+      {/*
+        진료 신청 알림 아래, 숫자 3개 위. /doctor/inbox 에 두지 않는 이유는
+        상한이다 — 그 화면 상단은 잔여 답변 5회가 차지하는데 회신은 그 5회를
+        소모하지 않는다. 소모하는 숫자와 소모하지 않는 숫자를 나란히 두면
+        의사는 회신을 아끼게 되고, 그건 D-8이 막으려던 결과다.
+      */}
+      {awaiting.length > 0 && (
+        <button
+          type="button"
+          className="private-waiting-line"
+          onClick={() => navigate(`/doctor/questions/${awaiting[0].thread.questionId}`)}
+        >
+          <strong>비공개 회신 대기 {awaiting.length}건</strong>
+          <span>
+            환자가 답변에 이어 물었습니다. 오래 기다린 것부터 보여 줍니다.
+          </span>
         </button>
       )}
 

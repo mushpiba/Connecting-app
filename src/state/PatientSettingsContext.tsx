@@ -9,8 +9,6 @@ import { clearLocal, readLocal, writeLocal } from './localStore'
  */
 const SETTINGS_KEY = 'medivu.patientSettings'
 
-export type DemoPaymentMethodId = 'none' | 'demo-hana' | 'demo-kakao'
-
 export interface PatientSettings {
   address: {
     region: string
@@ -21,7 +19,6 @@ export interface PatientSettings {
      */
     savedAt: string | null
   }
-  paymentMethodId: DemoPaymentMethodId
   notifications: {
     answers: boolean
     bookings: boolean
@@ -44,7 +41,6 @@ export const initialPatientSettings: PatientSettings = {
     detail: '',
     savedAt: null,
   },
-  paymentMethodId: 'none',
   notifications: {
     answers: true,
     bookings: true,

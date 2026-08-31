@@ -53,7 +53,6 @@ export function ExpertGateScreen() {
                   <span className="specialty-chip">{specialtyLabels[doctor.specialty]}</span>
                 </strong>
                 <span className="expert-option-clinic">{clinic?.name}</span>
-                <span className="expert-option-bio">{doctor.bio}</span>
               </span>
               <span className="row-chevron" aria-hidden="true">
                 ›

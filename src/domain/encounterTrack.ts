@@ -89,3 +89,52 @@ export function activeEncounter(
   // 진료방이 열린 것이 있으면 그것부터. 사람이 기다리는 쪽이 급하다.
   return mine.find((item) => item.status === 'in-progress') ?? mine[0]
 }
+
+/** 의사 화면에 세울 동작 하나. `to`가 곧 바뀔 상태다. */
+export interface EncounterAction {
+  id: string
+  label: string
+  to: EncounterRequest['status']
+  /** 되돌릴 수 없다. 화면이 확인을 한 번 받는다. */
+  irreversible: boolean
+}
+
+/**
+ * 지금 상태에서 의사가 할 수 있는 것.
+ *
+ * 화면이 상태를 직접 고르면 전이도에 없는 상태가 생긴다. 갈 수 있는 곳을 여기
+ * 한 자리에서만 정하고 화면은 그리기만 한다 — `20-user-flows.md`의 상태 전이도가
+ * 정본이고, 거기 없는 화살표는 여기에도 없다.
+ *
+ * `completed`와 `declined`에서는 빈 목록이다. 끝난 신청은 의사 목록에서 빠지므로
+ * 되돌아갈 자리 자체가 없다.
+ */
+export function doctorActions(encounter: EncounterRequest): EncounterAction[] {
+  const open: EncounterAction = {
+    id: 'open',
+    label: '화상 진료방 열기',
+    to: 'in-progress',
+    irreversible: false,
+  }
+  const decline: EncounterAction = {
+    id: 'decline',
+    label: '이번엔 어렵습니다',
+    to: 'declined',
+    irreversible: true,
+  }
+
+  switch (encounter.status) {
+    case 'requested':
+      return [
+        { id: 'accept', label: '확인', to: 'accepted', irreversible: false },
+        open,
+        decline,
+      ]
+    case 'accepted':
+      return [open, decline]
+    case 'in-progress':
+      return [{ id: 'complete', label: '진료 마침', to: 'completed', irreversible: false }]
+    default:
+      return []
+  }
+}

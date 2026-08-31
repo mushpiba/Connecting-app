@@ -112,7 +112,12 @@ export function DoctorMyScreen() {
   )
 }
 
-/** 병원 위치와 진료 시간은 의료기관에서 오고, 소개 글은 의사가 쓴다. */
+/**
+ * 병원 위치와 진료 시간은 의료기관에서 온다.
+ *
+ * 필드를 늘릴 수 없는 화면이라는 것을 화면 자체가 말해야 한다. 안 적으면 편집을
+ * 열 때 자유 서술 칸이 생기고 거기로 홍보 문구가 들어온다 (C-3).
+ */
 export function DoctorProfileSettingsScreen() {
   const { doctor, clinic } = useCurrentDoctor()
 
@@ -130,26 +135,24 @@ export function DoctorProfileSettingsScreen() {
           </div>
         </header>
 
-        <section aria-labelledby="setting-bio">
-          <h3 id="setting-bio">자기소개</h3>
-          <p>{doctor.bio || '아직 적지 않았습니다.'}</p>
-        </section>
-
-        <section aria-labelledby="setting-style">
-          <h3 id="setting-style">진료 방법</h3>
-          <p>{doctor.consultStyle || '아직 적지 않았습니다.'}</p>
-        </section>
-
-        <section aria-labelledby="setting-career">
-          <h3 id="setting-career">약력</h3>
-          <ul>
-            {doctor.career.length > 0 ? (
-              doctor.career.map((line) => <li key={line}>{line}</li>)
-            ) : (
-              <li>아직 적지 않았습니다.</li>
-            )}
-          </ul>
-        </section>
+        <dl className="profile-facts">
+          <div>
+            <dt>면허종류</dt>
+            <dd>{doctor.licenseType}</dd>
+          </div>
+          {clinic && (
+            <div>
+              <dt>소재지</dt>
+              <dd>{clinic.address}</dd>
+            </div>
+          )}
+          {clinic && (
+            <div>
+              <dt>전화번호</dt>
+              <dd>{clinic.phone}</dd>
+            </div>
+          )}
+        </dl>
       </section>
 
       {clinic && (
@@ -161,7 +164,8 @@ export function DoctorProfileSettingsScreen() {
       )}
 
       <p className="clinical-caveat">
-        소개 글과 약력은 시연용 고정값입니다. 병원 위치와 진료 시간은 의료기관 정보에서 옵니다.
+        프로필에는 의료기관 명칭·소재지·연락처·진료과목·성명·면허종류만 둡니다. 의료법 제57조3항의
+        심의 예외 항목이며, 여기를 넘으면 프로필 전체가 사전심의 대상이 됩니다.
       </p>
     </div>
   )

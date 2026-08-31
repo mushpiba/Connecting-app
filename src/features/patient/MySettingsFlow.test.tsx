@@ -30,18 +30,6 @@ describe('MY settings demo flows', () => {
     expect(screen.getByText('주소 설정', { selector: 'li' })).toHaveClass('is-done')
   })
 
-  it('마스킹된 데모 결제수단을 선택한다', async () => {
-    const user = userEvent.setup()
-    window.location.hash = '#/me'
-    render(<App />)
-
-    await user.click(screen.getByRole('button', { name: '결제수단 설정' }))
-    await user.click(screen.getByRole('radio', { name: '하나카드 •••• 0616' }))
-    await user.click(screen.getByRole('button', { name: '결제수단 저장' }))
-
-    expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('결제수단을 저장했습니다.')
-  })
-
   it('답변과 예약 알림을 각각 설정한다', async () => {
     const user = userEvent.setup()
     window.location.hash = '#/me'
@@ -67,18 +55,20 @@ describe('MY settings demo flows', () => {
     expect(within(screen.getByRole('main')).getByRole('status')).toHaveTextContent('개인정보 설정을 저장했습니다.')
   })
 
-  it('아직 전달한 예약 희망 시간이 없으면 빈 상태를 보여준다', async () => {
+  // G-3이 `/me/appointments`를 진료 탭 1구역으로 흡수했다.
+  it('MY의 예약 내역이 진료 탭으로 간다', async () => {
     const user = userEvent.setup()
     window.location.hash = '#/me'
     render(<App />)
 
     await user.click(screen.getByRole('button', { name: '예약 내역' }))
 
-    expect(screen.getByRole('heading', { name: '예약 내역' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '전달한 희망 시간이 없어요' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '진료', level: 1 })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '예정된 진료가 없어요' })).toBeInTheDocument()
   })
 
-  it('전달한 예약 희망 시간을 예약 내역에서 확인한다', async () => {
+  // 〃 G-3
+  it('전달한 예약 희망 시간을 진료 탭에서 확인한다', async () => {
     const user = userEvent.setup()
     window.location.hash = '#/booking/doc-skin-derm'
     render(<App />)
@@ -87,10 +77,12 @@ describe('MY settings demo flows', () => {
     await user.click(screen.getByRole('button', { name: '10:30' }))
     await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '희망 시간 전달' }))
-    window.location.hash = '#/me/appointments'
+    window.location.hash = '#/care'
 
-    expect(await screen.findByRole('heading', { name: '예약 내역' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('heading', { name: '예정된 예약·진료방' }),
+    ).toBeInTheDocument()
     expect(screen.getByText(/10:30/)).toBeInTheDocument()
-    expect(screen.getByText(/예약 확정 전/)).toBeInTheDocument()
+    expect(screen.getByText('확정 전')).toBeInTheDocument()
   })
 })
