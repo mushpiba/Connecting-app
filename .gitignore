@@ -4,3 +4,6 @@ dev-dist/
 coverage/
 .vite/
 *.local
+
+# 발표자료. 산출물이 아니다.
+docs/presentation.html
