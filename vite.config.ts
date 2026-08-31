@@ -14,8 +14,12 @@ export default defineConfig({
         name: 'MediVU 증상 질문과 비대면 진료 데모',
         short_name: 'MediVU',
         description: '증상 질문을 진료과로 분류하고 의사 답변에서 진료로 잇는 클릭형 데모',
-        theme_color: '#0b2944',
-        background_color: '#edf2f6',
+        // 둘 다 정본은 코드 쪽이다. theme_color는 index.html의 meta theme-color,
+        // background_color는 styles.css의 body 배경과 같아야 스플래시에서 앱으로
+        // 넘어갈 때 색이 튀지 않는다. f930266이 팔레트를 청록 하나로 좁히면서
+        // 여기만 네이비로 남아 있었다.
+        theme_color: '#0d2b29',
+        background_color: '#eef1f1',
         display: 'standalone',
         orientation: 'any',
         start_url: './#/home',
