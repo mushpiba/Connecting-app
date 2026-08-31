@@ -180,21 +180,24 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
   [*] --> requested: 환자가 신청
-  requested --> accepted: 의사가 확인 (미구현)
+  requested --> accepted: 의사가 확인
   requested --> in_progress: 의사가 진료방 열기
-  accepted --> in_progress: 의사가 진료방 열기 (미구현)
-  in_progress --> completed: 진료 마침 (미구현)
-  requested --> declined: 의사가 거절 (미구현)
+  accepted --> in_progress: 의사가 진료방 열기
+  in_progress --> completed: 진료 마침
+  requested --> declined: 의사가 거절
+  accepted --> declined: 의사가 거절
 ```
+
+**갈 수 있는 곳은 `encounterTrack.ts`의 `doctorActions`가 정한다.** 화면이 상태를 직접 고르면 이 그림에 없는 상태가 생긴다. 그림을 고칠 때 그 함수도 같이 고친다.
 
 `encounterTrack.ts`가 이 상태를 환자용 4단계 추적으로 바꾼다: **신청함 → 의사 확인 → 진료방 열림 → 진료 마침.** 신청 버튼이 회색으로 변하는 것이 전부였을 때, 신청한 사람은 자기 요청이 살아 있는지 사라졌는지 알 수 없었다. 아픈 상태에서 그 모름은 그냥 불안이다.
 
 `roomOpen`은 `status === 'in-progress'`일 때만 참이다. **의사가 열어야 들어간다.**
 
-> ⚠️ **F-6 · 5개 상태 중 실제로 일어나는 전이는 하나뿐이다.**
-> `setEncounterStatus`를 부르는 곳은 `DoctorVisitsScreen.tsx:98` 한 곳이고 항상 `'in-progress'`다. `accepted` · `completed` · `declined`는 **어디서도 설정되지 않는다.**
-> 결과: 환자 추적 화면의 "의사 확인" 단계는 건너뛰어지고, 진료가 끝나도 신청이 영원히 `in-progress`로 남아 `activeEncounter`가 계속 홈에 세운다. 거절 문구는 작성돼 있으나 도달할 수 없다.
-> 필요한 것: 의사 화면에 **확인 / 거절 / 진료 마침** 세 동작. 60-roadmap의 P0 후보.
+> ✅ **F-6 (= G-10) 닫힘.** `/doctor/visits`에 **확인 · 진료 마침 · 이번엔 어렵습니다**가 붙어 다섯 전이가 전부 일어난다. 진료를 마치면 신청이 의사 목록과 환자 홈에서 함께 내려간다.
+> 거절은 되돌릴 수 없으므로 화면이 한 번 되묻는다. 진료방으로는 **상태가 실제로 바뀐 뒤에만** 넘어간다 — 실패했는데 넘어가면 의사만 방에 있고 환자 화면에는 열렸다는 표시가 없다.
+>
+> **거절은 환자 쪽에 남는다.** 처음 만들었을 때는 `activeEncounter`도 `upcomingCare`도 `declined`를 빼서 신청이 조용히 사라졌다 — 환자는 거절됐다는 사실조차 못 봤고, 의사 프로필 버튼은 「비대면 진료 신청함」으로 굳어 재신청도 막혔다. P-1이 「그 모름은 그냥 불안이다」라고 적어 둔 상태 그대로였다. 지금은 `/care` 1구역 **맨 아래**에 거절 카드로 남고(진행 중인 것을 가리지 않는다), 같은 의사에게 다시 신청할 수 있다. 홈 스트립은 그대로 비운다 — 홈이 세우는 것은 지금 할 일 하나뿐이다.
 
 ## 권한이 실제로 갈리는 지점
 

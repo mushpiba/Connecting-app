@@ -126,7 +126,7 @@ D-1이 Q&A를 축으로 정했으므로 **`받은 질문`이 의사 앱의 중�
 │  └─ /visit/:roomId               화상 진료방              유지
 │
 └─ /me                             MY                     유지
-   └─ /me/address /payment /notifications /privacy
+   └─ /me/address /notifications /privacy
 ```
 
 **리다이렉트로 남기는 것:** `/map` → `/care` · `/stories` → `/home` · `/me/appointments` → `/care`.
