@@ -208,7 +208,7 @@ export type StatusTone = 'info' | 'error'
  */
 function failureNotice(what: string, error: unknown): string {
   if (error instanceof Error) console.error(`[MediVU] ${what} 실패`, error)
-  return `${what} 실패했습니다. 잠시 뒤 다시 시도해 주세요. 적은 내용은 그대로 있습니다.`
+  return `${what} 못했습니다. 잠시 뒤 다시 시도해 주세요. 적은 내용은 그대로 있습니다.`
 }
 
 const CommunityContext = createContext<CommunityContextValue | null>(null)
